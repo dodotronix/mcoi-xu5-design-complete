@@ -4,3 +4,6 @@
 [submodule "module/mcoi_hdl_library"]
 	path = module/mcoi_hdl_library
 	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_hdl_library.git
+[submodule "module/mcoi_vfc_backend_fw"]
+	path = module/mcoi_vfc_backend_fw
+	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_vfc_backend_fw.git
