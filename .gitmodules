@@ -7,3 +7,6 @@
 [submodule "module/mcoi_vfc_backend_fw"]
 	path = module/mcoi_vfc_backend_fw
 	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_vfc_backend_fw.git
+[submodule "module/mcoi_gefe_frontend"]
+	path = module/mcoi_gefe_frontend
+	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_gefe_frontend.git
