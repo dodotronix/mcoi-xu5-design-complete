@@ -1,3 +1,6 @@
 [submodule "module/BI_HDL_Cores"]
 	path = module/BI_HDL_Cores
 	url = ssh://git@gitlab.cern.ch:7999/bi/BI_HDL_Cores.git
+[submodule "module/mcoi_hdl_library"]
+	path = module/mcoi_hdl_library
+	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_hdl_library.git
