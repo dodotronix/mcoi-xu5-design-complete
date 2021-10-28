@@ -36,10 +36,10 @@ init:
 	@git submodule update --init --recursive
 
 openproject: __check_software_availability
-	vivado -source vivadoprj.tcl
+	@vivado -source hdl/vivadoprj.tcl &> /dev/null
 
 #TODO vivadosimul:
 
-#clean:
-	#rm - 
+clean:
+	rm -rf /hdl/Synthesis 
 
