@@ -1,5 +1,8 @@
 set script_path [file dirname [info script]]
-set modules_path $script_path/../modules
+set modules_path $script_path/modules
+
+#project setup
+
 
 # mcoi xu5 part
 add_files -fileset sources_1 [glob $script_path/src/mcoi_base.sv] 
