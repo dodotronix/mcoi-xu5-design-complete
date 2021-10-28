@@ -1,12 +1,23 @@
 set script_path [file dirname [info script]]
-set modules_path $script_path/modules
+set modules_path $script_path/../modules
 
 #project setup
+set proj_name "mcoi-xu5-design-complete"
 
+# Create project
+create_project  ${script_path}/Synthesis/${proj_name} -part xczu4ev-sfvc784-1-i
+
+# Set the directory path for the new project
+set proj_dir [get_property directory [current_project]]
+
+set obj [current_project]
+set_property -name "default_lib" -value "xil_defaultlib" -objects $obj
+set_property -name "enable_vhdl_2008" -value "1" -objects $obj
+set_property -name "part" -value "xczu4ev-sfvc784-1-i" -objects $obj
+set_property -name "simulator_language" -value "Mixed" -objects $obj
 
 # mcoi xu5 part
-add_files -fileset sources_1 [glob $script_path/src/mcoi_base.sv] 
-add_files -fileset sources_1 [glob $script_path/src/motor_pingroup.sv] 
+add_files -fileset sources_1 [glob $script_path/src/*.sv] 
 
 ## general blocks
 set bi_hdl_cores $modules_path/BI_HDL_Cores/cores_for_synthesis/
