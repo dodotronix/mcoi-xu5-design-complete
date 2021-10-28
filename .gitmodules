@@ -10,3 +10,6 @@
 [submodule "module/mcoi_gefe_frontend"]
 	path = modules/mcoi_gefe_frontend
 	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_gefe_frontend.git
+[submodule "modules/zynq_usplus_gbt_fpga"]
+	path = modules/zynq_usplus_gbt_fpga
+	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/zynq_usplus_gbt_fpga.git
