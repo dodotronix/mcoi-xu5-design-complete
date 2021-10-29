@@ -1,15 +1,15 @@
 [submodule "module/BI_HDL_Cores"]
-	path = modules/BI_HDL_Cores
+	path = libs/BI_HDL_Cores
 	url = ssh://git@gitlab.cern.ch:7999/bi/BI_HDL_Cores.git
 [submodule "module/mcoi_hdl_library"]
-	path = modules/mcoi_hdl_library
+	path = libs/mcoi_hdl_library
 	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_hdl_library.git
 [submodule "module/mcoi_vfc_backend_fw"]
-	path = modules/mcoi_vfc_backend_fw
+	path = libs/mcoi_vfc_backend_fw
 	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_vfc_backend_fw.git
 [submodule "module/mcoi_gefe_frontend"]
-	path = modules/mcoi_gefe_frontend
+	path = libs/mcoi_gefe_frontend
 	url = ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_gefe_frontend.git
 [submodule "modules/zynq_usplus_gbt_fpga"]
-	path = modules/zynq_usplus_gbt_fpga
+	path = libs/zynq_usplus_gbt_fpga
 	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/zynq_usplus_gbt_fpga.git
