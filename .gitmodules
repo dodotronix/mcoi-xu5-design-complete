@@ -13,3 +13,6 @@
 [submodule "modules/zynq_usplus_gbt_fpga"]
 	path = libs/zynq_usplus_gbt_fpga
 	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/zynq_usplus_gbt_fpga.git
+[submodule "libs/i2creader"]
+	path = libs/i2creader
+	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/i2creader.git
