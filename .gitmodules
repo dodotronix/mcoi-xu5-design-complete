@@ -19,6 +19,3 @@
 [submodule "libs/i2cdev"]
 	path = libs/i2cdev
 	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/i2cdev.git
-[submodule "libs/i2cloader"]
-	path = libs/i2cloader
-	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/i2cloader.git
