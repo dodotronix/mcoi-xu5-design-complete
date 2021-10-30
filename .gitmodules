@@ -19,3 +19,6 @@
 [submodule "libs/i2cdev"]
 	path = libs/i2cdev
 	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/i2cdev.git
+[submodule "libs/pll_si5338_configurer"]
+	path = libs/pll_si5338_configurer
+	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/pll_si5338_configurer.git
