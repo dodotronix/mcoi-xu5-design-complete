@@ -1,7 +1,4 @@
-,,,,
 Mercury XU5,Module Variant,ME-XU5-2CG/2EG/3EG,ME-XU5-4CG/4EV/5EV,ME-XU5-4CG/4EV/5EV-G1
-7/25/2019,Compatibility,ME-XU1 (partially),ME-XU1,ME-ZX5 and ZX1-30
-jj,Module Connector Pin,MPSoC Pin Connectivity,,
 MGT_B224_REFCLK0_Y6_B66_L11_D4_P,B-3,IO_B66_L11_GC_D4_P,MGT_B224_REFCLK0_Y6_P,IO_B66_L11_GC_D4_P
 MGT_B224_REFCLK0_Y5_B66_L11_C4_N,B-5,IO_B66_L11_GC_C4_N,MGT_B224_REFCLK0_Y5_N,IO_B66_L11_GC_C4_N
 MGTPS_REFCLK1_E21_B66_L1_G1_P,B-7,IO_B66_L1_G1_P,MGTPS_REFCLK1_E21_P,IO_B66_L1_G1_P
@@ -44,9 +41,3 @@ MGT_B224_RX3_P2_B65_L5_R7_P,B-66,IO_B65_L5_AD14_R7_P,MGT_B224_RX3_P2_P,IO_B65_L5
 MGT_B224_RX3_P1_B65_L5_T7_N,B-68,IO_B65_L5_AD14_T7_N,MGT_B224_RX3_P1_N,IO_B65_L5_AD14_T7_N
 IO_BF_L8_HDGC_AD4_F15_MIO40_P,A-82,IO_BF_L8_HDGC_AD4_F15_P,PS_MIO40,IO_BF_L8_HDGC_AD4_F15_P
 IO_BF_L8_HDGC_AD4_E15_MIO41_N,A-84,IO_BF_L8_HDGC_AD4_E15_N,PS_MIO41,IO_BF_L8_HDGC_AD4_E15_N
-,,,,
-Disclaimers,,,,
-All pinout and pin information is provided as-is without assurance of correctness or completeness.,,,,
-All information is subject to change at any time without notice.,,,,
-"Please verify all data with Enclustra's user manuals, FPGA and other components vendor's documentation.",,,,
-Enclustra recommends checking the module's and the FPGA and other components errata sheets.,,,,
