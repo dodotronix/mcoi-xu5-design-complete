@@ -50,6 +50,10 @@ parser.add_argument('-io', '--iostandard',
 
 args = vars(parser.parse_args())
 
+# logging configuration
+root = log.getLogger()
+root.setLevel(log.INFO)
+
 dev = args['device']
 non_dep_pinout = args['vendor_pinout']
 var_dep_pinout = args['vendor_assembly']
@@ -85,12 +89,12 @@ def create_dict(file, regex_pattern):
         return [i for i in dict_iter]
 
 # read data and create list of dictionaries
+log.info("Loading all sources")
 conn_a = create_dict(pin_mapping_mcoi_a, conns)
 conn_b = create_dict(pin_mapping_mcoi_b, conns)
 variants = create_dict(non_dep_pinout, get_all)
 assembly = create_dict(var_dep_pinout, get_all)
 config = create_dict(board_config, get_all)
-
 
 dep_t = [i for i in variants if("J80" in i["Connector"])]
 dep_var_t = [i for i in variants if(i["Connector"] == "*")]
@@ -119,10 +123,6 @@ for n,i in enumerate(pin_inx):
 # split the pin set in two (connector A and B as in the schematics)
 connector_a = [i for i in full_configuratin if("J800." in i["Connector"])] 
 connector_b = [i for i in full_configuratin if("J801." in i["Connector"])] 
-
-# sort for easier assignment to Altium pins
-# connector_a.sort(key=lambda x : x["Connector"])
-# connector_b.sort(key=lambda x : x["Connector"])
 
 # take names from Altium files and rename the pins on enclustra module
 def assign_pin_names(connector, altium_pins, parsed_list):
@@ -168,6 +168,10 @@ new_groupping = {}
 for i in config:  
     # find all occurences of names in the config file 
     pin_search = [n for g in groups if(i["pin"] in g) for n in groups[g]]
+    if not pin_search:
+        log.error("Couldn't find pin: \"{0}\" name in"
+                  " the data set".format(i["pin"]))
+        sys.exit(1) # close because of wrong config file
     # add custom settings from config file to the pin dictionary
     for p in pin_search:
         p.update(i)
@@ -234,7 +238,7 @@ def create_gpio_stamp_vector(gpio_list):
                      else default_iostandard) 
         stamp = "{0}{1}".format(stamp, 
                  get_set_property_vector(pin, user_name, num))
-    return "{0}{1}\n".format(stamp, get_iostandard_stamp(
+    return "{0}{1}".format(stamp, get_iostandard_stamp(
            iostandard, user_name))
 
 def create_gpio_stamp_standard(gpio_list):
@@ -255,7 +259,7 @@ def create_gpios_constr(gpio_list):
         for i in gpio_list:
             stamp_type = (create_gpio_stamp_vector(i) if (len(i) > 1) 
                          else create_gpio_stamp_standard(i)) 
-            stamp = "{0}{1}".format(stamp, stamp_type)
+            stamp = "{0}{1}\n".format(stamp, stamp_type)
         return stamp
 
 # create strings which will be written to constraints files
@@ -273,23 +277,23 @@ for i in new_groupping:
                        create_gpios_constr(new_groupping[i]))
 
 for i in groups:
-        gpios_constr = "{0}# PIN GROUPPING: {1}".format(gpios_constr,
-                       i.upper())
-        # somehowe the groups[i] has to be encapsulated into list
-        # because the creat_gpios_constr takes list as an argument 
-        gpios_constr = "{0}\n{1}".format(gpios_constr,
-                       create_gpios_constr([groups[i]]))
+    gpios_constr = "{0}# PIN GROUPPING: {1}".format(gpios_constr,
+                   i.upper())
+    # somehowe the groups[i] has to be encapsulated into list
+    # because the creat_gpios_constr takes list as an argument 
+    gpios_constr = "{0}\n{1}".format(gpios_constr,
+                   create_gpios_constr([groups[i]]))
 
 # generate clock constraint file
-file_path = os.path.join(destination_folder, 
-                         'constraints_mcoi_clk.xdc') 
+file_path = os.path.join(destination_folder, 'constraints_mcoi_clk.xdc') 
 with open(file_path, 'w') as f:
     f.write(clock_constr)
     f.close()
+log.info("Generated file: constraints_mcoi_clk.xdc")
 
 # generate gpio constraint file
-file_path = os.path.join(destination_folder, 
-                         'constraints_mcoi_io.xdc') 
+file_path = os.path.join(destination_folder, 'constraints_mcoi_io.xdc') 
 with open(file_path, 'w') as f:
     f.write(gpios_constr)
     f.close()
+log.info("Generated file: constraints_mcoi_io.xdc")
