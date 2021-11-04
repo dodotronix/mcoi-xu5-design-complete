@@ -4,7 +4,7 @@ import constants::*;
 
 //TODO licence
 
-module mcoi_base#(
+module McoiXu5Application#(
     parameter g_clock_divider = 25000
 )(
  //motor links
