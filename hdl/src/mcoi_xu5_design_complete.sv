@@ -5,8 +5,8 @@
 // vivado-ultrascale-libraries.pdf
 //------------------------------------------------------------------------------
 
-import MCPkg::*;
-import CKRSPkg::*;
+//import MCPkg::*;
+//import CKRSPkg::*;
 
 module mcoi_xu5_design_complet(
     //motors
@@ -38,7 +38,6 @@ module mcoi_xu5_design_complet(
     input mgt_clk_p,
     input mgt_clk_n,
     input pl_varclk,
-    input clk_from_ps,
 
     //diagnostics
     output [6:0] led,
@@ -141,7 +140,7 @@ module mcoi_xu5_design_complet(
 //____________________________ NEW STRUCTURE ____________________________
 
 //Application part
-McoiXu5Application i_McoiXu5Application();
+//McoiXu5Application i_McoiXu5Application();
 
 //ps part
 
