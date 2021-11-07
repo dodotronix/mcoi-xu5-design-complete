@@ -163,6 +163,7 @@ for i in pins_complete:
     groups.setdefault(name.lower() if str.isnumeric(num) 
             else i["Signal on module"].lower(), []).append(i)
 
+
 # grouping of pins according to content in config file
 new_groupping = {}
 for i in config:  
@@ -175,7 +176,13 @@ for i in config:
     # add custom settings from config file to the pin dictionary
     for p in pin_search:
         p.update(i)
-    new_groupping.setdefault(i["group"], []).append(pin_search)
+    # exclude pins (they have to mentioned in config file)
+    # if your pin is not excluded, probably there is some invisible
+    # character in the config file (<CR> at the end of a line)
+    if("exclude" in i["type"].lower()):
+        log.warning("Pin Excluded: {0}".format(i["pin"]))
+    else:
+        new_groupping.setdefault(i["group"], []).append(pin_search)
     # remove all keys with the occurence of "i["pin"]" in groups
     groups = {k : v for k,v in groups.items() if(i["pin"] not in k)}
 
@@ -198,8 +205,8 @@ def get_create_clock(name, pin, frequency):
             " {1} [get_ports {2}]\n".format((1000/frequency), name, pin))
 
 def get_iostandard_stamp(iostandard, pin):
-    return ("set_property IOSTANDARD {0} [get_ports "
-            "{{{1}}}]\n".format(iostandard.upper(), pin))
+    return ("set_property IOSTANDARD {0} [get_ports {{{1}}}]\n\n".format(
+           iostandard.upper(), pin)) if(iostandard != "") else ("")
 
 def create_clock_stamp(clk_list):
     # pin key in dictionary is user identificator for pins of group
@@ -248,7 +255,7 @@ def create_gpio_stamp_standard(gpio_list):
     gpio = gpio_list[0]
     pin = gpio["FPGA pin number"]
     user_name = gpio["Signal on module"].lower()
-    iostandard = (gpio["iostandard"] if("iostandard" in i) 
+    iostandard = (gpio["iostandard"] if("iostandard" in gpio) 
                  else default_iostandard) 
     return "{0}{1}".format(get_set_property_standard(pin, user_name),
             get_iostandard_stamp(iostandard, user_name))
@@ -259,7 +266,7 @@ def create_gpios_constr(gpio_list):
         for i in gpio_list:
             stamp_type = (create_gpio_stamp_vector(i) if (len(i) > 1) 
                          else create_gpio_stamp_standard(i)) 
-            stamp = "{0}{1}\n".format(stamp, stamp_type)
+            stamp = "{0}{1}".format(stamp, stamp_type)
         return stamp
 
 # create strings which will be written to constraints files
@@ -271,13 +278,13 @@ for i in new_groupping:
         clock_constr = "{0}\n\n{1}".format(clock_constr,
                         create_clock_constr(new_groupping[i]))
     else:
-        gpios_constr = "{0}# PIN GROUPPING: {1}".format(gpios_constr,
+        gpios_constr = "{0}\n# PIN GROUPPING: {1}".format(gpios_constr,
                        i.upper())
         gpios_constr = "{0}\n{1}".format(gpios_constr,
                        create_gpios_constr(new_groupping[i]))
 
 for i in groups:
-    gpios_constr = "{0}# PIN GROUPPING: {1}".format(gpios_constr,
+    gpios_constr = "{0}\n# PIN GROUPPING: {1}".format(gpios_constr,
                    i.upper())
     # somehowe the groups[i] has to be encapsulated into list
     # because the creat_gpios_constr takes list as an argument 
