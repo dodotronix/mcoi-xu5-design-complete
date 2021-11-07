@@ -1,21 +1,23 @@
+
 # PIN GROUPPING: MOTOR
-set_property PACKAGE_PIN AH10 [get_ports {/pl_pfail[1]}]
-set_property PACKAGE_PIN AG10 [get_ports {/pl_pfail[2]}]
-set_property PACKAGE_PIN AD10 [get_ports {/pl_pfail[3]}]
-set_property PACKAGE_PIN AD11 [get_ports {/pl_pfail[4]}]
-set_property PACKAGE_PIN AD14 [get_ports {/pl_pfail[5]}]
-set_property PACKAGE_PIN AD15 [get_ports {/pl_pfail[6]}]
-set_property PACKAGE_PIN AB13 [get_ports {/pl_pfail[7]}]
-set_property PACKAGE_PIN AA13 [get_ports {/pl_pfail[8]}]
-set_property PACKAGE_PIN AE10 [get_ports {/pl_pfail[9]}]
-set_property PACKAGE_PIN AF10 [get_ports {/pl_pfail[10]}]
-set_property PACKAGE_PIN AH12 [get_ports {/pl_pfail[11]}]
-set_property PACKAGE_PIN AH11 [get_ports {/pl_pfail[12]}]
-set_property PACKAGE_PIN AF11 [get_ports {/pl_pfail[13]}]
-set_property PACKAGE_PIN AG11 [get_ports {/pl_pfail[14]}]
-set_property PACKAGE_PIN AB10 [get_ports {/pl_pfail[15]}]
-set_property PACKAGE_PIN AB9 [get_ports {/pl_pfail[16]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {/pl_pfail}]
+set_property PACKAGE_PIN AH10 [get_ports {pl_pfail[1]}]
+set_property PACKAGE_PIN AG10 [get_ports {pl_pfail[2]}]
+set_property PACKAGE_PIN AD10 [get_ports {pl_pfail[3]}]
+set_property PACKAGE_PIN AD11 [get_ports {pl_pfail[4]}]
+set_property PACKAGE_PIN AD14 [get_ports {pl_pfail[5]}]
+set_property PACKAGE_PIN AD15 [get_ports {pl_pfail[6]}]
+set_property PACKAGE_PIN AB13 [get_ports {pl_pfail[7]}]
+set_property PACKAGE_PIN AA13 [get_ports {pl_pfail[8]}]
+set_property PACKAGE_PIN AE10 [get_ports {pl_pfail[9]}]
+set_property PACKAGE_PIN AF10 [get_ports {pl_pfail[10]}]
+set_property PACKAGE_PIN AH12 [get_ports {pl_pfail[11]}]
+set_property PACKAGE_PIN AH11 [get_ports {pl_pfail[12]}]
+set_property PACKAGE_PIN AF11 [get_ports {pl_pfail[13]}]
+set_property PACKAGE_PIN AG11 [get_ports {pl_pfail[14]}]
+set_property PACKAGE_PIN AB10 [get_ports {pl_pfail[15]}]
+set_property PACKAGE_PIN AB9 [get_ports {pl_pfail[16]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {pl_pfail}]
+
 
 # PIN GROUPPING: DISPLAY
 set_property PACKAGE_PIN N7 [get_ports {csel[0]}]
@@ -35,12 +37,6 @@ set_property IOSTANDARD LVCMOS18 [get_ports {latch}]
 set_property PACKAGE_PIN L5 [get_ports blank]
 set_property IOSTANDARD LVCMOS18 [get_ports {blank}]
 
-# PIN GROUPPING: UART
-set_property PACKAGE_PIN H18 [get_ports uart_rx_ps]
-set_property IOSTANDARD LVCMOS18 [get_ports {uart_rx_ps}]
-
-set_property PACKAGE_PIN H19 [get_ports uart_tx_ps]
-set_property IOSTANDARD LVCMOS18 [get_ports {uart_tx_ps}]
 
 # PIN GROUPPING: GBTCORE
 set_property PACKAGE_PIN C4 [get_ports sfp1_los]
@@ -53,16 +49,9 @@ set_property PACKAGE_PIN F1 [get_ports sfp1_rateselect]
 set_property IOSTANDARD LVCMOS18 [get_ports {sfp1_rateselect}]
 
 set_property PACKAGE_PIN Y1 [get_ports sfp1_gbitin_n]
-set_property IOSTANDARD LVCMOS18 [get_ports {sfp1_gbitin_n}]
-
 set_property PACKAGE_PIN Y2 [get_ports sfp1_gbitin_p]
-set_property IOSTANDARD LVCMOS18 [get_ports {sfp1_gbitin_p}]
-
 set_property PACKAGE_PIN W3 [get_ports sfp1_gbitout_n]
-set_property IOSTANDARD LVCMOS18 [get_ports {sfp1_gbitout_n}]
-
 set_property PACKAGE_PIN W4 [get_ports sfp1_gbitout_p]
-set_property IOSTANDARD LVCMOS18 [get_ports {sfp1_gbitout_p}]
 
 # PIN GROUPPING: PL_CLK
 set_property PACKAGE_PIN R6 [get_ports {pl_clk[1]}]
@@ -83,6 +72,7 @@ set_property PACKAGE_PIN V8 [get_ports {pl_clk[15]}]
 set_property PACKAGE_PIN T8 [get_ports {pl_clk[16]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {pl_clk}]
 
+
 # PIN GROUPPING: PL_EN
 set_property PACKAGE_PIN T6 [get_ports {pl_en[1]}]
 set_property PACKAGE_PIN J1 [get_ports {pl_en[2]}]
@@ -101,6 +91,7 @@ set_property PACKAGE_PIN P6 [get_ports {pl_en[14]}]
 set_property PACKAGE_PIN T7 [get_ports {pl_en[15]}]
 set_property PACKAGE_PIN R7 [get_ports {pl_en[16]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {pl_en}]
+
 
 # PIN GROUPPING: PL_SW_OUTA
 set_property PACKAGE_PIN E10 [get_ports {pl_sw_outa[1]}]
@@ -121,6 +112,7 @@ set_property PACKAGE_PIN AF13 [get_ports {pl_sw_outa[15]}]
 set_property PACKAGE_PIN AE13 [get_ports {pl_sw_outa[16]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {pl_sw_outa}]
 
+
 # PIN GROUPPING: PL_DIR
 set_property PACKAGE_PIN L2 [get_ports {pl_dir[1]}]
 set_property PACKAGE_PIN H1 [get_ports {pl_dir[2]}]
@@ -139,6 +131,7 @@ set_property PACKAGE_PIN G3 [get_ports {pl_dir[14]}]
 set_property PACKAGE_PIN K4 [get_ports {pl_dir[15]}]
 set_property PACKAGE_PIN R8 [get_ports {pl_dir[16]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {pl_dir}]
+
 
 # PIN GROUPPING: PL_SW_OUTB
 set_property PACKAGE_PIN AC14 [get_ports {pl_sw_outb[1]}]
@@ -159,6 +152,7 @@ set_property PACKAGE_PIN Y14 [get_ports {pl_sw_outb[15]}]
 set_property PACKAGE_PIN Y13 [get_ports {pl_sw_outb[16]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {pl_sw_outb}]
 
+
 # PIN GROUPPING: PL_BOOST
 set_property PACKAGE_PIN L1 [get_ports {pl_boost[1]}]
 set_property PACKAGE_PIN K2 [get_ports {pl_boost[2]}]
@@ -178,57 +172,36 @@ set_property PACKAGE_PIN K3 [get_ports {pl_boost[15]}]
 set_property PACKAGE_PIN U8 [get_ports {pl_boost[16]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {pl_boost}]
 
+
 # PIN GROUPPING: I2C_SDA_PL
 set_property PACKAGE_PIN AE12 [get_ports i2c_sda_pl]
 set_property IOSTANDARD LVCMOS18 [get_ports {i2c_sda_pl}]
+
 
 # PIN GROUPPING: I2C_SCL_PL
 set_property PACKAGE_PIN AF12 [get_ports i2c_scl_pl]
 set_property IOSTANDARD LVCMOS18 [get_ports {i2c_scl_pl}]
 
-# PIN GROUPPING: JTAG_TCK
-set_property PACKAGE_PIN R19 [get_ports jtag_tck]
-set_property IOSTANDARD LVCMOS18 [get_ports {jtag_tck}]
-
-# PIN GROUPPING: JTAG_TDI
-set_property PACKAGE_PIN R18 [get_ports jtag_tdi]
-set_property IOSTANDARD LVCMOS18 [get_ports {jtag_tdi}]
-
-# PIN GROUPPING: JTAG_TDO
-set_property PACKAGE_PIN T21 [get_ports jtag_tdo]
-set_property IOSTANDARD LVCMOS18 [get_ports {jtag_tdo}]
-
-# PIN GROUPPING: JTAG_TMS
-set_property PACKAGE_PIN N21 [get_ports jtag_tms]
-set_property IOSTANDARD LVCMOS18 [get_ports {jtag_tms}]
-
-# PIN GROUPPING: FTDI_RESET
-set_property PACKAGE_PIN P16 [get_ports ftdi_reset]
-set_property IOSTANDARD LVCMOS18 [get_ports {ftdi_reset}]
-
-# PIN GROUPPING: PS_SRST#
-set_property PACKAGE_PIN N19 [get_ports ps_srst#]
-set_property IOSTANDARD LVCMOS18 [get_ports {ps_srst#}]
-
-# PIN GROUPPING: PS_DONE
-set_property PACKAGE_PIN M21 [get_ports ps_done]
-set_property IOSTANDARD LVCMOS18 [get_ports {ps_done}]
 
 # PIN GROUPPING: FPGA_SUPPLY_OK
 set_property PACKAGE_PIN D4 [get_ports fpga_supply_ok]
 set_property IOSTANDARD LVCMOS18 [get_ports {fpga_supply_ok}]
 
+
 # PIN GROUPPING: RS485_PL_DI
 set_property PACKAGE_PIN L6 [get_ports rs485_pl_di]
 set_property IOSTANDARD LVCMOS18 [get_ports {rs485_pl_di}]
+
 
 # PIN GROUPPING: RS485_PL_RO
 set_property PACKAGE_PIN L7 [get_ports rs485_pl_ro]
 set_property IOSTANDARD LVCMOS18 [get_ports {rs485_pl_ro}]
 
+
 # PIN GROUPPING: MRESET_VADJ
 set_property PACKAGE_PIN M8 [get_ports mreset_vadj]
 set_property IOSTANDARD LVCMOS18 [get_ports {mreset_vadj}]
+
 
 # PIN GROUPPING: TEST
 set_property PACKAGE_PIN J6 [get_ports {test[0]}]
@@ -239,12 +212,14 @@ set_property PACKAGE_PIN H9 [get_ports {test[4]}]
 set_property PACKAGE_PIN H8 [get_ports {test[5]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {test}]
 
+
 # PIN GROUPPING: PCBREV
 set_property PACKAGE_PIN K8 [get_ports {pcbrev[0]}]
 set_property PACKAGE_PIN K7 [get_ports {pcbrev[1]}]
 set_property PACKAGE_PIN K9 [get_ports {pcbrev[2]}]
 set_property PACKAGE_PIN J9 [get_ports {pcbrev[3]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {pcbrev}]
+
 
 # PIN GROUPPING: LED
 set_property PACKAGE_PIN E8 [get_ports {led[0]}]
