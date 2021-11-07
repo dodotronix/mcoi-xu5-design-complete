@@ -15,21 +15,19 @@ puts "Modules directory: $modules_path";
 # filesets names - the names are not easy to change
 set sources "sources_1"
 set constraints "constrs_1"
-set simulations "sims_1"
 
 # Create project
 if {![file exists ${proj_path}]} {
   # create project
   create_project  ${proj_path}/${proj_name} -part ${dev_name}
 } else {
-  # first close current running project
-  if {[current_project] != ""} {close_project}
   #open project 
   open_project ${script_path}/Synthesis/${proj_name}
   # IMPORTANT: remove non-existing files - this garanties, that you won't
   # have any duplicates after adding new files and if there were any chaneges
   # in paths the non-existent files will be deleted
-  remove_files ${sources} *
+  remove_files *
+  remove_files ${constraints} *
 }
 
 # Set the directory path for the new project
@@ -43,8 +41,10 @@ set_property -name "part" -value "xczu4ev-sfvc784-1-i" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 
 # mcoi xu5 part
-add_files -fileset ${sources} [glob $script_path/src/*.sv] 
-update_compile_order -fileset ${sources}
+add_files [glob $script_path/src/mcoi_xu5_design_complete.sv] 
+add_files -fileset ${constraints} [glob $script_path/constraints/*.xdc] 
+update_compile_order 
+
 
 # scan for my project
 # in every project there is a tcl script loading or removing files to actual
