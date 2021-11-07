@@ -44,8 +44,11 @@ __check_software_availability:
 init:
 	@git submodule update --init --recursive
 
-openproject: __check_software_availability
-	@vivado -source hdl/vivadoprj.tcl &> /dev/null
+vproject_update: __check_software_availability
+	@vivado -mode batch -nojournal -source hdl/vivadoprj.tcl 
+
+vproject_open:
+	@vivado -mode gui -nojournal -source hdl/vivadoprj.tcl &> /dev/null &
 
 update:
 	@printf "Generating constraints files for device $(DEVICE)\n"
