@@ -1,0 +1,8 @@
++/hdl/src
+-*.html
+-*.xml
+-*.cof
+-*.qpf
++test
+-*.do
++libs/BI_HDL_Cores/cores_for_synthesis
