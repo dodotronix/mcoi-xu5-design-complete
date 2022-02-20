@@ -70,7 +70,6 @@ interface gbt_x;
                     input sfp1_gbitout_n,
                     input sfp1_rateselect,
                     input sfp1_txdisable);
-
 endinterface // gbt_x
 
 interface diag_x;
@@ -88,5 +87,4 @@ interface diag_x;
                      input  test,
                      output pcbrev,
                      output fpga_supply_ok);
-
    endinterface // diag_x

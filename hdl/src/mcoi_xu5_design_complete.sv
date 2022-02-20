@@ -39,31 +39,28 @@ import CKRSPkg::*;
 
 module mcoi_xu5_design_complete (//motors
                                  motors_x.producer motors,
-
+                                 //optical interface
+                                 gbt_x.producer gbt,
+                                 //diagnostics
+                                 diag_x.producer diag,
                                  //display
                                  display_x.producer display,
                                  output        mreset_vadj,
-
-                                 //optical interface
-                                 gbt_x.producer gbt,
-
                                  // clocks
                                  input         mgt_clk_p,
                                  input         mgt_clk_n,
                                  input         pl_varclk,
-
-                                 //diagnostics
-                                 diag_x.producer diag,
+                                 input         clk100m_pl_p,
+                                 input         clk100m_pl_n,
 
                                  // serial interfaces
                                  inout         i2c_sda_pl,
                                  inout         i2c_scl_pl,
-
                                  input         rs485_pl_di,
                                  output        rs485_pl_ro);
 
    //logic system part
-   // mcoixu5system i_mcoi_xu5_system (.*);
+   McoiXu5System i_mcoi_xu5_system (.*);
 
    // logic application part
    // McoiXu5Application i_mcoi_xu5_app(.*);
