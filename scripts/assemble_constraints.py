@@ -186,10 +186,9 @@ for i in config:
     # remove all keys with the occurence of "i["pin"]" in groups
     groups = {k : v for k,v in groups.items() if(i["pin"] not in k)}
 
-    # FIXME fix the missing {}
 def get_set_property_standard(pin, name):
     return ("set_property PACKAGE_PIN {0} "
-           "[get_ports {1}]\n".format(pin, name))
+           "[get_ports {{{1}}}]\n".format(pin, name))
 
 def get_set_property_vector(pin, name, num):
     return ("set_property PACKAGE_PIN {0} "
@@ -203,7 +202,7 @@ def get_group_comment(group_name, iostandard):
 def get_create_clock(name, pin, frequency):
     # multiplying by 1000 is because units are in "ns"
     return ("create_clock -period {0:.3f} -name "
-            " {1} [get_ports {2}]\n".format((1000/frequency), name, pin))
+            " {1} [get_ports {{{2}}}]\n".format((1000/frequency), name, pin))
 
 def get_iostandard_stamp(iostandard, pin):
     return ("set_property IOSTANDARD {0} [get_ports {{{1}}}]\n\n".format(
