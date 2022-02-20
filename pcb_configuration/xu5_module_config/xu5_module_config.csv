@@ -1,25 +1,35 @@
-pin,               freq[Mhz],     group,      iostandard,           type
-pl_varclk,              100,      clk,          LVCMOS18,            single
-mgt_clk,                120,      clk,          ,                    differential
-pl_pfail,                 x,      motor,        LVCMOS18,            gpio
-csel,                     x,      display,      LVCMOS18,            gpio
-sin,                      x,      display,      LVCMOS18,            gpio
-sclk,                     x,      display,      LVCMOS18,            gpio
-latch,                    x,      display,      LVCMOS18,            gpio
-blank,                    x,      display,      LVCMOS18,            gpio
-uart_rx_ps,               x,      uart,         LVCMOS18,            exclude
-uart_tx_ps,               x,      uart,         LVCMOS18,            exclude
-ps_srst#,                 x,      control,      LVCMOS18,            exclude
-ps_done,                  x,      control,      LVCMOS18,            exclude
-ftdi_reset,               x,      control,      LVCMOS18,            exclude 
-sfp1_los,                 x,      gbtcore,      LVCMOS18,            gpio
-sfp1_txdisable,           x,      gbtcore,      LVCMOS18,            gpio
-sfp1_rateselect,          x,      gbtcore,      LVCMOS18,            gpio
-sfp1_gbitin_n,            x,      gbtcore,      ,                    gpio
-sfp1_gbitin_p,            x,      gbtcore,      ,                    gpio
-sfp1_gbitout_n,           x,      gbtcore,      ,                    gpio
-sfp1_gbitout_p,           x,      gbtcore,      ,                    gpio
-jtag_tck,                 x,      jtag,         LVCMOS18,            exclude
-jtag_tdi,                 x,      jtag,         LVCMOS18,            exclude
-jtag_tdo,                 x,      jtag,         LVCMOS18,            exclude
-jtag_tms,                 x,      jtag,         LVCMOS18,            exclude
+pin,              freq[Mhz],  group,               iostandard,  type,          interface
+pl_varclk,        100,        clk,                 LVCMOS18,    single,
+mgt_clk,          120,        clk,                 ,            differential,
+pl_pfail,         x,          motor-pl_pfail,      LVCMOS18,    gpio,          motors
+pl_clk,           x,          motor-pl_clk,        LVCMOS18,    gpio,          motors
+pl_en,            x,          motor-pl_en,         LVCMOS18,    gpio,          motors
+pl_boost,         x,          motor-pl_boost,      LVCMOS18,    gpio,          motors
+pl_dir,           x,          motor-pl_dir,        LVCMOS18,    gpio,          motors
+pl_sw_outa,       x,          motor-pl_sw_outa,    LVCMOS18,    gpio,          motors
+pl_sw_outb,       x,          motor-pl_sw_outb,    LVCMOS18,    gpio,          motors
+fpga_supply_ok,   x,          diagnostics-supply,  LVCMOS18,    gpio,          diag
+test,             x,          diagnostics-test,    LVCMOS18,    gpio,          diag
+pcbrev,           x,          diagnostics-pcbrev,  LVCMOS18,    gpio,          diag
+led,              x,          diagnostics-led,     LVCMOS18,    gpio,          diag
+csel,             x,          display,             LVCMOS18,    gpio,          display
+sin,              x,          display,             LVCMOS18,    gpio,          display
+sclk,             x,          display,             LVCMOS18,    gpio,          display
+latch,            x,          display,             LVCMOS18,    gpio,          display
+blank,            x,          display,             LVCMOS18,    gpio,          display
+uart_rx_ps,       x,          uart,                LVCMOS18,    exclude,
+uart_tx_ps,       x,          uart,                LVCMOS18,    exclude,
+ps_srst#,         x,          control,             LVCMOS18,    exclude,
+ps_done,          x,          control,             LVCMOS18,    exclude,
+ftdi_reset,       x,          control,             LVCMOS18,    exclude,
+sfp1_los,         x,          gbtcore,             LVCMOS18,    gpio,          gbt
+sfp1_txdisable,   x,          gbtcore,             LVCMOS18,    gpio,          gbt
+sfp1_rateselect,  x,          gbtcore,             LVCMOS18,    gpio,          gbt
+sfp1_gbitin_n,    x,          gbtcore,             ,            gpio,          gbt
+sfp1_gbitin_p,    x,          gbtcore,             ,            gpio,          gbt
+sfp1_gbitout_n,   x,          gbtcore,             ,            gpio,          gbt
+sfp1_gbitout_p,   x,          gbtcore,             ,            gpio,          gbt
+jtag_tck,         x,          jtag,                LVCMOS18,    exclude,
+jtag_tdi,         x,          jtag,                LVCMOS18,    exclude,
+jtag_tdo,         x,          jtag,                LVCMOS18,    exclude,
+jtag_tms,         x,          jtag,                LVCMOS18,    exclude,

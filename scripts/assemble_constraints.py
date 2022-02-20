@@ -176,7 +176,7 @@ for i in config:
     # add custom settings from config file to the pin dictionary
     for p in pin_search:
         p.update(i)
-    # exclude pins (they have to mentioned in config file)
+    # exclude pins (they have to be mentioned in config file)
     # if your pin is not excluded, probably there is some invisible
     # character in the config file (<CR> at the end of a line)
     if("exclude" in i["type"].lower()):
@@ -186,6 +186,7 @@ for i in config:
     # remove all keys with the occurence of "i["pin"]" in groups
     groups = {k : v for k,v in groups.items() if(i["pin"] not in k)}
 
+    # FIXME fix the missing {}
 def get_set_property_standard(pin, name):
     return ("set_property PACKAGE_PIN {0} "
            "[get_ports {1}]\n".format(pin, name))
@@ -238,11 +239,14 @@ def create_gpio_stamp_vector(gpio_list):
             int(x["Signal on module"].rsplit("_", 1)[1]))  
     for i in gpio_list_sorted:
         raw_name = i["Signal on module"].rsplit("_", 1)
-        num = int(raw_name[1]) 
+        num = int(raw_name[1])
         user_name = raw_name[0].lower()
         pin = i["FPGA pin number"]
         iostandard = (i["iostandard"] if("iostandard" in i) 
-                     else default_iostandard) 
+                     else default_iostandard)
+        # change prefixe of the name based on the interface name
+        if("interface" in i and i["interface"]):
+            user_name = "{0}\.{1}".format(i["interface"], user_name)
         stamp = "{0}{1}".format(stamp, 
                  get_set_property_vector(pin, user_name, num))
     return "{0}{1}".format(stamp, get_iostandard_stamp(
@@ -255,7 +259,10 @@ def create_gpio_stamp_standard(gpio_list):
     gpio = gpio_list[0]
     pin = gpio["FPGA pin number"]
     user_name = gpio["Signal on module"].lower()
-    iostandard = (gpio["iostandard"] if("iostandard" in gpio) 
+    # change prefixe of the name based on the interface name
+    if("interface" in gpio and gpio["interface"]):
+        user_name = "{0}\.{1}".format(gpio["interface"], user_name)
+    iostandard = (gpio["iostandard"] if("iostandard" in gpio)
                  else default_iostandard) 
     return "{0}{1}".format(get_set_property_standard(pin, user_name),
             get_iostandard_stamp(iostandard, user_name))
