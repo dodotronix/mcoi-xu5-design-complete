@@ -4,6 +4,12 @@ puts "Script directory: $script_path";
 set modules_path $script_path/../libs
 puts "Modules directory: $modules_path";
 
+set ip_cores_path $script_path/ip_cores
+puts "IP cores directory: $ip_cores_path";
+
+# block design name
+set bd_name "mcoi_xu5_ps_part.bd"
+
 #project setup - if you change the names you have to remove the project
 #maually before generating a new project with your names! 
 #You can do that by calling make clean and then make openproject
@@ -41,17 +47,30 @@ set_property -name "part" -value "xczu4ev-sfvc784-1-i" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 
 # mcoi xu5 part
-add_files [glob $script_path/src/mcoi_xu5_design_complete.sv] 
+add_files [glob $script_path/src/mcoi_xu5_design_complete.sv]
+add_files [glob $script_path/src/McoiXu5System.sv]
+add_files [glob $script_path/src/McoiXu5Application.sv]
+add_files [glob $script_path/src/McoiXu5Diagnostics.sv]
+add_files [glob $script_path/src/interfaces.sv]
 add_files -fileset ${constraints} [glob $script_path/constraints/*.xdc] 
-update_compile_order 
 
+set mcoi_packages $modules_path/mcoi_hdl_library/packages
+add_files -fileset sources_1 [glob $mcoi_packages/CKRSPkg.sv] 
+add_files -fileset sources_1 [glob $mcoi_packages/MCPkg.sv] 
 
-# scan for my project
-# in every project there is a tcl script loading or removing files to actual
-# project which simplifies manipulation with source files
+# first clear old block design and create a new
+# one just in case that something has changed
+remove_files [get_files $bd_name]
 
-# TODO scripts 
+#create new block design
+create_bd_design $bd_name
 
+# load ps part which is in the current design
+# used just to load the logic from the qspi
+source $ip_cores_path/ps_part/ps_part_qspi.tcl
+save_bd_design
+
+update_compile_order
 
 # Project that are not made by me have different structure,
 # so source files have to be added manually
@@ -66,10 +85,6 @@ update_compile_order
 
 #set mcoi_hdl_library $modules_path/mcoi_hdl_library 
 
-#set mcoi_packages $mcoi_hdl_library/packages
-#add_files -fileset sources_1 [glob $mcoi_packages/CKRSPkg.sv] 
-#add_files -fileset sources_1 [glob $mcoi_packages/MCPkg.sv] 
-#add_files -fileset sources_1 [glob $mcoi_packages/t_display.sv] 
 
 #set gefe_modules_path $modules_path/mcoi_gefe_frontend/hdl/modules
 #add_files -fileset sources_1 [glob $gefe_modules_path/extremity_switches_mapper.sv] 
