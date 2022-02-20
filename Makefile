@@ -10,9 +10,13 @@ DEVICE="ME-XU5-4CG/4EV/5EV-G1"
 DEFAULT_IOSTANDARD="LVCMOS18"
 
 all:
-	@printf 'USAGE: init|openproject\n'
-	@printf '       init        - downloads all submodules'
-	@printf '       openproject - generates and opens project in vivado'
+	@printf 'USAGE: init|check_compatibility|vproject_open|vproject_update|update|clean\n'
+	@printf '       init                - downloads all submodules\n'
+	@printf '       check_compatibility - checks if the appropriate software is installed\n'
+	@printf '       vproject_update     - opens current project using the tcl script\n'
+	@printf '       vproject_open       - updates the vivado project without opening gui\n'
+	@printf '       update              - this regenerates the constraints based on files in pcb_configuration directory\n'
+	@printf '       clean               - cleans all automaticaly generated and created directories and files\n'
 
 __check_software_availability:
 	@type python3 >/dev/null 2>&1 || { \
@@ -44,7 +48,9 @@ __check_software_availability:
 init:
 	@git submodule update --init --recursive
 
-vproject_update: __check_software_availability
+check_compatibility: __check_software_availability
+
+vproject_update: 
 	@vivado -mode batch -nojournal -source hdl/vivadoprj.tcl 
 
 vproject_open:
