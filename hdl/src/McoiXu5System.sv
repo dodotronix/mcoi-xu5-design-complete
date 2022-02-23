@@ -34,7 +34,7 @@
 import CKRSPkg::*;
 
 
-module McoiXu5System (gbt_x gbt,
+module McoiXu5System (//gbt_x gbt,
                       diag_x diag,
                       //clocks
                       input mgt_clk_p,
@@ -64,8 +64,8 @@ module McoiXu5System (gbt_x gbt,
    // FOR NEW PCB - QUICK TEST
    logic clk100m_ref, led;
    IBUFDS ibufds_i(.O(clk100m_ref),
-                   .I(clk100_pl_p),
-                   .IB(clk100_pl_n));
+                   .I(clk100m_pl_p),
+                   .IB(clk100m_pl_n));
 
    logic [23:0] cnt;
    always@(posedge clk100m_ref) begin

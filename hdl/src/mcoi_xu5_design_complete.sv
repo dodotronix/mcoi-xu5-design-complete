@@ -40,7 +40,7 @@ import CKRSPkg::*;
 module mcoi_xu5_design_complete (//motors
                                  motors_x.producer motors,
                                  //optical interface
-                                 gbt_x.producer gbt,
+                                 //gbt_x.producer gbt,
                                  //diagnostics
                                  diag_x.producer diag,
                                  //display
