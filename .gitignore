@@ -1,3 +1,7 @@
 *vivado.jou
 *vivado.log
 **Synthesis**
+*.jou
+*vivado_*.log
+*vivado_*.str
+/.Xil/
