@@ -35,19 +35,17 @@ import CKRSPkg::*;
 
 
 module McoiXu5System (//gbt_x gbt,
-                      diag_x diag,
+                      t_diag diag_x,
                       //clocks
-                      input mgt_clk_p,
-                      input mgt_clk_n,
-                      input clk100m_pl_p,
-                      input clk100m_pl_n,
-                      input ps_clk,
-                      input pl_varclk,
+		      t_clocks.consumer clk_tree_x
+                      //input ps_clk,
+                      //input pl_varclk,
                       //serial
-                      inout i2c_sda_pl,
-                      inout i2c_scl_pl,
-                      input rs485_pl_di,
-                      output rs485_pl_ro);
+                      //inout i2c_sda_pl,
+                      //inout i2c_scl_pl,
+                      //input rs485_pl_di,
+                      //output rs485_pl_ro
+		      );
 
 // TODO interfaces for motors
 
@@ -63,9 +61,6 @@ module McoiXu5System (//gbt_x gbt,
 
    // FOR NEW PCB - QUICK TEST
    logic clk100m_ref, led;
-   IBUFDS ibufds_i(.O(clk100m_ref),
-                   .I(clk100m_pl_p),
-                   .IB(clk100m_pl_n));
 
    logic [23:0] cnt;
    always@(posedge clk100m_ref) begin
@@ -76,10 +71,10 @@ module McoiXu5System (//gbt_x gbt,
       end
    end
 
-   assign diag.led[0] = 1'b0;
-   assign diag.led[1] = 1'b0;
-   assign diag.led[2] = led;
-   assign diag.test[0] = clk100m_ref;
+   assign diag_x.led[0] = 1'b0;
+   assign diag_x.led[1] = 1'b0;
+   assign diag_x.led[2] = led;
+   assign diag_x.test[0] = clk100m_ref;
 
 //Diagnostics block gathering information about board
 // McoiXu5Diagnostics mcoi_diagnostics_i(
@@ -105,6 +100,8 @@ module McoiXu5System (//gbt_x gbt,
 //logic clk40m_l;
 
 ////module structure
+
+
 //motor_pingroup i_pg_motors(
     ////motors
     //.StepBOOST_o(pl_boost),

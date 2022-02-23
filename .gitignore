@@ -5,3 +5,4 @@
 *vivado_*.log
 *vivado_*.str
 /.Xil/
+/vunit_out/

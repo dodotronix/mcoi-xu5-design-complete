@@ -59,6 +59,23 @@ module mcoi_xu5_design_complete (//motors
                                  input         rs485_pl_di,
                                  output        rs485_pl_ro);
 
+
+   t_clocks clk_tree_x();
+
+   // 100MHz oscillator and associated reset
+   IBUFDS ibufds_i(.O(clk_tree_x.ClkRs100MHz_ix.clk),
+                   .I(clk100m_pl_p),
+                   .IB(clk100m_pl_n));
+
+   vme_reset_sync_and_filter u_125MHz_reset_sync
+     (.rst_ir   (1'b0),
+      .clk_ik   (clk_tree_x.ClkRs100MHz_ix.clk),
+      .cen_ie   (1'b1),
+      // @TODO: do reset thingy here - which pin if any?
+      .data_i   ('0),
+      .data_o   (clk_tree_x.ClkRs100MHz_ix.reset)
+      );
+
    //logic system part
    McoiXu5System i_mcoi_xu5_system (.*);
 

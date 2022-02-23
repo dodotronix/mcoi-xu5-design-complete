@@ -51,11 +51,11 @@
 			    ;;(setq direl-directory "/home/belohrad/git/fmc_adc_perf/")
 			    (message (concat "Found project root: " direl-directory))
 			    (setq full-path-dirs (mapcar (lambda (x) (concat direl-directory x))
-							 '("hdl/src/"
-                 "hdl/test/"
-                 "libs/i2cdev/src"
-                 "libs/i2creader/src"
-                 "libs/BI_HDL_Cores/Cores_for_synthesis/"
+							 '("hdl/src"
+							   "hdl/tests"
+							   "libs/i2cdev/src"
+							   "libs/i2creader/src"
+							   "libs/BI_HDL_Cores/Cores_for_synthesis/"
 							   "libs/mcoi_hdl_library/modules/mko/"
 							   "libs/mcoi_hdl_library/modules/get_edge/")))
 			    (add-to-list 'full-path-dirs vuincl vudir)

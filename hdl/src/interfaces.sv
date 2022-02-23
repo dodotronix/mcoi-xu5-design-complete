@@ -1,5 +1,24 @@
+import CKRSPkg::*;
 
-interface display_x;
+
+// this works as a 'record' of clocks transported through the domains
+interface t_clocks;
+   timeunit 1ns;
+   timeprecision 100ps;
+
+   // 100MHz on-module oscillator
+   ckrs_t ClkRs100MHz_ix;
+
+
+   modport producer(output ClkRs100MHz_ix);
+
+   modport consumer(input ClkRs100MHz_ix);
+
+endinterface // clocks
+
+
+
+interface t_display;
    // these signals handle communication with led drivers:
    logic 		  latch;
    logic 		  blank;
@@ -20,7 +39,7 @@ interface display_x;
                     input sin);
 endinterface // display_x
 
-interface motors_x;
+interface t_motors;
    logic [1:16] pl_boost;
    logic [1:16] pl_dir;
    logic [1:16] pl_en;
@@ -46,7 +65,7 @@ interface motors_x;
                     output pl_sw_outb);
 endinterface // motors_x
 
-interface gbt_x;
+interface t_gbt;
    logic sfp1_gbitin_p;
    logic sfp1_gbitin_n;
    logic sfp1_los;
@@ -72,7 +91,7 @@ interface gbt_x;
                     input sfp1_txdisable);
 endinterface // gbt_x
 
-interface diag_x;
+interface t_diag;
    logic [6:0] led;
    logic [5:0] test;
    logic [3:0] pcbrev;
