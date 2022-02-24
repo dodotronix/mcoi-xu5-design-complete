@@ -5,3 +5,4 @@
 -*.qpf
 +test
 -*.do
++/libs/mcoi_hdl_library/modules/tlc5920
