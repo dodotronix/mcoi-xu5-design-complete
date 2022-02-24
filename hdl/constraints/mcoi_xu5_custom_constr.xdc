@@ -10,7 +10,7 @@
 # FIXME this constraint comes from the GBT core
 # but there is probably a wrong name of the
 # transceiver - this needs to be fixed
-set_property RXSLIDE_MODE "PMA" [get_cells -hier -filter {NAME =~ *gbt_inst*GTHE4_CHANNEL_PRIM_INST}]
+#set_property RXSLIDE_MODE "PMA" [get_cells -hier -filter {NAME =~ *gbt_inst*GTHE4_CHANNEL_PRIM_INST}]
 
 # unused pins are set to high impedance.  # If the constraint is removed, all
 set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]

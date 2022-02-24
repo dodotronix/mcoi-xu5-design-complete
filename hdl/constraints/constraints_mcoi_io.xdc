@@ -174,10 +174,10 @@ set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.led}]
 
 
 # PIN GROUPPING: DISPLAY
-set_property PACKAGE_PIN N7 [get_ports {display_x\.csel[0]}]
-set_property PACKAGE_PIN N6 [get_ports {display_x\.csel[1]}]
-set_property PACKAGE_PIN N9 [get_ports {display_x\.csel[2]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {display_x\.csel}]
+set_property PACKAGE_PIN N7 [get_ports {display_x\.csel_b3[0]}]
+set_property PACKAGE_PIN N6 [get_ports {display_x\.csel_b3[1]}]
+set_property PACKAGE_PIN N9 [get_ports {display_x\.csel_b3[2]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {display_x\.csel_b3}]
 
 set_property PACKAGE_PIN N8 [get_ports {display_x\.sin}]
 set_property IOSTANDARD LVCMOS18 [get_ports {display_x\.sin}]

@@ -55,9 +55,14 @@ add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/vme_reset_sync_an
 add_files [glob $script_path/src/interfaces.sv]
 add_files -fileset ${constraints} [glob $script_path/constraints/*.xdc]
 
-set mcoi_packages $modules_path/mcoi_hdl_library/packages
+set mcoi_hdl_library $modules_path/mcoi_hdl_library
+set mcoi_packages $mcoi_hdl_library/packages
+set mcoi_hdl_library_modules $mcoi_hdl_library/modules
 add_files -fileset sources_1 [glob $mcoi_packages/CKRSPkg.sv]
 add_files -fileset sources_1 [glob $mcoi_packages/MCPkg.sv]
+add_files -fileset sources_1 [glob $mcoi_packages/t_display.sv]
+add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/tlc5920/*.sv]
+add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/clock_divider/*.sv]
 
 # first clear old block design and create a new
 # one just in case that something has changed
@@ -84,22 +89,18 @@ update_compile_order
 #add_files -fileset sources_1 [glob $bi_hdl_cores/GlitchFilter.v]
 #add_files -fileset sources_1 [glob $bi_hdl_cores/serdes/SerDes*?.v]
 
-#set mcoi_hdl_library $modules_path/mcoi_hdl_library
 
 
 #set gefe_modules_path $modules_path/mcoi_gefe_frontend/hdl/modules
 #add_files -fileset sources_1 [glob $gefe_modules_path/extremity_switches_mapper.sv]
 #add_files -fileset sources_1 [glob $gefe_modules_path/build_number.sv]
 
-#set mcoi_hdl_library_modules $mcoi_hdl_library/modules
 #add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/pwm/*.sv]
 #add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/mko/*.sv]
-#add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/clock_divider/*.sv]
 #add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/get_edge/*.sv]
 #add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/manyff/*.sv]
 #add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/memory_transport/rx_memory.sv]
 #add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/serial_register/*.sv]
-#add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/tlc5920/*.sv]
 
 #set mcoi_vfc_backend_modules $modules_path/mcoi_vfc_backend_fw/hdl/modules
 #add_files -fileset sources_1 [glob $mcoi_vfc_backend_modules/led_blinker.sv]

@@ -12,7 +12,7 @@ fpga_supply_ok,   x,          diagnostics-supply,  LVCMOS18,    gpio,          d
 test,             x,          diagnostics-test,    LVCMOS18,    gpio,          diag_x
 pcbrev,           x,          diagnostics-pcbrev,  LVCMOS18,    gpio,          diag_x
 led,              x,          diagnostics-led,     LVCMOS18,    gpio,          diag_x
-csel,             x,          display,             LVCMOS18,    gpio,          display_x
+csel_b3,          x,          display,             LVCMOS18,    gpio,          display_x
 sin,              x,          display,             LVCMOS18,    gpio,          display_x
 sclk,             x,          display,             LVCMOS18,    gpio,          display_x
 latch,            x,          display,             LVCMOS18,    gpio,          display_x

@@ -5,4 +5,3 @@
 -*.qpf
 +test
 -*.do
-+libs/BI_HDL_Cores/cores_for_synthesis
