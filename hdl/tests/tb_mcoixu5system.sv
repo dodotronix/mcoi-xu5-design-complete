@@ -50,6 +50,8 @@ module tb_McoiXu5System;
    /*AUTOINOUTPARAM("McoiXu5System")*/
 
    t_diag diag_x();
+   t_display display_x();
+
    t_clocks clk_tree_x();
    clock_generator clkg;
 
@@ -66,16 +68,15 @@ module tb_McoiXu5System;
       end
 
       `TEST_CASE("debug_test") begin
+	 #100ms;
 
-         $display("This test case is expected to pass");
-         `CHECK_EQUAL(1, 1);
       end
 
    end;
 
    // The watchdog macro is optional, but recommended. If present, it
    // must not be placed inside any initial or always-block.
-   `WATCHDOG(10ms);
+   `WATCHDOG(200ms);
 
    McoiXu5System #(/*AUTOINSTPARAM*/) DUT
      (.*);

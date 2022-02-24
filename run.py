@@ -53,6 +53,20 @@ MCOILIB = join(root,
 # simulation. Define which directories to traverse and which extensions
 directories_to_parse = ['hdl/src',
                         'hdl/tests',
+                        'libs/BI_HDL_Cores/cores_for_synthesis/serdes',
+                        'libs/mcoi_hdl_library/tests',
+                        'libs/mcoi_hdl_library/modules/clock_divider',
+                        'libs/mcoi_hdl_library/modules/get_edge',
+                        'libs/mcoi_hdl_library/modules/manyff',
+                        'libs/mcoi_hdl_library/modules/memory_transport',
+                        'libs/mcoi_hdl_library/modules/mko',
+                        'libs/mcoi_hdl_library/modules/pwm',
+                        'libs/mcoi_hdl_library/modules/scrambler',
+                        'libs/mcoi_hdl_library/modules/serial_register',
+                        'libs/mcoi_hdl_library/modules/tlc5920',
+                        'libs/mcoi_hdl_library/modules/wb_spi_4wires',
+                        'libs/BI_HDL_Cores/cores_for_synthesis/8b10b',
+                        'libs/BI_HDL_Cores/cores_for_synthesis/ip_open_cores',
                         'libs/mcoi_hdl_library/packages']
 filters = ['*.sv', '*.v', '*.vhd']
 
@@ -67,10 +81,9 @@ compiled_files = []
 for filt in filters:
     compiled_files += fnmatch.filter(matches, filt)
 
-dirs = [join(MCOILIB, "pwm", "pwm.sv"),
-        join(MCOILIB, "manyff", "manyff.sv"),
-        'libs/mcoi_vfc_backend_fw/hdl/simulation/constants.sv',
-        join(MCOILIB, "mko", "mko.sv")] +\
+dirs = ['libs/mcoi_vfc_backend_fw/hdl/simulation/constants.sv',
+        'libs/BI_HDL_Cores/cores_for_synthesis/GlitchFilter.v',
+        ] +\
         compiled_files
 
 ui = VUnit.from_argv()

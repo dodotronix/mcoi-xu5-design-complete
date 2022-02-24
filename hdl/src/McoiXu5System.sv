@@ -37,7 +37,8 @@ import CKRSPkg::*;
 module McoiXu5System (//gbt_x gbt,
                       t_diag.producer diag_x,
                       //clocks
-		      t_clocks.consumer clk_tree_x
+		      t_clocks.consumer clk_tree_x,
+                      t_display.producer display_x
                       //input ps_clk,
                       //input pl_varclk,
                       //serial
@@ -75,6 +76,27 @@ module McoiXu5System (//gbt_x gbt,
    assign diag_x.led[1] = 1'b0;
    assign diag_x.led[2] = led;
    assign diag_x.test[0] = clk_tree_x.ClkRs100MHz_ix.clk;
+
+   logic [3:0][1:0][15:0] ledData_b; //4 rows, 2states, 16 columns
+
+   // artificial assignment to see led diodes working ok
+   genvar 		  i;
+   generate for(i=0; i < 16; i++) begin
+      assign ledData_b[3][1][i] = i % 2;
+      assign ledData_b[3][0][i] = '0;
+      assign ledData_b[2][1][i] = '1;
+      assign ledData_b[2][0][i] = i % 2;
+      assign ledData_b[1][1][i] = i % 2;
+      assign ledData_b[1][0][i] = '0;
+      assign ledData_b[0][1][i] = '1;
+      assign ledData_b[0][0][i] = i % 2;
+   end
+   endgenerate
+
+   // bar led-diode driver, 10MHz clock
+   tlc5920 #(.g_divider (9))
+   tlc_5920_i(.ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
+	      .*);
 
 //Diagnostics block gathering information about board
 // McoiXu5Diagnostics mcoi_diagnostics_i(

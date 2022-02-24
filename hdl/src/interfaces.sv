@@ -16,29 +16,6 @@ interface t_clocks;
 
 endinterface // clocks
 
-
-
-interface t_display;
-   // these signals handle communication with led drivers:
-   logic 		  latch;
-   logic 		  blank;
-   logic [2:0]    csel;
-   logic 		  sclk;
-   logic 		  sin;
-
-   modport producer(output latch,
-                    output blank,
-                    output csel,
-                    output sclk,
-                    output sin);
-
-   modport consumer(input latch,
-                    input blank,
-                    input csel,
-                    input sclk,
-                    input sin);
-endinterface // display_x
-
 interface t_motors;
    logic [1:16] pl_boost;
    logic [1:16] pl_dir;
@@ -92,10 +69,10 @@ interface t_gbt;
 endinterface // gbt_x
 
 interface t_diag;
-   logic [6:0] led;
-   logic [5:0] test;
-   logic [3:0] pcbrev;
-   logic       fpga_supply_ok;
+   logic [6:0] 		  led;
+   logic [5:0] 		  test;
+   logic [3:0] 		  pcbrev;
+   logic 		  fpga_supply_ok;
 
    modport producer(output led,
                     output test,
@@ -106,4 +83,4 @@ interface t_diag;
                      input  test,
                      output pcbrev,
                      output fpga_supply_ok);
-   endinterface // diag_x
+endinterface // diag_x
