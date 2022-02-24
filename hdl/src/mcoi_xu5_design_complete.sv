@@ -38,13 +38,13 @@ import MCPkg::*;
 import CKRSPkg::*;
 
 module mcoi_xu5_design_complete (//motors
-                                 motors_x.producer motors,
+                                 t_motors.producer motors_x,
                                  //optical interface
                                  //gbt_x.producer gbt,
                                  //diagnostics
-                                 diag_x.producer diag,
+                                 t_diag.producer diag_x,
                                  //display
-                                 display_x.producer display,
+                                 t_display.producer display_x,
                                  output        mreset_vadj,
                                  // clocks
                                  input         mgt_clk_p,
@@ -67,11 +67,12 @@ module mcoi_xu5_design_complete (//motors
                    .I(clk100m_pl_p),
                    .IB(clk100m_pl_n));
 
-   vme_reset_sync_and_filter u_125MHz_reset_sync
+   vme_reset_sync_and_filter u_100MHz_reset_sync
      (.rst_ir   (1'b0),
       .clk_ik   (clk_tree_x.ClkRs100MHz_ix.clk),
       .cen_ie   (1'b1),
       // @TODO: do reset thingy here - which pin if any?
+      // @TODO connect to SFP LOS signal
       .data_i   ('0),
       .data_o   (clk_tree_x.ClkRs100MHz_ix.reset)
       );

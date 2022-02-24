@@ -35,7 +35,7 @@ import CKRSPkg::*;
 
 
 module McoiXu5System (//gbt_x gbt,
-                      t_diag diag_x,
+                      t_diag.producer diag_x,
                       //clocks
 		      t_clocks.consumer clk_tree_x
                       //input ps_clk,
@@ -60,10 +60,10 @@ module McoiXu5System (//gbt_x gbt,
 // TODO leds
 
    // FOR NEW PCB - QUICK TEST
-   logic clk100m_ref, led;
+   logic led;
 
    logic [23:0] cnt;
-   always@(posedge clk100m_ref) begin
+   always@(posedge clk_tree_x.ClkRs100MHz_ix.clk) begin
       cnt <= cnt + 1;
       if (cnt > 10000000) begin
          led <= led ^ 1'b1;
@@ -74,7 +74,7 @@ module McoiXu5System (//gbt_x gbt,
    assign diag_x.led[0] = 1'b0;
    assign diag_x.led[1] = 1'b0;
    assign diag_x.led[2] = led;
-   assign diag_x.test[0] = clk100m_ref;
+   assign diag_x.test[0] = clk_tree_x.ClkRs100MHz_ix.clk;
 
 //Diagnostics block gathering information about board
 // McoiXu5Diagnostics mcoi_diagnostics_i(
