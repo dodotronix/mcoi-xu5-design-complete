@@ -51,6 +51,7 @@ add_files [glob $script_path/src/mcoi_xu5_design_complete.sv]
 add_files [glob $script_path/src/McoiXu5System.sv]
 add_files [glob $script_path/src/McoiXu5Application.sv]
 add_files [glob $script_path/src/McoiXu5Diagnostics.sv]
+add_files [glob $script_path/src/gbt_xu5.vhd]
 add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/vme_reset_sync_and_filter.vhd]
 add_files [glob $script_path/src/interfaces.sv]
 add_files -fileset ${constraints} [glob $script_path/constraints/*.xdc]
@@ -64,11 +65,14 @@ add_files -fileset sources_1 [glob $mcoi_packages/t_display.sv]
 add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/tlc5920/*.sv]
 add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/clock_divider/*.sv]
 
+# MGMT 40MHz frame PLL
+source $ip_cores_path/pll_40m/gbt_pll_clk40m.tcl
+source $modules_path/zynq_usplus_gbt_fpga/load2project.tcl
 # first clear old block design and create a new
 # one just in case that something has changed
 remove_files [get_files $bd_name]
 
-#create new block design
+# create new block design
 create_bd_design $bd_name
 
 # load ps part which is in the current design

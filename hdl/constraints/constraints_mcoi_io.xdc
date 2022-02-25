@@ -192,6 +192,21 @@ set_property PACKAGE_PIN L5 [get_ports {display_x\.blank}]
 set_property IOSTANDARD LVCMOS18 [get_ports {display_x\.blank}]
 
 
+# PIN GROUPPING: GBTCORE
+set_property PACKAGE_PIN C4 [get_ports {gbt_x\.sfp1_los}]
+set_property IOSTANDARD LVCMOS18 [get_ports {gbt_x\.sfp1_los}]
+
+set_property PACKAGE_PIN G1 [get_ports {gbt_x\.sfp1_txdisable}]
+set_property IOSTANDARD LVCMOS18 [get_ports {gbt_x\.sfp1_txdisable}]
+
+set_property PACKAGE_PIN F1 [get_ports {gbt_x\.sfp1_rateselect}]
+set_property IOSTANDARD LVCMOS18 [get_ports {gbt_x\.sfp1_rateselect}]
+
+set_property PACKAGE_PIN Y1 [get_ports {gbt_x\.sfp1_gbitin_n}]
+set_property PACKAGE_PIN Y2 [get_ports {gbt_x\.sfp1_gbitin_p}]
+set_property PACKAGE_PIN W3 [get_ports {gbt_x\.sfp1_gbitout_n}]
+set_property PACKAGE_PIN W4 [get_ports {gbt_x\.sfp1_gbitout_p}]
+
 # PIN GROUPPING: I2C_SDA_PL
 set_property PACKAGE_PIN AE12 [get_ports {i2c_sda_pl}]
 set_property IOSTANDARD LVCMOS18 [get_ports {i2c_sda_pl}]

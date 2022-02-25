@@ -22,13 +22,13 @@ uart_tx_ps,       x,          uart,                LVCMOS18,    exclude,
 ps_srst#,         x,          control,             LVCMOS18,    exclude,
 ps_done,          x,          control,             LVCMOS18,    exclude,
 ftdi_reset,       x,          control,             LVCMOS18,    exclude,
-sfp1_los,         x,          gbtcore,             LVCMOS18,    exclude,          gbt_x
-sfp1_txdisable,   x,          gbtcore,             LVCMOS18,    exclude,          gbt_x
-sfp1_rateselect,  x,          gbtcore,             LVCMOS18,    exclude,          gbt_x
-sfp1_gbitin_n,    x,          gbtcore,             ,            exclude,          gbt_x
-sfp1_gbitin_p,    x,          gbtcore,             ,            exclude,          gbt_x
-sfp1_gbitout_n,   x,          gbtcore,             ,            exclude,          gbt_x
-sfp1_gbitout_p,   x,          gbtcore,             ,            exclude,          gbt_x
+sfp1_los,         x,          gbtcore,             LVCMOS18,    gpio,          gbt_x
+sfp1_txdisable,   x,          gbtcore,             LVCMOS18,    gpio,          gbt_x
+sfp1_rateselect,  x,          gbtcore,             LVCMOS18,    gpio,          gbt_x
+sfp1_gbitin_n,    x,          gbtcore,             ,            gpio,          gbt_x
+sfp1_gbitin_p,    x,          gbtcore,             ,            gpio,          gbt_x
+sfp1_gbitout_n,   x,          gbtcore,             ,            gpio,          gbt_x
+sfp1_gbitout_p,   x,          gbtcore,             ,            gpio,          gbt_x
 jtag_tck,         x,          jtag,                LVCMOS18,    exclude,
 jtag_tdi,         x,          jtag,                LVCMOS18,    exclude,
 jtag_tdo,         x,          jtag,                LVCMOS18,    exclude,

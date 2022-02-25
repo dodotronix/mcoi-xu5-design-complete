@@ -57,6 +57,7 @@
 							   "libs/i2creader/src"
 							   "libs/BI_HDL_Cores/Cores_for_synthesis/"
 							   "libs/mcoi_hdl_library/modules/mko/"
+							   "libs/mcoi_hdl_library/modules/tl5920/"
 							   "libs/mcoi_hdl_library/modules/get_edge/")))
 			    (add-to-list 'full-path-dirs vuincl vudir)
 			    (setq verilog-library-directories full-path-dirs)

@@ -8,11 +8,16 @@ interface t_clocks;
 
    // 100MHz on-module oscillator
    ckrs_t ClkRs100MHz_ix;
+   ckrs_t ClkRs120MHzMGMT_ix;
+   ckrs_t ClkRs40MHzMGMT_ix;
 
+   modport producer(output ClkRs100MHz_ix,
+		    output ClkRs120MHzMGMT_ix,
+		    output ClkRs40MHzMGMT_ix);
 
-   modport producer(output ClkRs100MHz_ix);
-
-   modport consumer(input ClkRs100MHz_ix);
+   modport consumer(input ClkRs100MHz_ix,
+		    input ClkRs120MHzMGMT_ix,
+		    input ClkRs40MHzMGMT_ix);
 
 endinterface // clocks
 

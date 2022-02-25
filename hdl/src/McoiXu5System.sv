@@ -75,7 +75,7 @@ module McoiXu5System (//gbt_x gbt,
    assign diag_x.led[0] = 1'b0;
    assign diag_x.led[1] = 1'b0;
    assign diag_x.led[2] = led;
-   assign diag_x.test[0] = clk_tree_x.ClkRs100MHz_ix.clk;
+   //assign diag_x.test[0] = clk_tree_x.ClkRs100MHz_ix.clk;
 
    logic [3:0][1:0][15:0] ledData_b; //4 rows, 2states, 16 columns
 
@@ -176,22 +176,5 @@ module McoiXu5System (//gbt_x gbt,
     //.data_to_stream_ob80(data_from_mcoi[79:0]),
     //.sc_from_stream_ib2(data_to_mcoi[81:80]),
     //.sc_to_stream_ob2(data_from_mcoi[81:80]));
-
-//gbt_pingroup i_pg_gbt(
-    ////hw pins sfp
-    //.sfp_rx_p(sfp1_gbitin_p),
-    //.sfp_rx_n(sfp1_gbitin_n),
-    //.sfp_tx_p(sfp1_gbitout_p),
-    //.sfp_tx_n(sfp1_gbitout_n),
-    //.sfp_rats_o(sfp1_rateselect),
-    //.sfp_txdis_o(sfp1_txdisable),
-    //.sfp_los_i(sfp1_los),
-    //.mgt_clk120m_ip(mgt_clk_p),
-    //.mgt_clk120m_in(mgt_clk_n),
-    //.clk40m_o(clk40m_l),
-
-    ////pin group
-    //.gbt_data_o(data_to_mcoi),
-    //.gbt_data_i(data_from_mcoi));
 
 endmodule // McoiXu5System
