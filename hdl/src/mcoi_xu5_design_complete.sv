@@ -62,7 +62,7 @@ module mcoi_xu5_design_complete (//motors
 
    // @TODO: do reset thingy here - which pin if any?
    // @TODO connect to SFP LOS signal
-   logic 				       master_reset = '0;
+   logic 				       master_reset = '1;
 
    // GBT data reception/transmission frame
    typedef struct packed {
@@ -158,7 +158,7 @@ module mcoi_xu5_design_complete (//motors
       .tx_wordclk_o(),
       .rx_frameclk_rdy_o(),
       // reset
-      .gbtbank_general_reset_i(1'b0),
+      .gbtbank_general_reset_i(clk_tree_x.ClkRs40MHzMGMT_ix.reset),
       .gbtbank_manual_reset_tx_i(1'b0),
       .gbtbank_manual_reset_rx_i(1'b0),
 
