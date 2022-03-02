@@ -16,7 +16,7 @@ set_property PACKAGE_PIN AF11 [get_ports {motors_x\.pl_pfail[13]}]
 set_property PACKAGE_PIN AG11 [get_ports {motors_x\.pl_pfail[14]}]
 set_property PACKAGE_PIN AB10 [get_ports {motors_x\.pl_pfail[15]}]
 set_property PACKAGE_PIN AB9 [get_ports {motors_x\.pl_pfail[16]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_pfail}]
+set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_pfail[*]}]
 
 
 # PIN GROUPPING: MOTOR-PL_CLK
@@ -36,7 +36,7 @@ set_property PACKAGE_PIN C3 [get_ports {motors_x\.pl_clk[13]}]
 set_property PACKAGE_PIN J5 [get_ports {motors_x\.pl_clk[14]}]
 set_property PACKAGE_PIN V8 [get_ports {motors_x\.pl_clk[15]}]
 set_property PACKAGE_PIN T8 [get_ports {motors_x\.pl_clk[16]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_clk}]
+set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_clk[*]}]
 
 
 # PIN GROUPPING: MOTOR-PL_EN
@@ -56,7 +56,7 @@ set_property PACKAGE_PIN F3 [get_ports {motors_x\.pl_en[13]}]
 set_property PACKAGE_PIN P6 [get_ports {motors_x\.pl_en[14]}]
 set_property PACKAGE_PIN T7 [get_ports {motors_x\.pl_en[15]}]
 set_property PACKAGE_PIN R7 [get_ports {motors_x\.pl_en[16]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_en}]
+set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_en[*]}]
 
 
 # PIN GROUPPING: MOTOR-PL_BOOST
@@ -76,7 +76,7 @@ set_property PACKAGE_PIN D1 [get_ports {motors_x\.pl_boost[13]}]
 set_property PACKAGE_PIN J4 [get_ports {motors_x\.pl_boost[14]}]
 set_property PACKAGE_PIN K3 [get_ports {motors_x\.pl_boost[15]}]
 set_property PACKAGE_PIN U8 [get_ports {motors_x\.pl_boost[16]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_boost}]
+set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_boost[*]}]
 
 
 # PIN GROUPPING: MOTOR-PL_DIR
@@ -96,7 +96,7 @@ set_property PACKAGE_PIN F2 [get_ports {motors_x\.pl_dir[13]}]
 set_property PACKAGE_PIN G3 [get_ports {motors_x\.pl_dir[14]}]
 set_property PACKAGE_PIN K4 [get_ports {motors_x\.pl_dir[15]}]
 set_property PACKAGE_PIN R8 [get_ports {motors_x\.pl_dir[16]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_dir}]
+set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_dir[*]}]
 
 
 # PIN GROUPPING: MOTOR-PL_SW_OUTA
@@ -116,7 +116,7 @@ set_property PACKAGE_PIN AH13 [get_ports {motors_x\.pl_sw_outa[13]}]
 set_property PACKAGE_PIN AG13 [get_ports {motors_x\.pl_sw_outa[14]}]
 set_property PACKAGE_PIN AF13 [get_ports {motors_x\.pl_sw_outa[15]}]
 set_property PACKAGE_PIN AE13 [get_ports {motors_x\.pl_sw_outa[16]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_sw_outa}]
+set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_sw_outa[*]}]
 
 
 # PIN GROUPPING: MOTOR-PL_SW_OUTB
@@ -136,7 +136,7 @@ set_property PACKAGE_PIN W14 [get_ports {motors_x\.pl_sw_outb[13]}]
 set_property PACKAGE_PIN W13 [get_ports {motors_x\.pl_sw_outb[14]}]
 set_property PACKAGE_PIN Y14 [get_ports {motors_x\.pl_sw_outb[15]}]
 set_property PACKAGE_PIN Y13 [get_ports {motors_x\.pl_sw_outb[16]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_sw_outb}]
+set_property IOSTANDARD LVCMOS18 [get_ports {motors_x\.pl_sw_outb[*]}]
 
 
 # PIN GROUPPING: DIAGNOSTICS-SUPPLY
@@ -151,7 +151,7 @@ set_property PACKAGE_PIN J7 [get_ports {diag_x\.test[2]}]
 set_property PACKAGE_PIN H7 [get_ports {diag_x\.test[3]}]
 set_property PACKAGE_PIN H9 [get_ports {diag_x\.test[4]}]
 set_property PACKAGE_PIN H8 [get_ports {diag_x\.test[5]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.test}]
+set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.test[*]}]
 
 
 # PIN GROUPPING: DIAGNOSTICS-PCBREV
@@ -159,7 +159,7 @@ set_property PACKAGE_PIN K8 [get_ports {diag_x\.pcbrev[0]}]
 set_property PACKAGE_PIN K7 [get_ports {diag_x\.pcbrev[1]}]
 set_property PACKAGE_PIN K9 [get_ports {diag_x\.pcbrev[2]}]
 set_property PACKAGE_PIN J9 [get_ports {diag_x\.pcbrev[3]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.pcbrev}]
+set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.pcbrev[*]}]
 
 
 # PIN GROUPPING: DIAGNOSTICS-LED
@@ -170,14 +170,14 @@ set_property PACKAGE_PIN G8 [get_ports {diag_x\.led[3]}]
 set_property PACKAGE_PIN F7 [get_ports {diag_x\.led[4]}]
 set_property PACKAGE_PIN G6 [get_ports {diag_x\.led[5]}]
 set_property PACKAGE_PIN F6 [get_ports {diag_x\.led[6]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.led}]
+set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.led[*]}]
 
 
 # PIN GROUPPING: DISPLAY
 set_property PACKAGE_PIN N7 [get_ports {display_x\.csel_b3[0]}]
 set_property PACKAGE_PIN N6 [get_ports {display_x\.csel_b3[1]}]
 set_property PACKAGE_PIN N9 [get_ports {display_x\.csel_b3[2]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {display_x\.csel_b3}]
+set_property IOSTANDARD LVCMOS18 [get_ports {display_x\.csel_b3[*]}]
 
 set_property PACKAGE_PIN N8 [get_ports {display_x\.sin}]
 set_property IOSTANDARD LVCMOS18 [get_ports {display_x\.sin}]

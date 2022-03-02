@@ -5,6 +5,14 @@
 # AUTOMATICALY GENERATED SO IF YOU MAKE YOUR CHANGES
 # IN THOSE, YOUR SETTINGS WILL BE OVERWITTEN BY THE
 # NEXT "MAKE UPDATE"
+#
+# Xilix Docs
+#
+# vivado properties guide
+# https://www.xilinx.com/support/documentation/sw_manuals/xilinx2021_2/ug912-vivado-properties.pdf
+#
+# constraints guide
+# https://www.xilinx.com/support/documentation/sw_manuals/xilinx2021_1/ug903-vivado-using-constraints.pdf
 # ------------------------------------------------------------------------------
 
 # FIXME this constraint comes from the GBT core
@@ -27,3 +35,14 @@ set_property PACKAGE_PIN AD5 [get_ports {clk100m_pl_p}]
 set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports {clk100m_pl_p}]
 set_property PACKAGE_PIN AD4 [get_ports {clk100m_pl_n}]
 set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports {clk100m_pl_n}]
+
+# define external 100mhz clock
+create_clock -period 10.000 -name clk100m_pl [get_ports {clk100m_pl_p}]
+
+# delay [ns] between all inputs and outputs
+#set_max_delay 60 - from [all_inputs] - to [all_outputs]
+#
+set_max_delay 60 - from [display\.*] - to [display\.*]
+
+# Current limit for the LEDs
+set_property DRIVE 4 [get_ports {diag_x\.led[*]}]
