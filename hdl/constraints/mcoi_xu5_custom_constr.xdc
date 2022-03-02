@@ -42,7 +42,7 @@ create_clock -period 10.000 -name clk100m_pl [get_ports {clk100m_pl_p}]
 # delay [ns] between all inputs and outputs
 #set_max_delay 60 - from [all_inputs] - to [all_outputs]
 #
-set_max_delay 60 - from [display\.*] - to [display\.*]
+#set_max_delay 60 -from [display\.*] -to [display\.*]
 
 # Current limit for the LEDs
 set_property DRIVE 4 [get_ports {diag_x\.led[*]}]
