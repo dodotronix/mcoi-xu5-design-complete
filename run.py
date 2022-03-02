@@ -37,6 +37,9 @@ import os
 
 root = dirname(__file__)
 
+# MODIFY THIS TO YOUR INSTALLATION ENVIRONMENT:
+VIVADO = '/opt/Xilinx/Vivado/2021.2/'
+
 BICORES = join(root,
                "libs",
                "mcoi_hdl_library",
@@ -54,6 +57,7 @@ MCOILIB = join(root,
 directories_to_parse = ['hdl/src',
                         'hdl/tests',
                         'libs/BI_HDL_Cores/cores_for_synthesis/serdes',
+                        # MCOI:
                         'libs/mcoi_hdl_library/tests',
                         'libs/mcoi_hdl_library/modules/clock_divider',
                         'libs/mcoi_hdl_library/modules/get_edge',
@@ -68,6 +72,8 @@ directories_to_parse = ['hdl/src',
                         'libs/BI_HDL_Cores/cores_for_synthesis/8b10b',
                         'libs/BI_HDL_Cores/cores_for_synthesis/ip_open_cores',
                         'libs/mcoi_hdl_library/packages']
+
+# all sources to be considered:
 filters = ['*.sv', '*.v', '*.vhd']
 
 matches = []
@@ -83,8 +89,15 @@ for filt in filters:
 
 dirs = ['libs/mcoi_vfc_backend_fw/hdl/simulation/constants.sv',
         'libs/BI_HDL_Cores/cores_for_synthesis/GlitchFilter.v',
-        ] +\
-        compiled_files
+        # DUMMY placeholder for GBT
+        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/gbt_bank/core_sources/gbt_bank_package.vhd',
+        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/packages/zynq_usplus_gbt_bank_package.vhd',
+        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/exampleDsgn_package.vhd',
+        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/gbt_rx_frameclk_phalgnr.vhd', '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/phaligner_phase_comparator.vhd', '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/phaligner_phase_computing.vhd',
+        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_bank_reset.vhd', '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_pattern_checker.vhd', '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_pattern_generator.vhd',
+        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/clock_divider.vhd',
+] +\
+compiled_files
 
 ui = VUnit.from_argv()
 # put all the test designs into the lib (including the testbenches)
@@ -95,6 +108,12 @@ for dirx in dirs:
                            ["+acc",
                             "-sv12compat",
                             "-64"])
+
+unisim = ui.add_library("unisim")
+unisim_src = [os.path.join(VIVADO, 'data/vhdl/src/unisims/unisim_VCOMP.vhd'),
+              os.path.join(VIVADO, 'data/vhdl/src/unisims/unisim_VPKG.vhd'),
+              ]
+unisim.add_source_files(unisim_src)
 
 # assure loading of do file into modelsim if that exists
 cmdline = list(sys.argv)

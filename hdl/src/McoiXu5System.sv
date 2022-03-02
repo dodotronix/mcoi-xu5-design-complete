@@ -63,35 +63,21 @@ module McoiXu5System (//gbt_x gbt,
    // FOR NEW PCB - QUICK TEST
    logic led;
 
-   logic [23:0] cnt;
-   always@(posedge clk_tree_x.ClkRs100MHz_ix.clk) begin
+   // artificially too large to feed directly leds
+   logic [127:0] cnt;
+   always@(posedge clk_tree_x.ClkRs100MHz_ix.clk)
       cnt <= cnt + 1;
-      if (cnt > 10000000) begin
-         led <= led ^ 1'b1;
-         cnt <= '0;
-      end
-   end
 
-   assign diag_x.led[0] = 1'b0;
-   assign diag_x.led[1] = 1'b0;
-   assign diag_x.led[2] = led;
-   //assign diag_x.test[0] = clk_tree_x.ClkRs100MHz_ix.clk;
+   assign diag_x.led[0] = cnt[25];
+   assign diag_x.led[1] = cnt[26];
+   // roughly second
+   assign diag_x.led[2] = cnt[27];
 
    logic [3:0][1:0][15:0] ledData_b; //4 rows, 2states, 16 columns
 
    // artificial assignment to see led diodes working ok
-   genvar 		  i;
-   generate for(i=0; i < 16; i++) begin
-      assign ledData_b[3][1][i] = i % 2;
-      assign ledData_b[3][0][i] = '0;
-      assign ledData_b[2][1][i] = '1;
-      assign ledData_b[2][0][i] = i % 2;
-      assign ledData_b[1][1][i] = i % 2;
-      assign ledData_b[1][0][i] = '0;
-      assign ledData_b[0][1][i] = '1;
-      assign ledData_b[0][0][i] = i % 2;
-   end
-   endgenerate
+   assign ledData_b = cnt;
+
 
    // bar led-diode driver, 10MHz clock
    tlc5920 #(.g_divider (9))

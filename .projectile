@@ -1,4 +1,5 @@
 +/hdl/src
++*.py
 -*.html
 -*.xml
 -*.cof
