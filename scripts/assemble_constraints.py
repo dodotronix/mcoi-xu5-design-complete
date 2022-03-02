@@ -208,6 +208,10 @@ def get_iostandard_stamp(iostandard, pin):
     return ("set_property IOSTANDARD {0} [get_ports {{{1}}}]\n\n".format(
            iostandard.upper(), pin)) if(iostandard != "") else ("")
 
+def get_iostandard_stamp_for_vector(iostandard, pin):
+    return ("set_property IOSTANDARD {0} [get_ports {{{1}[*]}}]\n\n".format(
+           iostandard.upper(), pin)) if(iostandard != "") else ("")
+
 def create_clock_stamp(clk_list):
     # pin key in dictionary is user identificator for pins of group
     stamp = "{0}".format(get_group_comment(clk_list[0]["pin"], 
@@ -248,7 +252,7 @@ def create_gpio_stamp_vector(gpio_list):
             user_name = "{0}\.{1}".format(i["interface"], user_name)
         stamp = "{0}{1}".format(stamp, 
                  get_set_property_vector(pin, user_name, num))
-    return "{0}{1}".format(stamp, get_iostandard_stamp(
+    return "{0}{1}".format(stamp, get_iostandard_stamp_for_vector(
            iostandard, user_name))
 
 def create_gpio_stamp_standard(gpio_list):
