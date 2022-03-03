@@ -55,6 +55,8 @@ MCOILIB = join(root,
 # find all files in modules and tests, which will be used for the
 # simulation. Define which directories to traverse and which extensions
 directories_to_parse = ['hdl/src',
+                        'hdl/src/diagnostics/src',
+                        'hdl/src/diagnostics/tests',
                         'hdl/tests',
                         'libs/BI_HDL_Cores/cores_for_synthesis/serdes',
                         # MCOI:
