@@ -75,11 +75,10 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
 
    // TODO place the bram here instead of
    // instantiating it inside of the feeder
-   feeder feeder_i(.clk(clock),
-                   .rstp(reset),
-                   .raw_data_o19b(raw_data_19b),
+   feeder feeder_i(.raw_data_o19b(raw_data_19b),
                    .valid_o(aval),
-                   .ready_i(ardy));
+                   .ready_i(ardy),
+		   .*);
 
    // NOTE this interprets the data from
    // bram and cast it to the i2c master

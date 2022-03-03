@@ -15,7 +15,7 @@ end feeder;
 architecture behavioral of feeder is
 
 
-  COMPONENT test_rom
+  COMPONENT pll_config_rom
     PORT (
            clka : in std_logic;
            addra : in std_logic_vector(9 downto 0);
@@ -32,7 +32,7 @@ architecture behavioral of feeder is
 
 begin
     -- bram memory
-  test_rom_i : test_rom
+  pll_config_rom_i : pll_config_rom
   PORT MAP (
              clka => clk,
              addra => addr_cnt,
@@ -48,8 +48,8 @@ begin
         addr_cnt <=  (others => '0'); -- start at maximum value
       else
         if(rising_edge(clk)) then
-          ready_cc <= ready_i; -- for edge detection 
-          addr_cnt <= addr_cnt; 
+          ready_cc <= ready_i; -- for edge detection
+          addr_cnt <= addr_cnt;
           valid <= valid;
 
           -- delay the new_addr signal (2 cycles)
@@ -60,7 +60,7 @@ begin
 
           -- falling edge detection
           if(ready_i = '0' and ready_cc = '1') then
-            addr_cnt <= addr_cnt + 1; 
+            addr_cnt <= addr_cnt + 1;
             delay_2cyc <= delay_2cyc(0) & '1';
             valid <= '0';
           end if;
