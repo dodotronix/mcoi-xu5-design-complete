@@ -1,20 +1,27 @@
-#Makefile for diagnostics module
+# Makefile for diagnostics module
 
 # IF YOU WANT CHANGE THE PLL TO DIFFERENT FREQUENCY
 # GENERATE THE C FILE AND PLACE IT IN CONFIGS
-CONFIG_FILE_NAME := test.h
+SIM_HEADER_FILE_NAME := config_120mhz.h
+SIM_COE_FILE_NAME    := config_120mhz.coe
+XSIM_TEMP_PROJECT    := temp_top.prj
+XSIM_TEMP_VCD_TCL    := dump_vcd.tcl
+BUILD_BRAM_TCL       := build_bram.tcl
 
 # WARNING: PLEASE DO NOT EDIT THE PARTS BELOW
 # IF YOU DON'T KNOW EXACTLY WHAT YOU ARE DOING
 
 #PROJECT FOLDER PATH
-PROJECT_PATH := $(shell pwd)
-SCRIPTS_DIR := $(ROOT_DIR)/scripts
-REGISTER_MAP_DIR := $(SCRIPTS_DIR)/register_map/
-IP_CORE_DIR := ip_cores
-BRAM_INIT_FILES := $(IP_CORE_DIR)/bram/init_files
+MAKEFILE_PATH     := $(shell pwd)
+SCRIPTS_DIR       := $(MAKEFILE_PATH)/scripts
+REGISTER_MAP_DIR  := $(SCRIPTS_DIR)/register_map
+IP_CORE_DIR       := $(MAKEFILE)/ip_cores
+BRAM_INIT_FILES   := $(IP_CORE_DIR)/bram/init_files
+TESTS_FOLDER      := $(MAKEFILE_PATH)/tests
+TEMP_XSIM_FOLDER  := $(MAKEFILE_PATH)/temp_xsim
+TEMP_REPOSITORIES := $(MAKEFILE_PATH)/temp_repos
 
-PLL_CONFIG_FILE := $(REGISTER_MAP_DIR)/$(CONFIG_FILE_NAME)
+PLL_HEADER_FILE := $(REGISTER_MAP_DIR)/$(SIM_HEADER_FILE_NAME)
 
 all:
 	@printf 'USAGE: init|update|verify|verify_gui|clean\n'
@@ -60,13 +67,53 @@ __check_software_availability:
 update:
 	@printf 'TODO - regenerates ip_cores\n'
 
-# TODO clone git repos to temp directory and run run.py
 verify:
-	@[ ! -d temp_repos ] && mkdir temp_repos; \ 
-	cd tests && python3 run.py && cd ..; \ 
-	cd $(SCRIPTS_DIR); ./gen_init_coe $(PLL_CONFIG_FILE) \
-		$(BRAM_INIT_FILES)
+	@[ -d $(TEMP_REPOSITORIES)] && rm -rf $(TEMP_REPOSITORIES); \
+		mkdir $(TEMP_REPOSITORIES) && cd $(TEMP_REPOSITORIES); \
+		git clone https://github.com/ParticleBert/FPGA-I2C-Slave.git; \
+		git clone ssh://git@gitlab.cern.ch:7999/bi/BI_HDL_Cores.git; \
+		cd ..; \
+		[ ! -d $(TEMP_XSIM_FOLDER) ] && mkdir $(TEMP_XSIM_FOLDER); \
+		python3 $(SCRIPTS_DIR)/gen_init_coe.py $(PLL_HEADER_FILE) \
+		$(TEMP_XSIM_FOLDER)/$(SIM_COE_FILE_NAME);
+
+test:
+		cd $(TESTS_FOLDER) && python3 run.py && cd ..
+
+temp_vivado_project:
+	@touch $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_PROJECT); \
+		printf "" > $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_PROJECT); \
+		for i in $(SCRIPTS_DIR)/*.vhd; do \
+		printf "vhdl work \"$(SCRIPTS_DIR)/$i\"\n" \
+		>> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_PROJECT); done; \
+		printf "verilog work $(TEMP_XSIM_FOLDER)/IP/\n" \
+		>> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_PROJECT); \
+		printf "verilog work $(TEMP_XSIM_FOLDER)/IP/\n" \
+		>> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_PROJECT);
+
+create_vdc_file:
+	@touch $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_VCD_TCL); \
+		printf "open_vcd\n" \
+		> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_VCD_TCL); \
+		printf "log_vcd [get_object /I2cReader_tb/*]\n" \
+		>> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_VCD_TCL); \
+		printf "log_vcd [get_object /feeder_i/*]\n" \
+		>> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_VCD_TCL); \
+		printf "log_vcd [get_object /interpreter_i/*]\n" \
+		>> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_VCD_TCL); \
+		printf "run all\nclose_vcd\nexit" \
+		>> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_VCD_TCL) 
+
+build_bram: 
+	@cd $(TEMP_XSIM_FOLDER); \
+		cp $(TESTS_FOLDER)/xsim/$(BUILD_BRAM_TCL) .; \
+		vivado -mode batch -source $(BUILD_BRAM_TCL) \
+		-tclargs $(SIM_COE_FILE_NAME) \
+		-nojournal -appjournal -nolog; \
+		cd ..
 
 clean:
-	rm -r verify/vunit_out; \
-	@printf 'TODO - clean temporary files\n'
+	@rm -fr temp_repos; \
+	rm -fr $(TESTS_FOLDER)/vunit_out; \
+	rm -fr $(TEMP_XSIM_FOLDER)
+
