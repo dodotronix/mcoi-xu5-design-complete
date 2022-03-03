@@ -35,7 +35,7 @@ import CKRSPkg::*;
 
 module McoiXu5Diagnostics #(parameter address=7'h20,
                             parameter i2c_divider=10'h3ff)
-   (input ckrs_t ClkRs_ix;
+   (input ckrs_t ClkRs_ix,
     output done,
     inout  i2c_sda_pl,
     inout  i2c_scl_pl);
@@ -69,8 +69,8 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
                 brdy;
 
    always_comb begin
-      clk = clk_tree_x.ClkRs_ix.clk;
-      rstp = clk_tree_x.ClkRs_ix.reset;
+      clk = ClkRs_ix.clk;
+      rstp = ClkRs_ix.reset;
    end
 
    // TODO place the bram here instead of
@@ -87,7 +87,7 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
    // TODO create an i2c interface with
    // wires to be able to connec the
    // interfaces together
-   interperter interpreter_i(.rstp(rstp),
+   interpreter interpreter_i(.rstp(rstp),
                              .clk(clk),
                              .Ardy_o(ardy),
                              .Aval_i(aval),
@@ -113,7 +113,7 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
                           .Rw_i(rw),
                           .Ready_o(brdy),
                           .Valid_i(bval),
-                          .Dev_addr_i7b(address)
+                          .Dev_addr_i7b(address),
                           .rstp(rstp),
                           .clk(clk));
 

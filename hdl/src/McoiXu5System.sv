@@ -38,15 +38,22 @@ module McoiXu5System (//gbt_x gbt,
                       t_diag.producer diag_x,
                       //clocks
 		      t_clocks.consumer clk_tree_x,
-                      t_display.producer display_x
+                      t_display.producer display_x,
                       //input ps_clk,
                       //input pl_varclk,
                       //serial
-                      //inout i2c_sda_pl,
-                      //inout i2c_scl_pl,
+                      inout i2c_sda_pl,
+                      inout i2c_scl_pl
                       //input rs485_pl_di,
                       //output rs485_pl_ro
 		      );
+
+
+   /*AUTOWIRE*/
+   // Beginning of automatic wires (for undeclared instantiated-module outputs)
+   logic		done;			// From i_McoiXu5Diagnostics of McoiXu5Diagnostics.v
+   // End of automatics
+   /*AUTOREGINPUT*/
 
 // TODO interfaces for motors
 
@@ -68,7 +75,7 @@ module McoiXu5System (//gbt_x gbt,
    always@(posedge clk_tree_x.ClkRs100MHz_ix.clk)
       cnt <= cnt + 1;
 
-   assign diag_x.led[0] = cnt[25];
+   assign diag_x.led[0] = done;
    assign diag_x.led[1] = cnt[26];
    // roughly second
    assign diag_x.led[2] = cnt[27];
@@ -84,20 +91,13 @@ module McoiXu5System (//gbt_x gbt,
    tlc_5920_i(.ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
 	      .*);
 
-//Diagnostics block gathering information about board
-// McoiXu5Diagnostics mcoi_diagnostics_i(
-//     .clk(clk_from_ps),
-//     .rstn(1'b1), // TODO connect to ps reset
-//     .temp_o(temp_val[15:0]),
-//     .power_o(power_val[15:0]),
-//     .rev_o(rev_num_b4),
-//     .id_o(id_val),
-//     .rs485_i(rs485_pl_di),
-//     .rs485_o(rs485_pl_ro),
-//     .revpins_i(pcbrev),
-//     .sda_io(i2c_sda_pl),
-//     .scl_io(i2c_scl_pl));
-
+   localparam address = 7'h80;
+   localparam i2c_divider = 250;
+   McoiXu5Diagnostics
+     #(.address(address),
+     .i2c_divider(i2c_divider)) 
+   i_McoiXu5Diagnostics (.ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
+			 .*);
 
 ////signals
 //mcinput_t [NUMBER_OF_MOTORS_PER_FIBER:1] motorStatus;

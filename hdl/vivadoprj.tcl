@@ -49,10 +49,9 @@ set_property -name "simulator_language" -value "Mixed" -objects $obj
 # mcoi xu5 part
 add_files [glob $script_path/src/mcoi_xu5_design_complete.sv]
 add_files [glob $script_path/src/McoiXu5System.sv]
-#add_files [glob $script_path/src/McoiXu5Application.sv]
-#add_files [glob $script_path/src/McoiXu5Diagnostics.sv]
 add_files [glob $script_path/src/gbt_xu5.vhd]
 add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/vme_reset_sync_and_filter.vhd]
+add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/I2cMasterGeneric.v]
 add_files [glob $script_path/src/interfaces.sv]
 add_files -fileset ${constraints} [glob $script_path/constraints/*.xdc]
 
