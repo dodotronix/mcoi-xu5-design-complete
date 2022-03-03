@@ -67,15 +67,12 @@ module McoiXu5System (//gbt_x gbt,
 
 // TODO leds
 
-   // FOR NEW PCB - QUICK TEST
-   logic led;
-
    // artificially too large to feed directly leds
    logic [127:0] cnt;
    always@(posedge clk_tree_x.ClkRs100MHz_ix.clk)
       cnt <= cnt + 1;
 
-   assign diag_x.led[0] = done;
+   assign diag_x.led[0] = ~done;
    assign diag_x.led[1] = cnt[26];
    // roughly second
    assign diag_x.led[2] = cnt[27];
