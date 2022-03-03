@@ -71,10 +71,11 @@ add_files -fileset sources_1 [glob $mcoi_vfc_backend_synthesis/constants/constan
 set_property top mcoi_xu5_design_complete [current_fileset]
 set_property top_file [glob $script_path/src/mcoi_xu5_design_complete.sv] [current_fileset]
 
-
 # MGMT 40MHz frame PLL
 source $ip_cores_path/pll_40m/gbt_pll_clk40m.tcl
 source $modules_path/zynq_usplus_gbt_fpga/load2project.tcl
+# loads diagnostics + MGT PLL configurator
+source [glob $script_path/src/diagnostics/diagnostics.tcl]
 # first clear old block design and create a new
 # one just in case that something has changed
 remove_files [get_files $bd_name]
@@ -88,6 +89,7 @@ source $ip_cores_path/ps_part/ps_part_qspi.tcl
 save_bd_design
 
 update_compile_order
+
 
 # Project that are not made by me have different structure,
 # so source files have to be added manually
@@ -115,4 +117,3 @@ update_compile_order
 
 #set mcoi_vfc_backend_modules $modules_path/mcoi_vfc_backend_fw/hdl/modules
 #add_files -fileset sources_1 [glob $mcoi_vfc_backend_modules/led_blinker.sv]
-

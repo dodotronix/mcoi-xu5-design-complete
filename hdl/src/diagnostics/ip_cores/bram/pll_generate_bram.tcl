@@ -1,23 +1,25 @@
 #------------------------------------------------------------------------------#
-# Petr Pacner | CERN | 2020-01-10 Fr 15:53  
-# 
-# generate pll config rom 
+# Petr Pacner | CERN | 2020-01-10 Fr 15:53
+#
+# generate pll config rom
 #------------------------------------------------------------------------------#
 #
 
 # set name of generated ip core
-set ip_orig_name pll_config_rom 
+set ip_orig_name pll_config_rom
 set ip_file_name [join [list $ip_orig_name ".xci"] ""]
 set script_dest [file dirname [info script]]
 
-set ip_path [lindex argv 0]
+set ip_path [file normalize $script_dest/init_files/[lindex $argv 0]]
+puts $script_dest
+puts $ip_path
 
 # check if the IP already exists
 if {[lsearch -exact [get_ips] $ip_orig_name] >= 0} {
 	puts "the ip core already exists"
 
 } else {
-    # create ip 
+    # create ip
     create_ip -name blk_mem_gen\
     -vendor xilinx.com\
     -library ip -version 8.4\
@@ -35,7 +37,7 @@ if {[lsearch -exact [get_ips] $ip_orig_name] >= 0} {
         CONFIG.Coe_File ${ip_path}\
         CONFIG.Port_A_Write_Rate {0}] [get_ips $ip_orig_name]
 
-    # generate ip
+    # generate all ip
     generate_target all [get_ips]
 }
 
