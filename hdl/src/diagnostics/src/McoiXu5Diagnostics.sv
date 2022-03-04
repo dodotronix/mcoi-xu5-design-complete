@@ -44,83 +44,74 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
    /*AUTOREGINPUT*/
    /*AUTOINOUTPARAM(*McoiXu5Diagnostics*)*/
 
-   logic [18:0] raw_data_19b;
-   logic [15:0] data_to_i2c;
-   logic [7:0]  data_from_i2c;
-
+   logic [7:0]  byte_from_i2c;
+   logic [7:0]  byte_to_i2c;
+   logic [15:0] data_to_reader;
+   logic [7:0]  data_from_reader;
+   
    // control and data signals
    // for i2c master
-   logic        AckReceived_o,
-                Done_o,
-                SendStartBit_ip,
-                SendByte_ip,
-                GetByte_ip,
-                SendStopBit_ip,
-                AckToSend_i;
+   logic        send_startb;
+   logic        send_byte;
+   logic        get_byte;
+   logic        send_stopb;
+   logic        send_ack;
+   logic        rw;
+   logic        rdy;
+   logic        valid;
+   logic        done_internal;
+   logic        ack_recv;
 
-   logic [7:0]  Byte_ib8,
-                Byte_ob8;
-
-   logic        clk,
-                rstp,
-                rw,
-                aval,
-                bval,
-                brdy;
+   logic clk,
+         rstp;
 
    always_comb begin
       clk = ClkRs_ix.clk;
       rstp = ClkRs_ix.reset;
    end
 
-   // TODO place the bram here instead of
-   // instantiating it inside of the feeder
-   feeder feeder_i(.raw_data_o19b(raw_data_19b),
-                   .valid_o(aval),
-                   .ready_i(ardy),
-		   .*);
 
-   // NOTE this interprets the data from
-   // bram and cast it to the i2c master
-
-   // TODO create an i2c interface with
-   // wires to be able to connec the
-   // interfaces together
-   interpreter interpreter_i(.rstp(rstp),
-                             .clk(clk),
-                             .Ardy_o(ardy),
-                             .Aval_i(aval),
-                             .Adata_i19b(raw_data_19b),
-                             .Brdy_i(brdy),
-                             .Bval_o(bval),
-                             .Finished_o(done),
-                             .Bdata_i8b(data_from_i2c),
-                             .Bdata_o16b(data_to_i2c),
-                             .Brw_o(rw));
-
-   I2cReader i2c_reader_i(.Done_i(Done_o),
-                          .AckReceived_i(AckReceived_o),
-                          .SendStartBit_o(SendStartBit_ip),
-                          .SendByte_o(SendByte_ip),
-                          .GetByte_o(GetByte_ip),
-                          .SendStopBit_o(SendStopBit_ip),
-                          .AckToSend_o(AckToSend_i),
-                          .Byte_ib8(Byte_ob8),
-                          .Byte_ob8(Byte_ib8),
-                          .Data_i16b(data_to_i2c),
-                          .Data_o8b(data_from_i2c),
+   I2cReader i2c_reader_i(.Done_i(done_internal),
+                          .AckReceived_i(ack_recv),
+                          .SendStartBit_o(send_startb),
+                          .SendByte_o(send_byte),
+                          .GetByte_o(get_byte),
+                          .SendStopBit_o(send_stopb),
+                          .AckToSend_o(send_ack),
+                          .Byte_ib8(byte_from_i2c),
+                          .Byte_ob8(byte_to_i2c),
+                          .Data_i16b(data_to_reader),
+                          .Data_o8b(data_from_reader),
                           .Rw_i(rw),
-                          .Ready_o(brdy),
-                          .Valid_i(bval),
+                          .Ready_o(rdy),
+                          .Valid_i(valid),
                           .Dev_addr_i7b(address),
                           .rstp(rstp),
                           .clk(clk));
+
+   si5338_configurer si5338_configurer_i(.Finished_o            (done),    
+                                         .Rw_o                  (rw),          
+                                         .Data_o16b             (data_to_reader),
+                                         .Val_o                 (valid),         
+                                         .Clk                   (clk),           
+                                         .Rstp                  (rstp),          
+                                         .Data_i8b              (data_from_reader), 
+                                         .Rdy_i                 (rdy));        
 
    I2cMasterGeneric #(.g_CycleLenght(i2c_divider))
    i2c_master_generic_i(.Clk_ik         (clk),
                         .Rst_irq        (rstp),
                         .Scl_ioz        (i2c_scl_pl),
                         .Sda_ioz        (i2c_sda_pl),
-                        .*);
+
+                        .Byte_ob8       (byte_from_i2c),         
+                        .AckReceived_o  (AckReceived_o),         
+                        .Done_o         (done_internal),                
+                        .SendStartBit_ip(send_startb),       
+                        .SendByte_ip    (send_byte),           
+                        .GetByte_ip     (get_byte),            
+                        .SendStopBit_ip (send_stopb),        
+                        .Byte_ib8       (byte_to_i2c),         
+                        .AckToSend_i    (send_ack));          
 
 endmodule // McoiXu5Diagnostics
