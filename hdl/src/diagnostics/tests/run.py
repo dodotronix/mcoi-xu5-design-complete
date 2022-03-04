@@ -25,7 +25,11 @@
 # Email:  petr.pacner@cern.ch
 #
 
+import os
 from vunit import VUnit
+from os.path import join, dirname, isfile
+
+VIVADO = '/opt/Xilinx/Vivado/2020.1/'
 
 # Create VUnit instance by parsing command line arguments
 vu = VUnit.from_argv()
@@ -35,10 +39,11 @@ lib = vu.add_library("lib")
 
 lib.add_source_files("*.vhd")
 lib.add_source_files("../src/*.vhd")
-lib.add_source_files("../3rd_party/FPGA-I2C-Slave/txt_util.vhd",
-                     "../3rd_party/FPGA-I2C-Slave/I2C_slave.vhd")
+lib.add_source_files("../src/*.sv")
+lib.add_source_files("../temp_repos/BI_HDL_Cores/cores_for_synthesis/I2cMasterGeneric.v",
+                     "../temp_repos/mcoi_hdl_library/packages/CKRSPkg.sv")
 
-unisim = ui.add_library("unisim")
+unisim = vu.add_library("unisim")
 unisim_src = [os.path.join(VIVADO, 'data/vhdl/src/unisims/unisim_VCOMP.vhd'),
               os.path.join(VIVADO, 'data/vhdl/src/unisims/unisim_VPKG.vhd'),
               ]

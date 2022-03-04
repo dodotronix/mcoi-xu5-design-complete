@@ -67,20 +67,21 @@ __check_software_availability:
 update:
 	@printf 'TODO - regenerates ip_cores\n'
 
-verify:
-	@[ -d $(TEMP_REPOSITORIES)] && rm -rf $(TEMP_REPOSITORIES); \
+verify_init: 
+	@[ -d $(TEMP_REPOSITORIES) ] && rm -rf $(TEMP_REPOSITORIES); \
 		mkdir $(TEMP_REPOSITORIES) && cd $(TEMP_REPOSITORIES); \
 		git clone https://github.com/ParticleBert/FPGA-I2C-Slave.git; \
 		git clone ssh://git@gitlab.cern.ch:7999/bi/BI_HDL_Cores.git; \
+		git clone ssh://git@gitlab.cern.ch:7999/mcoi/mcoi_hdl_library.git;\
 		cd ..; \
 		[ ! -d $(TEMP_XSIM_FOLDER) ] && mkdir $(TEMP_XSIM_FOLDER); \
 		python3 $(SCRIPTS_DIR)/gen_init_coe.py $(PLL_HEADER_FILE) \
 		$(TEMP_XSIM_FOLDER)/$(SIM_COE_FILE_NAME);
 
-test:
+vunit_test: 
 		cd $(TESTS_FOLDER) && python3 run.py && cd ..
 
-temp_vivado_project:
+_temp_vivado_project:
 	@touch $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_PROJECT); \
 		printf "" > $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_PROJECT); \
 		for i in $(SCRIPTS_DIR)/*.vhd; do \
@@ -91,7 +92,7 @@ temp_vivado_project:
 		printf "verilog work $(TEMP_XSIM_FOLDER)/IP/\n" \
 		>> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_PROJECT);
 
-create_vdc_file:
+_create_vdc_file:
 	@touch $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_VCD_TCL); \
 		printf "open_vcd\n" \
 		> $(TEMP_XSIM_FOLDER)/$(XSIM_TEMP_VCD_TCL); \

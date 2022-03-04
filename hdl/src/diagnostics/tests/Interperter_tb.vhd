@@ -7,12 +7,14 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_textio.all;
-use std.env.finish;
+library vunit_lib; 
+context vunit_lib.vunit_context;
 
 library std;
 use std.textio.all;
 
 entity Interpreter_tb is
+  generic (runner_cfg : string);
 end Interpreter_tb;
 
 architecture behavioral of Interpreter_tb is
@@ -106,6 +108,7 @@ begin
     variable expected_result: integer;
     variable last_register: integer;
   begin
+    test_runner_setup(runner, runner_cfg);
     index := 0;
     validation_cyc := 0;
     expected_result := 0;
@@ -201,7 +204,7 @@ begin
       end loop;
     end loop;
     report "Calling 'finish'";
-    finish;
+    test_runner_cleanup(runner); -- Simulation ends here
   end process stimulus;
 
     -- load data to shift register --
