@@ -105,7 +105,7 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
                         .Sda_ioz        (i2c_sda_pl),
 
                         .Byte_ob8       (byte_from_i2c),         
-                        .AckReceived_o  (AckReceived_o),         
+                        .AckReceived_o  (ack_recv),
                         .Done_o         (done_internal),                
                         .SendStartBit_ip(send_startb),       
                         .SendByte_ip    (send_byte),           
