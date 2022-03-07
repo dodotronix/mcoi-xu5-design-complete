@@ -92,12 +92,16 @@ for filt in filters:
 dirs = ['libs/mcoi_vfc_backend_fw/hdl/simulation/constants.sv',
         'libs/BI_HDL_Cores/cores_for_synthesis/GlitchFilter.v',
         # DUMMY placeholder for GBT
-        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/gbt_bank/core_sources/gbt_bank_package.vhd',
-        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/packages/zynq_usplus_gbt_bank_package.vhd',
-        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/exampleDsgn_package.vhd',
-        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/gbt_rx_frameclk_phalgnr.vhd', '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/phaligner_phase_comparator.vhd', '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/phaligner_phase_computing.vhd',
-        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_bank_reset.vhd', '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_pattern_checker.vhd', '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_pattern_generator.vhd',
-        '/home/belohrad/git/mcoi-xu5-design-complete/libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/clock_divider.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/gbt_bank/core_sources/gbt_bank_package.vhd',
+        'libs/zynq_usplus_gbt_fpga/packages/zynq_usplus_gbt_bank_package.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/exampleDsgn_package.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/gbt_rx_frameclk_phalgnr.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/phaligner_phase_comparator.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/rxframeclk_phalgnr/phaligner_phase_computing.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_bank_reset.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_pattern_checker.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/gbt_pattern_generator.vhd',
+        'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/example_designs/core_sources/clock_divider.vhd',
 ] +\
 compiled_files
 
