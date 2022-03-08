@@ -7,6 +7,13 @@ puts "Modules directory: $modules_path";
 set ip_cores_path $script_path/ip_cores
 puts "IP cores directory: $ip_cores_path";
 
+set si5338b_modules  $script_path/src/diagnostics
+puts "SI5338B modules: $si5338b_modules"
+
+set coe_name config_120mhz.coe
+puts "COE: $coe_name"
+
+
 # block design name
 set bd_name "mcoi_xu5_ps_part.bd"
 
@@ -50,6 +57,8 @@ set_property -name "simulator_language" -value "Mixed" -objects $obj
 add_files [glob $script_path/src/mcoi_xu5_design_complete.sv]
 add_files [glob $script_path/src/McoiXu5System.sv]
 add_files [glob $script_path/src/gbt_xu5.vhd]
+add_files [glob $script_path/src/diagnostics/*.vhd]
+add_files [glob $script_path/src/diagnostics/*.sv]
 add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/vme_reset_sync_and_filter.vhd]
 add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/I2cMasterGeneric.v]
 add_files [glob $script_path/src/interfaces.sv]
@@ -64,6 +73,9 @@ add_files -fileset sources_1 [glob $mcoi_packages/t_display.sv]
 add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/tlc5920/*.sv]
 add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/clock_divider/*.sv]
 
+add_files -fileset sources_1 [glob $si5338b_modules/*.vhd]
+add_files -fileset sources_1 [glob $si5338b_modules/*.sv]
+
 set mcoi_vfc_backend_synthesis $modules_path/mcoi_vfc_backend_fw/hdl/synthesis
 add_files -fileset sources_1 [glob $mcoi_vfc_backend_synthesis/constants/constants.sv]
 
@@ -73,8 +85,7 @@ set_property top_file [glob $script_path/src/mcoi_xu5_design_complete.sv] [curre
 # MGMT 40MHz frame PLL
 source $ip_cores_path/pll_40m/gbt_pll_clk40m.tcl
 source $modules_path/zynq_usplus_gbt_fpga/load2project.tcl
-# loads diagnostics + MGT PLL configurator
-source [glob $script_path/src/diagnostics/diagnostics.tcl]
+
 # first clear old block design and create a new
 # one just in case that something has changed
 remove_files [get_files $bd_name]

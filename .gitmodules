@@ -13,3 +13,7 @@
 [submodule "modules/zynq_usplus_gbt_fpga"]
 	path = libs/zynq_usplus_gbt_fpga
 	url = ssh://git@gitlab.cern.ch:7999/personal-digital-lib/zynq_usplus_gbt_fpga.git
+[submodule "scripts/pyloggingformatter"]
+	path = scripts/pyloggingformatter
+	url = ssh://git@gitlab.cern.ch:7999/mcoi/pyloggingformatter.git
+	branch = master

@@ -31,7 +31,7 @@ __check_software_availability:
 	@type vivado >/dev/null || { \
 		printf 'ERR: "Xilinx Vivado" is not installed or present in the system PATH\n' >&2; \
 		false; }
-## first check if there is a Modelsim or GHDL installed 
+## first check if there is a Modelsim or GHDL installed
 	@if type vsim &> /dev/null; then \
 		export VUNIT_SIMULATOR=vsim; \
 		vsim -version | grep "vsim 2021.1" >/dev/null || \
@@ -50,8 +50,8 @@ init:
 
 check_compatibility: __check_software_availability
 
-vproject_update: 
-	@vivado -mode batch -nojournal -source hdl/vivadoprj.tcl 
+vproject_update:
+	@vivado -mode batch -nojournal -source hdl/vivadoprj.tcl
 
 vproject_open:
 	@vivado -mode gui -nojournal -source hdl/vivadoprj.tcl &> /dev/null &
@@ -66,18 +66,22 @@ update:
 		-vp $(ENCLUSTRA_XU5_SPECS)/Mercury_XU5-R1_FPGA_Pinout.csv \
 		-o $(PROJECT_PATH)/hdl/constraints \
 		-c $(MCOI_PCB_CONFIG)/xu5_module_config.csv \
-		-io $(DEFAULT_IOSTANDARD) 
+		-io $(DEFAULT_IOSTANDARD)
+	@python3 scripts/gen_init_coe.py \
+		-s hdl/src/diagnostics/pll_rom.sv \
+		-c hdl/ip_cores/bram/init_files/config_120mhz.coe\
+		scripts/register_map/config_120mhz.h
+
 
 # The constraints have to be created based on the current pinout
 # configuration in Altium project, just generate pinout of the module
 # connection -> save it to the folder "pcb_configuration" and run make
-# update_constraints. 
+# update_constraints.
 # IMPORTANT: Names of the files generated with Altium have to have same names
-# as in makefile and must be called with correct parameter (-ap/-bp)!   
+# as in makefile and must be called with correct parameter (-ap/-bp)!
 
 clean:
 	@printf 'INF -> removing vivado project files\n' >&2
-	@rm -rf hdl/Synthesis 
+	@rm -rf hdl/Synthesis
 	@rm -rf hdl/.Xil/
-	@rm -rf vivado.* 
-
+	@rm -rf vivado.*

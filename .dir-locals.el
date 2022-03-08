@@ -52,9 +52,10 @@
 			    (message (concat "Found project root: " direl-directory))
 			    (setq full-path-dirs (mapcar (lambda (x) (concat direl-directory x))
 							 '("hdl/src/"
-                 "hdl/tests/" 
-                 "hdl/src/diagnostics/src/"
-                 "hdl/src/diagnostics/tests/"
+							   "hdl/tests/"
+							   "hdl/src/diagnostics/src/"
+							   "hdl/src/diagnostics/tests/"
+							   "libs/BI_HDL_Cores/cores_for_simulation/"
 							   "libs/BI_HDL_Cores/cores_for_synthesis/"
 							   "libs/mcoi_hdl_library/modules/mko/"
 							   "libs/mcoi_hdl_library/modules/tlc5920/"

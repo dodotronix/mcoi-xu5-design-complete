@@ -45,7 +45,17 @@ module tb_McoiXu5System;
    localparam integer clk_period = 20; // clock period in ns
    ckrs_t ClkRs_ix = '{clk:'0, reset:'0};
 
+   wire		i2c_scl_pl;
+   wire		i2c_sda_pl;
+
+   assign (pull1, pull0)  i2c_scl_pl = 1'b1;
+   assign (pull1, pull0)  i2c_sda_pl = 1'b1;
+
    /*AUTOWIRE*/
+   // Beginning of automatic wires (for undeclared instantiated-module outputs)
+   logic		Scl_io;			// To/From i_I2CSlave of I2CSlave.v
+   logic		Sda_io;			// To/From i_I2CSlave of I2CSlave.v
+   // End of automatics
    /*AUTOREGINPUT*/
    /*AUTOINOUTPARAM("McoiXu5System")*/
 
@@ -55,6 +65,19 @@ module tb_McoiXu5System;
    t_clocks clk_tree_x();
    clock_generator clkg;
 
+   localparam g_Address = 7'h80;
+   localparam g_MinPerDown = 3_000;
+
+
+   I2CSlave
+     #(/*AUTOINSTPARAM*/
+       // Parameters
+       .g_Address			(g_Address),
+       .g_MinPerDown			(g_MinPerDown))
+   i_I2CSlave (
+	       // Inouts
+	       .Scl_io			(i2c_scl_pl),
+	       .Sda_io			(i2c_sda_pl));
 
    always forever #(clk_period/2 * 1ns) ClkRs_ix.clk <= ~ClkRs_ix.clk;
    default clocking cb @(posedge ClkRs_ix.clk); endclocking

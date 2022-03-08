@@ -68,7 +68,7 @@ module McoiXu5System (//gbt_x gbt,
 // TODO leds
 
    // artificially too large to feed directly leds
-   logic [127:0] cnt;
+   logic [127:0] cnt = '0;
    always@(posedge clk_tree_x.ClkRs100MHz_ix.clk)
       cnt <= cnt + 1;
 
@@ -92,7 +92,7 @@ module McoiXu5System (//gbt_x gbt,
    localparam i2c_divider = 250;
    McoiXu5Diagnostics
      #(.address(address),
-     .i2c_divider(i2c_divider)) 
+     .i2c_divider(i2c_divider))
    i_McoiXu5Diagnostics (.ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
 			 .*);
 
