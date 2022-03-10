@@ -36,6 +36,8 @@
 
 import MCPkg::*;
 import CKRSPkg::*;
+import types::*;
+
 
 module mcoi_xu5_design_complete (//motors
                                  t_motors.producer motors_x,
@@ -46,12 +48,15 @@ module mcoi_xu5_design_complete (//motors
                                  //display
                                  t_display.producer display_x,
                                  output        mreset_vadj,
-                                 // clocks
+                                 // clocks - MGT 120MHz
                                  input         mgt_clk_p,
                                  input         mgt_clk_n,
+				 // clocks - MGT derived 50MHz
                                  input         pl_varclk,
+				 // localosc 100MHz
                                  input         clk100m_pl_p,
                                  input         clk100m_pl_n,
+				 // SFP interface
 
                                  // serial interfaces
 				 t_i2c i2c_x,
@@ -69,13 +74,6 @@ module mcoi_xu5_design_complete (//motors
    always_comb master_reset = ~&reset_cntr;
 
 
-   // GBT data reception/transmission frame
-   typedef struct packed {
-      logic [1:0] sc_data_b2;
-      logic [1:0] ic_data_b2;
-      logic [79:0] data_b80;
-   } t_sfp_stream;
-
    t_sfp_stream gbt_data_produced,gbt_data_consumed;
 
    t_clocks clk_tree_x();
@@ -89,14 +87,6 @@ module mcoi_xu5_design_complete (//motors
       .data_o   (clk_tree_x.ClkRs100MHz_ix.reset)
       );
 
-   // these have to be generated once MGT is running
-   assign clk_tree_x.ClkRs120MHzMGMT_ix.reset = '0;
-   assign clk_tree_x.ClkRs40MHzMGMT_ix.reset = '0;
-
-   assign diag_x.test[0] = pl_varclk;
-   assign diag_x.test[1] = Clk120MHz;
-
-/* -----\/----- EXCLUDED -----\/-----
    vme_reset_sync_and_filter u_120MHzMGMT_reset_sync
      (.rst_ir   (1'b0),
       .clk_ik   (clk_tree_x.ClkRs120MHzMGMT_ix.clk),
@@ -112,7 +102,20 @@ module mcoi_xu5_design_complete (//motors
       .data_i   (master_reset),
       .data_o   (clk_tree_x.ClkRs40MHzMGMT_ix.reset)
       );
- -----/\----- EXCLUDED -----/\----- */
+
+   vme_reset_sync_and_filter u_Var_reset_sync
+     (.rst_ir   (1'b0),
+      .clk_ik   (clk_tree_x.ClkRsVar_ix.clk),
+      .cen_ie   (1'b1),
+      .data_i   (master_reset),
+      .data_o   (clk_tree_x.ClkRsVar_ix.reset)
+      );
+
+
+   assign clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
+   assign diag_x.test[0] = pl_varclk;
+   assign diag_x.test[1] = Clk120MHz;
+
 
    //logic system part
    McoiXu5System i_mcoi_xu5_system (.*);

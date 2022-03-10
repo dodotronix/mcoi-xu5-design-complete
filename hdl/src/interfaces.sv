@@ -8,16 +8,24 @@ interface t_clocks;
 
    // 100MHz on-module oscillator
    ckrs_t ClkRs100MHz_ix;
+
+   // MGT 120MHz coming from external PLL and 40MHz derived from MGT
    ckrs_t ClkRs120MHzMGMT_ix;
    ckrs_t ClkRs40MHzMGMT_ix;
 
+   // 50MHz as separate output from MGT pll - unrelated to all other
+   ckrs_t ClkRsVar_ix;
+
+
    modport producer(output ClkRs100MHz_ix,
 		    output ClkRs120MHzMGMT_ix,
-		    output ClkRs40MHzMGMT_ix);
+		    output ClkRs40MHzMGMT_ix,
+		    output ClkRsVar_ix);
 
    modport consumer(input ClkRs100MHz_ix,
 		    input ClkRs120MHzMGMT_ix,
-		    input ClkRs40MHzMGMT_ix);
+		    input ClkRs40MHzMGMT_ix,
+		    input ClkRsVar_ix);
 
 endinterface // clocks
 

@@ -40,7 +40,6 @@ module McoiXu5System (//gbt_x gbt,
 		      t_clocks.consumer clk_tree_x,
                       t_display.producer display_x,
                       //input ps_clk,
-                      //input pl_varclk,
                       //serial
 		      t_i2c i2c_x
                       //input rs485_pl_di,
@@ -87,6 +86,7 @@ module McoiXu5System (//gbt_x gbt,
    tlc_5920_i(.ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
    	      .*);
 
+   // PLL 120MHz MGT programmer
    localparam address = 7'b1110000;
    localparam i2c_divider = 500;
    McoiXu5Diagnostics
