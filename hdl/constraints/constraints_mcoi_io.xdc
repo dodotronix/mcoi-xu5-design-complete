@@ -207,16 +207,6 @@ set_property PACKAGE_PIN Y2 [get_ports {gbt_x\.sfp1_gbitin_p}]
 set_property PACKAGE_PIN W3 [get_ports {gbt_x\.sfp1_gbitout_n}]
 set_property PACKAGE_PIN W4 [get_ports {gbt_x\.sfp1_gbitout_p}]
 
-# PIN GROUPPING: I2C_SDA_PL
-set_property PACKAGE_PIN C12 [get_ports {i2c_sda_pl}]
-set_property IOSTANDARD LVCMOS18 [get_ports {i2c_sda_pl}]
-
-
-# PIN GROUPPING: I2C_SCL_PL
-set_property PACKAGE_PIN D12 [get_ports {i2c_scl_pl}]
-set_property IOSTANDARD LVCMOS18 [get_ports {i2c_scl_pl}]
-
-
 # PIN GROUPPING: RS485_PL_DI
 set_property PACKAGE_PIN L6 [get_ports {rs485_pl_di}]
 set_property IOSTANDARD LVCMOS18 [get_ports {rs485_pl_di}]

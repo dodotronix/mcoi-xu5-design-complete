@@ -54,21 +54,21 @@ module mcoi_xu5_design_complete (//motors
                                  input         clk100m_pl_n,
 
                                  // serial interfaces
-                                 inout         i2c_sda_pl,
-                                 inout         i2c_scl_pl,
+				 t_i2c i2c_x,
                                  input         rs485_pl_di,
                                  output        rs485_pl_ro);
 
 
    bit [20:0] 				       reset_cntr = '0;
    logic 				       master_reset;
+   logic Clk120MHz_fromgte4, Clk120MHz;
 
    always_ff @(posedge clk_tree_x.ClkRs100MHz_ix.clk)
      if (~&reset_cntr)
        reset_cntr <= reset_cntr + 21'(1);
    always_comb master_reset = ~&reset_cntr;
-   
-   
+
+
    // GBT data reception/transmission frame
    typedef struct packed {
       logic [1:0] sc_data_b2;
@@ -120,7 +120,6 @@ module mcoi_xu5_design_complete (//motors
    // ps part just for storing data to qspi
    mcoi_xu5_ps_part i_mcoi_xu5_ps_part();
 
-   logic Clk120MHz_fromgte4, Clk120MHz;
 
    // clock generation
    // 100MHz oscillator and associated reset

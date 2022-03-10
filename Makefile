@@ -69,8 +69,8 @@ update:
 		-io $(DEFAULT_IOSTANDARD)
 	@python3 scripts/gen_init_coe.py \
 		-s hdl/src/diagnostics/pll_rom.sv \
-		-c hdl/ip_cores/bram/init_files/config_120mhz.coe\
-		scripts/register_map/config_120mhz.h
+		-c hdl/ip_cores/bram/init_files/config_120mhz_50mhz.coe\
+		scripts/register_map/config_xu5_120mhz_50mhz.h
 
 
 # The constraints have to be created based on the current pinout

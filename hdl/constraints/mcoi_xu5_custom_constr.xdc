@@ -46,5 +46,12 @@ create_clock -period 10.000 -name clk100m_pl [get_ports {clk100m_pl_p}]
 
 # Current limit for the LEDs
 set_property DRIVE 4 [get_ports {diag_x\.led[*]}]
-set_property PULLUP true [get_ports {i2c_sda_pl}]
-set_property PULLUP true [get_ports {i2c_scl_pl}]
+set_property PULLUP true [get_ports {i2c_x\.sda}]
+set_property PULLUP true [get_ports {i2c_x\.scl}]
+
+# PIN GROUPPING: I2C_SDA_PL
+set_property PACKAGE_PIN C12 [get_ports {i2c_x\.sda}]
+set_property IOSTANDARD LVCMOS18 [get_ports {i2c_x\.sda}]
+# PIN GROUPPING: I2C_SCL_PL
+set_property PACKAGE_PIN D12 [get_ports {i2c_x\.scl}]
+set_property IOSTANDARD LVCMOS18 [get_ports {i2c_x\.scl}]
