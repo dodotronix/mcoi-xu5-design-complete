@@ -35,6 +35,7 @@
 
 import CKRSPkg::*;
 import clsclk::*;
+import clsi2c::*;
 
 
 //
@@ -45,17 +46,8 @@ module tb_McoiXu5System;
    localparam integer clk_period = 20; // clock period in ns
    ckrs_t ClkRs_ix = '{clk:'0, reset:'0};
 
-   wire		i2c_scl_pl;
-   wire		i2c_sda_pl;
-
-   assign (pull1, pull0)  i2c_scl_pl = 1'b1;
-   assign (pull1, pull0)  i2c_sda_pl = 1'b1;
 
    /*AUTOWIRE*/
-   // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   logic		Scl_io;			// To/From i_I2CSlave of I2CSlave.v
-   logic		Sda_io;			// To/From i_I2CSlave of I2CSlave.v
-   // End of automatics
    /*AUTOREGINPUT*/
    /*AUTOINOUTPARAM("McoiXu5System")*/
 
@@ -65,19 +57,14 @@ module tb_McoiXu5System;
    t_clocks clk_tree_x();
    clock_generator clkg;
 
-   localparam g_Address = 7'h80;
-   localparam g_MinPerDown = 3_000;
+   // I2c interface emulates start/stop bits
+   t_i2c i2c_x();
+   i2c_driver i2cg;
+   pullup (i2c_x.sda);
+   pullup (i2c_x.scl);
 
 
-   I2CSlave
-     #(/*AUTOINSTPARAM*/
-       // Parameters
-       .g_Address			(g_Address),
-       .g_MinPerDown			(g_MinPerDown))
-   i_I2CSlave (
-	       // Inouts
-	       .Scl_io			(i2c_scl_pl),
-	       .Sda_io			(i2c_sda_pl));
+   localparam g_Address = 7'h70;
 
    always forever #(clk_period/2 * 1ns) ClkRs_ix.clk <= ~ClkRs_ix.clk;
    default clocking cb @(posedge ClkRs_ix.clk); endclocking
@@ -88,10 +75,14 @@ module tb_McoiXu5System;
 	 clkg = new;
 	 clkg.clk_tree_x = clk_tree_x;
 	 clkg.run();
+	 i2cg = new (100e3, 7'h70, "PLL I2C");
+	 i2cg.i2c_x = i2c_x;
+	 i2cg.run();
+
       end
 
       `TEST_CASE("debug_test") begin
-	 #100ms;
+	 #2ms;
 
       end
 

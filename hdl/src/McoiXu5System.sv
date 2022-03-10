@@ -42,8 +42,7 @@ module McoiXu5System (//gbt_x gbt,
                       //input ps_clk,
                       //input pl_varclk,
                       //serial
-                      inout i2c_sda_pl,
-                      inout i2c_scl_pl
+		      t_i2c i2c_x
                       //input rs485_pl_di,
                       //output rs485_pl_ro
 		      );
@@ -88,8 +87,8 @@ module McoiXu5System (//gbt_x gbt,
    tlc_5920_i(.ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
 	      .*);
 
-   localparam address = 7'h80;
-   localparam i2c_divider = 250;
+   localparam address = 7'b1110000;
+   localparam i2c_divider = 500;
    McoiXu5Diagnostics
      #(.address(address),
      .i2c_divider(i2c_divider))

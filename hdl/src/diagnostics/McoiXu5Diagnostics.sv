@@ -37,8 +37,7 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
                             parameter i2c_divider=10'h3ff)
    (input ckrs_t ClkRs_ix,
     output done,
-    inout  i2c_sda_pl,
-    inout  i2c_scl_pl);
+    t_i2c.endpoint i2c_x);
 
    /*AUTOWIRE*/
    /*AUTOREGINPUT*/
@@ -48,7 +47,7 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
    logic [7:0]  byte_to_i2c;
    logic [15:0] data_to_reader;
    logic [7:0]  data_from_reader;
-   
+
    // control and data signals
    // for i2c master
    logic        send_startb;
@@ -89,29 +88,29 @@ module McoiXu5Diagnostics #(parameter address=7'h20,
                           .rstp(rstp),
                           .clk(clk));
 
-   si5338_configurer si5338_configurer_i(.Finished_o            (done),    
-                                         .Rw_o                  (rw),          
+   si5338_configurer si5338_configurer_i(.Finished_o            (done),
+                                         .Rw_o                  (rw),
                                          .Data_o16b             (data_to_reader),
-                                         .Val_o                 (valid),         
-                                         .Clk                   (clk),           
-                                         .Rstp                  (rstp),          
-                                         .Data_i8b              (data_from_reader), 
-                                         .Rdy_i                 (rdy));        
+                                         .Val_o                 (valid),
+                                         .Clk                   (clk),
+                                         .Rstp                  (rstp),
+                                         .Data_i8b              (data_from_reader),
+                                         .Rdy_i                 (rdy));
 
    I2cMasterGeneric #(.g_CycleLenght(i2c_divider))
    i2c_master_generic_i(.Clk_ik         (clk),
                         .Rst_irq        (rstp),
-                        .Scl_ioz        (i2c_scl_pl),
-                        .Sda_ioz        (i2c_sda_pl),
+                        .Scl_ioz        (i2c_x.scl),
+                        .Sda_ioz        (i2c_x.sda),
 
-                        .Byte_ob8       (byte_from_i2c),         
+                        .Byte_ob8       (byte_from_i2c),
                         .AckReceived_o  (ack_recv),
-                        .Done_o         (done_internal),                
-                        .SendStartBit_ip(send_startb),       
-                        .SendByte_ip    (send_byte),           
-                        .GetByte_ip     (get_byte),            
-                        .SendStopBit_ip (send_stopb),        
-                        .Byte_ib8       (byte_to_i2c),         
-                        .AckToSend_i    (send_ack));          
+                        .Done_o         (done_internal),
+                        .SendStartBit_ip(send_startb),
+                        .SendByte_ip    (send_byte),
+                        .GetByte_ip     (get_byte),
+                        .SendStopBit_ip (send_stopb),
+                        .Byte_ib8       (byte_to_i2c),
+                        .AckToSend_i    (send_ack));
 
 endmodule // McoiXu5Diagnostics

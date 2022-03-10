@@ -1,5 +1,5 @@
 import CKRSPkg::*;
-
+import types::*;
 
 // this works as a 'record' of clocks transported through the domains
 interface t_clocks;
@@ -89,3 +89,38 @@ interface t_diag;
                      output pcbrev,
                      output fpga_supply_ok);
 endinterface // diag_x
+
+
+
+interface t_i2c;
+   wire 		    sda;
+   wire 		    scl;
+
+   // tri-state i2c - write register (during compilation this is
+   // synthesized away as constant signal)
+   logic 		    sda_reg = 'z;
+   assign sda = sda_reg;
+
+
+   // debugging - will be synthesized away
+   i2c_state_t state;
+   logic [7:0] 		    address_received_b8;
+   logic [7:0] 		    register_address_received_b8;
+
+
+
+   // in multimaster environment SCL is inout as well
+   modport endpoint(inout scl,
+		    inout sda);
+
+   // bidir driving: when reading we can directly use read from sda,
+   // but when driving the net we have to set value to sda_reg, which
+   // resolves to sda being driven by resolver function
+   modport debugger(inout scl,
+		    input  sda,
+		    output sda_reg,
+		    output state,
+		    output address_received_b8,
+		    output register_address_received_b8);
+
+endinterface // t_i2c
