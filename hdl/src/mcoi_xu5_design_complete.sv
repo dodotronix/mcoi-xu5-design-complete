@@ -60,10 +60,15 @@ module mcoi_xu5_design_complete (//motors
                                  output        rs485_pl_ro);
 
 
-   // @TODO: do reset thingy here - which pin if any?
-   // @TODO connect to SFP LOS signal
-   logic 				       master_reset = '1;
+   bit [20:0] 				       reset_cntr = '0;
+   logic 				       master_reset;
 
+   always_ff @(posedge clk_tree_x.ClkRs100MHz_ix.clk)
+     if (~&reset_cntr)
+       reset_cntr <= reset_cntr + 21'(1);
+   always_comb master_reset = ~&reset_cntr;
+   
+   
    // GBT data reception/transmission frame
    typedef struct packed {
       logic [1:0] sc_data_b2;
@@ -76,7 +81,6 @@ module mcoi_xu5_design_complete (//motors
    t_clocks clk_tree_x();
 
    // reset synchronization into the respective clock domains
-/* -----\/----- EXCLUDED -----\/-----
    vme_reset_sync_and_filter u_100MHz_reset_sync
      (.rst_ir   (1'b0),
       .clk_ik   (clk_tree_x.ClkRs100MHz_ix.clk),
@@ -84,11 +88,13 @@ module mcoi_xu5_design_complete (//motors
       .data_i   (master_reset),
       .data_o   (clk_tree_x.ClkRs100MHz_ix.reset)
       );
- -----/\----- EXCLUDED -----/\----- */
-   assign clk_tree_x.ClkRs100MHz_ix.reset = '0;
+
+   // these have to be generated once MGT is running
    assign clk_tree_x.ClkRs120MHzMGMT_ix.reset = '0;
    assign clk_tree_x.ClkRs40MHzMGMT_ix.reset = '0;
 
+   assign diag_x.test[0] = pl_varclk;
+   assign diag_x.test[1] = Clk120MHz;
 
 /* -----\/----- EXCLUDED -----\/-----
    vme_reset_sync_and_filter u_120MHzMGMT_reset_sync

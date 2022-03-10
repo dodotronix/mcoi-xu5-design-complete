@@ -28,7 +28,7 @@ set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]
 # unused pins are set to high impedance.  # If the constraint is removed, all
 # unused pins have to be set to HiZ in the top level file.
 # ------------------------------------------------------------------------------
-set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]
+set_property BITSTREAM.CONFIG.UNUSEDPIN PULLUP [current_design]
 
 # 100mhz crystal pl clock placed on module pcb
 set_property PACKAGE_PIN AD5 [get_ports {clk100m_pl_p}]
@@ -46,3 +46,5 @@ create_clock -period 10.000 -name clk100m_pl [get_ports {clk100m_pl_p}]
 
 # Current limit for the LEDs
 set_property DRIVE 4 [get_ports {diag_x\.led[*]}]
+set_property PULLUP true [get_ports {i2c_sda_pl}]
+set_property PULLUP true [get_ports {i2c_scl_pl}]
