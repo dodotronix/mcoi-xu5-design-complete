@@ -86,10 +86,10 @@ module McoiXu5System (//gbt_x gbt,
    // bar led-diode driver, 10MHz clock
    tlc5920 #(.g_divider (9))
    tlc_5920_i(.ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
-	      .*);
+   	      .*);
 
-   localparam address = 7'h80;
-   localparam i2c_divider = 250;
+   localparam address = 7'b1110000;
+   localparam i2c_divider = 500;
    McoiXu5Diagnostics
      #(.address(address),
      .i2c_divider(i2c_divider))
