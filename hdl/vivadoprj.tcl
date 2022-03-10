@@ -56,6 +56,7 @@ set_property -name "simulator_language" -value "Mixed" -objects $obj
 # mcoi xu5 part
 add_files [glob $script_path/src/mcoi_xu5_design_complete.sv]
 add_files [glob $script_path/src/McoiXu5System.sv]
+add_files [glob $script_path/src/types.sv]
 add_files [glob $script_path/src/gbt_xu5.vhd]
 add_files [glob $script_path/src/diagnostics/*.vhd]
 add_files [glob $script_path/src/diagnostics/*.sv]
