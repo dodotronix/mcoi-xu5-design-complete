@@ -24,6 +24,8 @@ class clock_generator;
       assert(r.randomize());
       fork
 	 run_100MHz_clock();
+	 run_GBT_clock();
+	 run_GBT40_clock();
       join_none
 
       // fork reset engines and wait until the last one finishes. The
@@ -37,10 +39,46 @@ class clock_generator;
 	    @(negedge clk_tree_x.ClkRs100MHz_ix.clk);
 	    clk_tree_x.ClkRs100MHz_ix.reset = '0;
 	 end
+	 begin
+	    clk_tree_x.ClkRs120MHzMGMT_ix.reset = '1;
+	    #(r.ResetTimes[1] * 1ns);
+	    @(negedge clk_tree_x.ClkRs120MHzMGMT_ix.clk);
+	    clk_tree_x.ClkRs120MHzMGMT_ix.reset = '0;
+	 end
+	 begin
+	    clk_tree_x.ClkRs40MHzMGMT_ix.reset = '1;
+	    #(r.ResetTimes[2] * 1ns);
+	    @(negedge clk_tree_x.ClkRs40MHzMGMT_ix.clk);
+	    clk_tree_x.ClkRs40MHzMGMT_ix.reset = '0;
+	 end
+
       // WAIT FOR ALL PROCESSES TO FINISH TO BRING THE SYSTEMS FROM
       join
       $display("System initialized, clocks are running");
    endtask // run
+
+   task run_GBT_clock;
+      // two clocks generated here: 120MHz and 40MHz frame clock
+      forever begin : gbt_clocks
+	 clk_tree_x.ClkRs120MHzMGMT_ix.clk = '1;
+	 #4ns;
+	 clk_tree_x.ClkRs120MHzMGMT_ix.clk = '0;
+	 #4ns;
+      end
+   endtask // run_GBT_clock
+
+   task run_GBT40_clock;
+      #100ns;
+      // sync with 120MHz as it comes from the same PLL
+      @(posedge clk_tree_x.ClkRs120MHzMGMT_ix.clk);
+      // two clocks generated here: 120MHz and 40MHz frame clock
+      forever begin : gbt_clocks
+	 clk_tree_x.ClkRs40MHzMGMT_ix.clk = '1;
+	 #12.5ns;
+	 clk_tree_x.ClkRs40MHzMGMT_ix.clk = '0;
+	 #12.5ns;
+      end
+   endtask // run_GBT_clock
 
    task run_100MHz_clock;
       forever begin : link_clocks

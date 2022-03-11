@@ -1,5 +1,8 @@
 import CKRSPkg::*;
 import types::*;
+import constants::*;
+import MCPkg::*;
+
 
 // this works as a 'record' of clocks transported through the domains
 interface t_clocks;
@@ -38,6 +41,28 @@ interface t_motors;
    logic [1:16] pl_sw_outa;
    logic [1:16] pl_sw_outb;
 
+   motorsStatuses_t motorsStatuses;
+   motorsControls_t motorsControls;
+
+   generate //motor diagnostics
+      for(genvar i=1; i<17; ++i) begin: motor_i
+	 always_comb begin
+	    //overheat signal
+	    motorsStatuses[i].OH_i = 1'b0;
+	    //motor fail signal
+	    motorsStatuses[i].StepPFail_i = pl_pfail[i];
+	    //motor feedback switches
+	    motorsStatuses[i].RawSwitches_b2[0] = pl_sw_outa[i];
+	    motorsStatuses[i].RawSwitches_b2[1] = pl_sw_outb[i];
+	    pl_boost[i] = motorsControls[i].StepBOOST_o;
+	    pl_dir[i] = motorsControls[i].StepDIR_o;
+	    pl_en[i] = motorsControls[i].StepDeactivate_o;
+	    pl_clk[i] = motorsControls[i].StepOutP_o;
+	 end
+      end
+   endgenerate
+
+
    modport producer(output pl_boost,
                     output pl_dir,
                     output pl_en,
@@ -46,13 +71,8 @@ interface t_motors;
                     input  pl_sw_outa,
                     input  pl_sw_outb);
 
-   modport consumer(input pl_boost,
-                    input  pl_dir,
-                    input  pl_en,
-                    input  pl_clk,
-                    output pl_pfail,
-                    output pl_sw_outa,
-                    output pl_sw_outb);
+   modport consumer(input motorsStatuses,
+		    output motorsControls);
 endinterface // motors_x
 
 interface t_gbt;
@@ -79,6 +99,11 @@ interface t_gbt;
                     input sfp1_gbitout_n,
                     input sfp1_rateselect,
                     input sfp1_txdisable);
+
+   modport status(input sfp1_los,
+		  input sfp1_txdisable,
+		  input sfp1_rateselect);
+
 endinterface // gbt_x
 
 interface t_diag;
@@ -98,6 +123,16 @@ interface t_diag;
                      output fpga_supply_ok);
 endinterface // diag_x
 
+
+interface t_gbt_data (input ckrs_t ClkRs_ix);
+   t_sfp_stream data_received;
+   t_sfp_stream data_sent;
+
+   // testbench port:
+   modport producer (input ClkRs_ix, output data_received, input data_sent);
+   // ordinary consumer
+   modport consumer (input ClkRs_ix, input data_received, output data_sent);
+endinterface // t_gbt_data
 
 
 interface t_i2c;

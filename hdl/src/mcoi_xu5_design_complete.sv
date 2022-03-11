@@ -67,14 +67,13 @@ module mcoi_xu5_design_complete (//motors
    bit [20:0] 				       reset_cntr = '0;
    logic 				       master_reset;
    logic Clk120MHz_fromgte4, Clk120MHz;
+   t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHzMGMT_ix));
 
    always_ff @(posedge clk_tree_x.ClkRs100MHz_ix.clk)
      if (~&reset_cntr)
        reset_cntr <= reset_cntr + 21'(1);
    always_comb master_reset = ~&reset_cntr;
 
-
-   t_sfp_stream gbt_data_produced,gbt_data_consumed;
 
    t_clocks clk_tree_x();
 
@@ -177,12 +176,12 @@ module mcoi_xu5_design_complete (//motors
       .gbtbank_mgt_tx_n(gbt_x.sfp1_gbitout_n),
 
       // data
-      .gbtbank_gbt_data_i(gbt_data_consumed),
+      .gbtbank_gbt_data_i(gbt_x.data_sent),
       .gbtbank_wb_data_i('0),
       .tx_data_o(),
       .wb_data_o(),
 
-      .gbtbank_gbt_data_o(gbt_data_produced),
+      .gbtbank_gbt_data_o(gbt_data_x.data_received),
       .gbtbank_wb_data_o(),
 
       // reconf.
@@ -225,9 +224,5 @@ module mcoi_xu5_design_complete (//motors
 
    assign gbt_x.sfp1_rateselect = 1'b0;
    assign gbt_x.sfp1_txdisable = 1'b1;
-
-   // @TODO loopback for the moment
-   always_ff @(posedge clk_tree_x.ClkRs40MHzMGMT_ix.clk)
-     gbt_data_produced <= gbt_data_consumed;
 
 endmodule // mcoi_xu5_design_complete

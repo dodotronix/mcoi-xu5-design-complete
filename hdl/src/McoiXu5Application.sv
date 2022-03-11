@@ -123,10 +123,11 @@ logic [15:0] ValidRXMemData_b16;
 always_ff @(posedge ClkRxGBT_x.clk) begin
  ValidMotorData_b80 <= DataGbtxElinks_qb80[GBTWIDTH-1:GBTWIDTH-MCWIDTH];
  ValidRXMemData_b16 <= DataGbtxElinks_qb80[15:0];
- if (SerialFeedback_b32 == GEFE_INTERLOCK) 
+ if (SerialFeedback_b32 == GEFE_INTERLOCK)
      motorControl = ValidMotorData_b80[$bits(motorControl)-1:0];
  else motorControl = '1;
 end
+
 
 //sc-ec channels settings up GEFE behaviour
 serial_register i_serial_register(
@@ -170,7 +171,7 @@ serial_register i_serial_register_feedback(
     .resetflags_i(1'b0),
     .Rx_i(sc_from_stream_ib2[1]));
 
-always_ff @(posedge ClkRxGBT_x.clk) begin 
+always_ff @(posedge ClkRxGBT_x.clk) begin
     SerialFeedback1cc_b32 <= SerialFeedback_b32;
 end
 
@@ -215,7 +216,7 @@ always_ff @(posedge ClkRxGBT_x.clk) begin
         31: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[16]};
         default: MuxOut_b32 <= 32'hdeadbeef;
     endcase
-end 
+end
 
 // - channel 0 return value is the same as 'pageselector', but with
 // lsb set to '1' to indicate 'GEFE present'
@@ -330,7 +331,7 @@ endgenerate
 
 
 tlc5920 #(
-    .g_divider (4)) 
+    .g_divider (4))
 tlc_5920_i(
   // Interface
   .display(display),
@@ -398,7 +399,7 @@ initial begin
   $display("MotorsData_b80 bits size: ", $bits(MotorsData_b80));
 end
 
-// test pinheads 
+// test pinheads
 assign pinhead[0] = 1'b0;
 assign pinhead[1] = 1'b0;
 assign pinhead[2] = 1'b0;

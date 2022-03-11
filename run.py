@@ -91,6 +91,7 @@ dirs = ['libs/mcoi_vfc_backend_fw/hdl/simulation/constants.sv',
         'libs/BI_HDL_Cores/cores_for_synthesis/GlitchFilter.v',
         'libs/BI_HDL_Cores/cores_for_synthesis/I2cMasterGeneric.v',
         'libs/BI_HDL_Cores/cores_for_simulation/I2CSlave.v',
+        'libs/BI_HDL_Cores/cores_for_synthesis/vme_reset_sync_and_filter.vhd',
         # DUMMY placeholder for GBT
         'libs/zynq_usplus_gbt_fpga/modules/gbt-fpga/gbt_bank/core_sources/gbt_bank_package.vhd',
         'libs/zynq_usplus_gbt_fpga/packages/zynq_usplus_gbt_bank_package.vhd',
