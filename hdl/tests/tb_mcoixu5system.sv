@@ -102,9 +102,10 @@ module tb_McoiXu5System;
    endtask // checkChannel
 
    mcinput_t [NUMBER_OF_MOTORS_PER_FIBER:1] motorsStatus;
+   mcoutput_t [NUMBER_OF_MOTORS_PER_FIBER:1] motorsControl;
+
 
    assign motorsStatus = gbt_data_x.data_sent.motor_data_b64;
-
 
    localparam g_Address = 7'h70;
    default clocking cb @(posedge gbt_data_x.ClkRs_ix.clk); endclocking
@@ -138,8 +139,29 @@ module tb_McoiXu5System;
       end
 
 
+      `TEST_CASE("loopback_closed") begin
+	 // closing the link = data being casted to motors
+	 writeSerialLoopback(GEFE_INTERLOCK);
 
-      `TEST_CASE("debug_test") begin
+	 repeat(500) begin
+	    // now we randomize the data being sent to motors
+	    assert(std::randomize(motorsControl));
+	    gbt_data_x.data_received.motor_data_b64 = motorsControl;
+	    // now we check if PF pins in the interface are actually
+	    // showing the content of data
+	    ##10;
+	    for(int motor=1; motor <= NUMBER_OF_MOTORS_PER_FIBER;
+		motor++) begin
+	       `CHECK_EQUAL(motors_x.pl_boost[motor], motorsControl[motor].StepBOOST_o);
+	       `CHECK_EQUAL(motors_x.pl_dir[motor], motorsControl[motor].StepDIR_o);
+	       `CHECK_EQUAL(motors_x.pl_en[motor], motorsControl[motor].StepDeactivate_o);
+	       `CHECK_EQUAL(motors_x.pl_clk[motor], motorsControl[motor].StepOutP_o);
+	    end
+	 end // repeat (500)
+      end // UNMATCHED !!
+
+
+      `TEST_CASE("status_data_propagation") begin
 	 // propagate motor status signals from outside to GBT iface
 
 
@@ -160,10 +182,6 @@ module tb_McoiXu5System;
 	       `CHECK_EQUAL(motorsStatus[motor].RawSwitches_b2[1], rnd_b16x3[2][motor]);
 	    end
 	 end // repeat (500)
-
-
-
-
 
       end // UNMATCHED !!
 
