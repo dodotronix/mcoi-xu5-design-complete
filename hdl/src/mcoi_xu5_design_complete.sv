@@ -59,7 +59,7 @@ module mcoi_xu5_design_complete (//motors
 				 // SFP interface
 
                                  // serial interfaces
-				 t_i2c i2c_x,
+				 t_i2c.endpoint i2c_x,
                                  input         rs485_pl_di,
                                  output        rs485_pl_ro);
 
@@ -68,6 +68,10 @@ module mcoi_xu5_design_complete (//motors
    logic 				       master_reset;
    logic Clk120MHz_fromgte4, Clk120MHz;
    t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHzMGMT_ix));
+
+   // *!! because we cannot access internals of t_motors !!
+   t_motors_structured motors_structured_x();
+   iface_translator i_iface_translator (.*);
 
    always_ff @(posedge clk_tree_x.ClkRs100MHz_ix.clk)
      if (~&reset_cntr)
@@ -170,13 +174,16 @@ module mcoi_xu5_design_complete (//motors
       .gbtbank_manual_reset_rx_i(1'b0),
 
       // gbt transceiver inouts
+
+      // INto gbt_xu5
       .gbtbank_mgt_rx_p(gbt_x.sfp1_gbitin_p),
       .gbtbank_mgt_rx_n(gbt_x.sfp1_gbitin_n),
+      // OUT from gbt_xu5
       .gbtbank_mgt_tx_p(gbt_x.sfp1_gbitout_p),
       .gbtbank_mgt_tx_n(gbt_x.sfp1_gbitout_n),
 
       // data
-      .gbtbank_gbt_data_i(gbt_x.data_sent),
+      .gbtbank_gbt_data_i(gbt_data_x.data_sent),
       .gbtbank_wb_data_i('0),
       .tx_data_o(),
       .wb_data_o(),

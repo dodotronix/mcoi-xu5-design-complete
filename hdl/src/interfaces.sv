@@ -32,6 +32,17 @@ interface t_clocks;
 
 endinterface // clocks
 
+interface t_motors_structured;
+   motorsStatuses_t motorsStatuses;
+   motorsControls_t motorsControls;
+
+   modport producer(output motorsStatuses,
+		    input motorsControls);
+   modport consumer(input motorsStatuses,
+		    output motorsControls);
+endinterface // t_motors_structured
+
+
 interface t_motors;
    logic [1:16] pl_boost;
    logic [1:16] pl_dir;
@@ -40,27 +51,6 @@ interface t_motors;
    logic [1:16] pl_pfail;
    logic [1:16] pl_sw_outa;
    logic [1:16] pl_sw_outb;
-
-   motorsStatuses_t motorsStatuses;
-   motorsControls_t motorsControls;
-
-   generate //motor diagnostics
-      for(genvar i=1; i<17; ++i) begin: motor_i
-	 always_comb begin
-	    //overheat signal
-	    motorsStatuses[i].OH_i = 1'b0;
-	    //motor fail signal
-	    motorsStatuses[i].StepPFail_i = pl_pfail[i];
-	    //motor feedback switches
-	    motorsStatuses[i].RawSwitches_b2[0] = pl_sw_outa[i];
-	    motorsStatuses[i].RawSwitches_b2[1] = pl_sw_outb[i];
-	    pl_boost[i] = motorsControls[i].StepBOOST_o;
-	    pl_dir[i] = motorsControls[i].StepDIR_o;
-	    pl_en[i] = motorsControls[i].StepDeactivate_o;
-	    pl_clk[i] = motorsControls[i].StepOutP_o;
-	 end
-      end
-   endgenerate
 
 
    modport producer(output pl_boost,
@@ -71,8 +61,6 @@ interface t_motors;
                     input  pl_sw_outa,
                     input  pl_sw_outb);
 
-   modport consumer(input motorsStatuses,
-		    output motorsControls);
 endinterface // motors_x
 
 interface t_gbt;

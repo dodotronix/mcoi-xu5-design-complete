@@ -47,9 +47,9 @@ module McoiXu5System (t_diag.producer diag_x,
                       //clocks
 		      t_clocks.consumer clk_tree_x,
                       t_display.producer display_x,
-                      t_gbt.status gbt_x,
+                      t_gbt.producer gbt_x,
 		      t_gbt_data.consumer gbt_data_x,
-		      t_motors.consumer motors_x,
+		      t_motors_structured.consumer motors_structured_x,
                       //input ps_clk,
                       //serial
 		      t_i2c i2c_x
@@ -108,9 +108,9 @@ module McoiXu5System (t_diag.producer diag_x,
    // motor controller only if loopback
    always_ff @(posedge gbt_data_x.ClkRs_ix.clk)
      if (SerialDataReceived_b32x2[1] == GEFE_INTERLOCK)
-       motors_x.motorsControls = DataGbt.motor_data_b64;
+       motors_structured_x.motorsControls = DataGbt.motor_data_b64;
      else
-       motors_x.motorsControls = '0;
+       motors_structured_x.motorsControls = '0;
 
    // use default typecast:
    motorsStatuses_t [2:0] debouncing_status;
@@ -121,12 +121,12 @@ module McoiXu5System (t_diag.producer diag_x,
 		    disable iff (gbt_data_x.ClkRs_ix.reset)
 		    (SFP_reset ||
 		     SerialDataReceived_b32x2[1] != GEFE_INTERLOCK) |=> ##[1:2]
-		    ~|motors_x.motorsControls) else $error ("SFP LOS\
+		    ~|motors_structured_x.motorsControls) else $error ("SFP LOS\
  shall turn off data to motor");
 
    always_ff @(posedge gbt_data_x.ClkRs_ix.clk)
      debouncing_status <= {debouncing_status[1:0],
-			   motors_x.motorsStatuses};
+			   motors_structured_x.motorsStatuses};
    assign debounced_motorStatus_b = debouncing_status[2];
 
 
@@ -182,7 +182,7 @@ module McoiXu5System (t_diag.producer diag_x,
 	 assign ledData_b[3][0][motor] =
 					debounced_motorStatus_b[motor+1].StepPFail_i;
 	 // green connected to boost signal on 4th colum
-	 assign ledData_b[3][1][motor] = motors_x.motorsControls[motor+1].StepBOOST_o;
+	 assign ledData_b[3][1][motor] = motors_structured_x.motorsControls[motor+1].StepBOOST_o;
 	 // extremity switches red diodes - columns 1 and 3:
 	 assign ledData_b[0][0][motor] = led_lg[motor];
 	 assign ledData_b[0][1][motor] = led_lr[motor];
@@ -192,7 +192,7 @@ module McoiXu5System (t_diag.producer diag_x,
 	 // motor. Green one when motor enabled, red one when
 	 // moves. Hence move produces orange color
 	 assign ledData_b[1][0][motor] = !stepout_diode[motor];
-	 assign ledData_b[1][1][motor] = !motors_x.motorsControls[motor+1].StepDeactivate_o;
+	 assign ledData_b[1][1][motor] = !motors_structured_x.motorsControls[motor+1].StepDeactivate_o;
 
 	 // generate MKO for each stepout signal to cast to diode,
 	 // react on falling edge as stepper does. this extends 5us
@@ -206,7 +206,7 @@ module McoiXu5System (t_diag.producer diag_x,
 		       .ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
 		       .enable_i('1),
 		       .width_ib(22'(4000000)),
-		       .start_i(!motors_x.motorsControls[motor+1].StepOutP_o));
+		       .start_i(!motors_structured_x.motorsControls[motor+1].StepOutP_o));
 
       end // block: discast
    endgenerate
@@ -295,8 +295,8 @@ module McoiXu5System (t_diag.producer diag_x,
    end
 
    initial begin
-      $display("motorStatus_ib pack size: ", $size(motors_x.motorsStatuses));
-      $display("motorStatus_ib bits size: ", $bits(motors_x.motorsStatuses));
+      $display("motorStatus_ib pack size: ", $size(motors_structured_x.motorsStatuses));
+      $display("motorStatus_ib bits size: ", $bits(motors_structured_x.motorsStatuses));
    end
 
 

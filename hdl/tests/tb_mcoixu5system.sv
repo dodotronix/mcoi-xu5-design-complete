@@ -64,6 +64,9 @@ module tb_McoiXu5System;
 
    // connects to motor pins
    t_motors motors_x();
+   t_motors_structured motors_structured_x();
+   iface_translator i_iface_translator (.*);
+
 
    logic [2:0][1:16]  rnd_b16x3;
 
