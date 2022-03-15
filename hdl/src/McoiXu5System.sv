@@ -142,7 +142,6 @@ module McoiXu5System (t_diag.producer diag_x,
 	       .ClkRs_ix(gbt_data_x.ClkRs_ix));
 
    logic blinker;
-   //@TODO recalculate periods for 100MHz
    led_blinker#(
 		.g_totalPeriod(GEFE_LED_BLINKER_PERIOD), //1s period
 		.g_blinkOn(GEFE_LED_BLINKER_ON_TIME),

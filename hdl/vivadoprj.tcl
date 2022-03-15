@@ -61,6 +61,8 @@ add_files [glob $script_path/src/extremity_switches_mapper.sv]
 add_files [glob $script_path/src/led_blinker.sv]
 add_files [glob $script_path/src/iface_translator.sv]
 add_files [glob $script_path/src/types.sv]
+# THESE ARE SYNTHESIS CONSTANTS, SIMULATION CONSTANTS MUST NOT BE INCLUDED
+add_files [glob $script_path/src/constants_synthesis.sv]
 add_files [glob $script_path/src/gbt_xu5.vhd]
 add_files [glob $script_path/src/diagnostics/*.vhd]
 add_files [glob $script_path/src/diagnostics/*.sv]
@@ -92,9 +94,6 @@ add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/memory_transport/*.
 
 add_files -fileset sources_1 [glob $si5338b_modules/*.vhd]
 add_files -fileset sources_1 [glob $si5338b_modules/*.sv]
-
-set mcoi_vfc_backend_synthesis $modules_path/mcoi_vfc_backend_fw/hdl/synthesis
-add_files -fileset sources_1 [glob $mcoi_vfc_backend_synthesis/constants/constants.sv]
 
 set_property top mcoi_xu5_design_complete [current_fileset]
 set_property top_file [glob $script_path/src/mcoi_xu5_design_complete.sv] [current_fileset]
