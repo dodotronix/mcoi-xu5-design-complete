@@ -5,7 +5,7 @@ Pin Designator,Net Name,Display Name,IO Bank,IO Standard,Slew Rate,Drive Strengt
 2,GND,2,,,,,,,,,,,
 3,FPGA_SUPPLY_OK,3,,,,,,,,,,,
 4,MGT_CLK_P,4,,,,,,,,,,,
-5,SFP1_LOS,5,,,,,,,,,,,
+5,,5,,,,,,,,,,,
 6,MGT_CLK_N,6,,,,,,,,,,,
 7,SFP1_TXDISABLE,7,,,,,,,,,,,
 8,,8,,,,,,,,,,,

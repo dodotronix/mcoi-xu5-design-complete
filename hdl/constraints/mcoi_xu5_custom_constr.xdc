@@ -35,6 +35,7 @@ set_property PACKAGE_PIN AD5 [get_ports {clk100m_pl_p}]
 set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports {clk100m_pl_p}]
 set_property PACKAGE_PIN AD4 [get_ports {clk100m_pl_n}]
 set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports {clk100m_pl_n}]
+create_clock -period 10.000 -name clk100m_pl [get_ports {clk100m_pl_p}]
 
 # Current limit for the LEDs
 set_property DRIVE 4 [get_ports {diag_x\.led[*]}]
