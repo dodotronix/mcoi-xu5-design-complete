@@ -87,8 +87,7 @@ compiled_files = []
 for filt in filters:
     compiled_files += fnmatch.filter(matches, filt)
 
-dirs = ['libs/mcoi_vfc_backend_fw/hdl/simulation/constants.sv',
-        'libs/BI_HDL_Cores/cores_for_synthesis/GlitchFilter.v',
+dirs = ['libs/BI_HDL_Cores/cores_for_synthesis/GlitchFilter.v',
         'libs/BI_HDL_Cores/cores_for_synthesis/I2cMasterGeneric.v',
         'libs/BI_HDL_Cores/cores_for_simulation/I2CSlave.v',
         'libs/BI_HDL_Cores/cores_for_synthesis/vme_reset_sync_and_filter.vhd',
