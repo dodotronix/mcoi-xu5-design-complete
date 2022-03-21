@@ -47,7 +47,7 @@ module McoiXu5System (t_diag.producer diag_x,
                       //clocks
 		      t_clocks.consumer clk_tree_x,
                       t_display.producer display_x,
-                      t_gbt.producer gbt_x,
+                      input logic gbt_los,
 		      t_gbt_data.consumer gbt_data_x,
 		      t_motors_structured.consumer motors_structured_x,
                       //input ps_clk,
@@ -86,7 +86,7 @@ module McoiXu5System (t_diag.producer diag_x,
      (.rst_ir   (1'b0),
       .clk_ik   (gbt_data_x.ClkRs_ix.clk),
       .cen_ie   (1'b1),
-      .data_i   (gbt_x.sfp1_los),
+      .data_i   (~gbt_los),
       .data_o   (SFP_reset)
       );
 
@@ -217,11 +217,11 @@ module McoiXu5System (t_diag.producer diag_x,
 
 // drive leds on front panel
    assign diag_x.led[0] = ~done;
-   assign diag_x.led[1] = SFP_reset; //los of signal
-   assign diag_x.led[2] = &locked_b2; // RX/TX serial channels locked
-   assign diag_x.led[3] = 1'b0;
+   assign diag_x.led[1] = ~SFP_reset; //los of signal
+   assign diag_x.led[2] = ~&locked_b2; // RX/TX serial channels locked
+   assign diag_x.led[3] = 1'b1;
    assign diag_x.led[4] = ~StreamTxDataValid;
-   assign diag_x.led[5] = 1'b0;
+   assign diag_x.led[5] = 1'b1;
 
 
    // bar led-diode driver, 10MHz clock

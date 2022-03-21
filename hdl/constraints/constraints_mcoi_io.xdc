@@ -193,7 +193,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {display_x\.blank}]
 
 
 # PIN GROUPPING: GBTCORE
-set_property PACKAGE_PIN AE12 [get_ports {gbt_x\.sfp1_los}]
+set_property PACKAGE_PIN AF12 [get_ports {gbt_x\.sfp1_los}]
 set_property IOSTANDARD LVCMOS18 [get_ports {gbt_x\.sfp1_los}]
 
 set_property PACKAGE_PIN G1 [get_ports {gbt_x\.sfp1_txdisable}]
@@ -203,17 +203,9 @@ set_property PACKAGE_PIN F1 [get_ports {gbt_x\.sfp1_rateselect}]
 set_property IOSTANDARD LVCMOS18 [get_ports {gbt_x\.sfp1_rateselect}]
 
 set_property PACKAGE_PIN Y1 [get_ports {gbt_x\.sfp1_gbitin_n}]
-set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports {gbt_x\.sfp1_gbitin_n}]
-
 set_property PACKAGE_PIN Y2 [get_ports {gbt_x\.sfp1_gbitin_p}]
-set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports {gbt_x\.sfp1_gbitin_p}]
-
 set_property PACKAGE_PIN W3 [get_ports {gbt_x\.sfp1_gbitout_n}]
-set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports {gbt_x\.sfp1_gbitout_n}]
-
 set_property PACKAGE_PIN W4 [get_ports {gbt_x\.sfp1_gbitout_p}]
-set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports {gbt_x\.sfp1_gbitout_p}]
-
 
 # PIN GROUPPING: RS485_PL_DI
 set_property PACKAGE_PIN L6 [get_ports {rs485_pl_di}]

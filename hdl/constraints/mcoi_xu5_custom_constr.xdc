@@ -93,7 +93,7 @@ set_output_delay -clock [get_clocks clk100m_pl] -max 5.0 $dport
 set_input_delay -clock [get_clocks clk100m_pl] 0.0 [get_ports "*i2c_x*"]
 set_output_delay -clock [get_clocks clk100m_pl] 0.0 [get_ports "*i2c_x*"]
 # then create virt clock and relate sda to this clock
-create_clock -name clki2c -period 1000ns [get_ports "*i2c_x\.scl"]
+create_clock -name clki2c -period 1000 [get_ports "*i2c_x\.scl"]
 set_input_delay  -clock clki2c -min   0.0 [get_ports "*i2c_x\.sda"]
 set_input_delay  -clock clki2c -max 200.0 [get_ports "*i2c_x\.sda"]
 

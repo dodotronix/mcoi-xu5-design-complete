@@ -68,7 +68,10 @@ module mcoi_xu5_design_complete (//motors
    logic 				       master_reset;
    logic Clk120MHz_fromgte4, Clk120MHz;
    t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHzMGMT_ix));
-
+   logic txready, rxready;
+   logic rx_frmclk, tx_frmclk;
+   
+   
    // *!! because we cannot access internals of t_motors !!
    t_motors_structured motors_structured_x();
    iface_translator i_iface_translator (.*);
@@ -118,10 +121,14 @@ module mcoi_xu5_design_complete (//motors
    assign clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
    assign diag_x.test[0] = pl_varclk;
    assign diag_x.test[1] = Clk120MHz;
-
+   assign diag_x.test[2] = gbt_x.sfp1_los;
+   assign diag_x.test[3] = rx_frmclk;
+   assign diag_x.test[4] = tx_frmclk;
+   
 
    //logic system part
-   McoiXu5System i_mcoi_xu5_system (.*);
+   McoiXu5System i_mcoi_xu5_system (.gbt_los(gbt_x.sfp1_los),
+				    .*);
 
    // ps part just for storing data to qspi
    mcoi_xu5_ps_part i_mcoi_xu5_ps_part();
@@ -163,13 +170,14 @@ module mcoi_xu5_design_complete (//motors
      (//clock
       .frameclk_40mhz(clk_tree_x.ClkRs40MHzMGMT_ix.clk),
       .xcvrclk(clk_tree_x.ClkRs120MHzMGMT_ix.clk),
-      .rx_frameclk_o(),
+      .rx_frameclk_o(rx_frmclk),
       .rx_wordclk_o(),
-      .tx_frameclk_o(),
+      .tx_frameclk_o(tx_frmclk),
       .tx_wordclk_o(),
       .rx_frameclk_rdy_o(),
       // reset
-      .gbtbank_general_reset_i(clk_tree_x.ClkRs40MHzMGMT_ix.reset),
+      // @TODO set to clk_tree_x.ClkRs40MHzMGMT_ix.reset
+      .gbtbank_general_reset_i(1'b0),
       .gbtbank_manual_reset_tx_i(1'b0),
       .gbtbank_manual_reset_rx_i(1'b0),
 
@@ -203,7 +211,7 @@ module mcoi_xu5_design_complete (//motors
       // rx ctrl
       .rx_encoding_sel_i(1'b0),
       // @TODO: possibly connect as reset
-      .gbtbank_reset_gbtrxready_lost_flag_i(gbt_x.sfp1_los),
+      .gbtbank_reset_gbtrxready_lost_flag_i('0),
       .gbtbank_reset_data_errorseen_flag_i('0),
       .gbtbank_rxframeclk_alignpatter_i(3'b000),
       .gbtbank_rxbitslit_rstoneven_i(1'b1),
@@ -214,8 +222,8 @@ module mcoi_xu5_design_complete (//motors
       .gbtbank_tx_aligncomputed_o(),
 
       // rx status
-      .gbtbank_gbttx_ready_o(),
-      .gbtbank_gbtrx_ready_o(),
+      .gbtbank_gbttx_ready_o(txready),
+      .gbtbank_gbtrx_ready_o(rxready),
       .gbtbank_gbtrxready_lost_flag_o(),
       .gbtbank_rxdata_errorseen_flag_o(),
       .gbtbank_rxextradata_widebus_errorseen_flag_o(),
@@ -230,6 +238,6 @@ module mcoi_xu5_design_complete (//motors
       .gbtbank_rx_pol(1'b1));
 
    assign gbt_x.sfp1_rateselect = 1'b0;
-   assign gbt_x.sfp1_txdisable = 1'b1;
+   assign gbt_x.sfp1_txdisable = 1'b0;
 
 endmodule // mcoi_xu5_design_complete
