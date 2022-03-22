@@ -16,6 +16,7 @@ all:
 	@printf '       vproject_update     - opens current project using the tcl script\n'
 	@printf '       vproject_open       - updates the vivado project without opening gui\n'
 	@printf '       update              - this regenerates the constraints based on files in pcb_configuration directory\n'
+	@printf '       compile             - CLI compilation including copying bitstream into output folder\n'
 	@printf '       clean               - cleans all automaticaly generated and created directories and files\n'
 	@printf '       bitstream           - copies the generated bitstream into output folder\n'
 
@@ -45,6 +46,9 @@ __check_software_availability:
 		printf 'ERR: neither GHDL or Modelsim are installed or in the system PATH\n' >&2; \
 		false; \
 	fi;
+
+compile:
+	@vivado -mode batch -source hdl/compile.tcl
 
 bitstream:
 	@cp hdl/Synthesis/mcoi-xu5-design-complete.runs/impl_1/*.bit output_bitstream/
