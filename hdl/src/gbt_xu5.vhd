@@ -327,7 +327,7 @@ begin
         mgt_devspecific_to_s.prbs_txForceErr(i) <= '0';
         mgt_devspecific_to_s.prbs_rxCntReset(i) <= '0';
 
-        mgt_devspecific_to_s.conf_diffCtrl(i) <= "01000"; -- Comment: 807 mVppd
+        mgt_devspecific_to_s.conf_diffCtrl(i) <= "10110"; -- Comment: 822 mVppd
         mgt_devspecific_to_s.conf_postCursor(i) <= "00000"; -- Comment: 0.00 dB (default)
         mgt_devspecific_to_s.conf_preCursor(i) <= "00000"; -- Comment: 0.00 dB (default)
         mgt_devspecific_to_s.conf_txPol(i) <= GBTBANK_TX_POL(i); -- Comment: Not inverted
