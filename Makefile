@@ -17,6 +17,7 @@ all:
 	@printf '       vproject_open       - updates the vivado project without opening gui\n'
 	@printf '       update              - this regenerates the constraints based on files in pcb_configuration directory\n'
 	@printf '       clean               - cleans all automaticaly generated and created directories and files\n'
+	@printf '       bitstream           - copies the generated bitstream into output folder\n'
 
 __check_software_availability:
 	@type python3 >/dev/null 2>&1 || { \
@@ -44,6 +45,9 @@ __check_software_availability:
 		printf 'ERR: neither GHDL or Modelsim are installed or in the system PATH\n' >&2; \
 		false; \
 	fi;
+
+bitstream:
+	@cp hdl/Synthesis/mcoi-xu5-design-complete.runs/impl_1/*.bit output_bitstream/
 
 init:
 	@git submodule update --init --recursive

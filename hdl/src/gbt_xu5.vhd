@@ -131,6 +131,7 @@ architecture structural of gbt_xu5 is
     signal gbtBank_rxEncodingSel : std_logic_vector(1 downto 0);
     signal txData_from_gbtBank_pattGen : gbt_reg84_A(1 to NUM_LINKS);
     signal txwBData_from_gbtBank_pattGen : gbt_reg32_A(1 to NUM_LINKS);
+    signal pll_locked_o : std_logic;
 begin
     -- Clocks
     gbtBank_Clk_gen: for i in 1 to NUM_LINKS generate
@@ -155,7 +156,7 @@ begin
                      CLK_ALIGN_CONFIG => GBTBANK_RXFRAMECLK_ALIGNPATTER_I,
                      DEBUG_CLK_ALIGNMENT => open,
 
-                     PLL_LOCKED_O => open,
+                     PLL_LOCKED_O => pll_locked_o,
                      DONE_O => RX_FRAMECLK_RDY_O(i)
                  );
 
@@ -206,6 +207,18 @@ begin
         GBTBANK_GBTTX_READY_O(i) <= not(gbt_txreset_s(i));
     end generate;
 
+
+    ila_debug: entity work.ila_mgt_reset
+      port map (
+        clk    => FRAMECLK_40MHZ,
+        probe0 => gbtbank_general_reset_i,
+        probe1 => gbtbank_manual_reset_tx_i,
+        probe2 => gbtbank_manual_reset_rx_i,
+        probe3 => mgt_txreset_s(1),
+        probe4 => mgt_rxreset_s(1),
+        probe5 => gbt_txreset_s(1),
+        probe6 => gbt_rxreset_s(1),
+        probe7 => pll_locked_o);
 
     -- Data pattern generator --
     dataGenEn_gen: if DATA_GENERATOR_ENABLE = ENABLED generate
