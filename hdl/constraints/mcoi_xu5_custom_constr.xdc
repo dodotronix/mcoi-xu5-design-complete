@@ -96,6 +96,8 @@ set_output_delay -clock [get_clocks clk100m_pl] 0.0 [get_ports "*i2c_x*"]
 create_clock -name clki2c -period 1000 [get_ports "*i2c_x*scl*"]
 set_input_delay  -clock clki2c -min   0.0 [get_ports "*i2c_x*sda*"]
 set_input_delay  -clock clki2c -max 200.0 [get_ports "*i2c_x*sda*"]
+# i2c is by-design timing issues free, so we can falsepath here:
+set_false_path -from [get_clocks clki2c] -to [get_clocks clk100m_pl]
 
 # all things going into display are irrelevant - just slow observation
 set_false_path -to [get_pins -hierarchical "*data_b_reg*/D*"]
