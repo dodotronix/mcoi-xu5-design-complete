@@ -208,21 +208,6 @@ begin
     end generate;
 
 
-    ila_debug: entity work.ila_mgt_reset
-      port map (
-        clk    => FRAMECLK_40MHZ,
-        probe0 => gbtbank_general_reset_i,
-        probe1 => gbtbank_manual_reset_tx_i,
-        probe2 => gbtbank_manual_reset_rx_i,
-        probe3 => mgt_txreset_s(1),
-        probe4 => mgt_rxreset_s(1),
-        probe5 => gbt_txreset_s(1),
-        probe6 => gbt_rxreset_s(1),
-        probe7 => pll_locked_o,
-        probe8 => mgt_txready_s(1),
-        probe9 => mgt_rxready_s(1)
-        );
-
     -- Data pattern generator --
     dataGenEn_gen: if DATA_GENERATOR_ENABLE = ENABLED generate
 
