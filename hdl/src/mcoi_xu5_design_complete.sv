@@ -70,8 +70,8 @@ module mcoi_xu5_design_complete (//motors
    t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHzMGMT_ix));
    logic txready, rxready;
    logic rx_frmclk, tx_frmclk;
-   
-   
+
+
    // *!! because we cannot access internals of t_motors !!
    t_motors_structured motors_structured_x();
    iface_translator i_iface_translator (.*);
@@ -124,7 +124,7 @@ module mcoi_xu5_design_complete (//motors
    assign diag_x.test[2] = gbt_x.sfp1_los;
    assign diag_x.test[3] = rx_frmclk;
    assign diag_x.test[4] = tx_frmclk;
-   
+
 
    //logic system part
    McoiXu5System i_mcoi_xu5_system (.gbt_los(gbt_x.sfp1_los),
@@ -176,8 +176,7 @@ module mcoi_xu5_design_complete (//motors
       .tx_wordclk_o(),
       .rx_frameclk_rdy_o(),
       // reset
-      // @TODO set to clk_tree_x.ClkRs40MHzMGMT_ix.reset
-      .gbtbank_general_reset_i(1'b0),
+      .gbtbank_general_reset_i(clk_tree_x.ClkRs40MHzMGMT_ix.reset),
       .gbtbank_manual_reset_tx_i(1'b0),
       .gbtbank_manual_reset_rx_i(1'b0),
 

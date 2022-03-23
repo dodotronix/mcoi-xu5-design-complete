@@ -218,7 +218,10 @@ begin
         probe4 => mgt_rxreset_s(1),
         probe5 => gbt_txreset_s(1),
         probe6 => gbt_rxreset_s(1),
-        probe7 => pll_locked_o);
+        probe7 => pll_locked_o,
+        probe8 => mgt_txready_s(1),
+        probe9 => mgt_rxready_s(1)
+        );
 
     -- Data pattern generator --
     dataGenEn_gen: if DATA_GENERATOR_ENABLE = ENABLED generate
