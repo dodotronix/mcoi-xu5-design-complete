@@ -12,7 +12,7 @@ set ip_orig_name [join [list $ip_root_name "_0"] ""]
 
 startgroup
     create_bd_cell -type ip\
-                   -vlnv xilinx.com:ip:zynq_ultra_ps_e:3.3 $ip_orig_name 
+                   -vlnv xilinx.com:ip:zynq_ultra_ps_e:3.4 $ip_orig_name 
 
 set_property -dict [list CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {0}\
                          CONFIG.PSU__GPIO0_MIO__PERIPHERAL__ENABLE {0}\
