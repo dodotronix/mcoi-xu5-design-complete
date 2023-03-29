@@ -6,6 +6,7 @@ PROJECT_PATH := $(shell pwd)
 MCOI_PCB_CONFIG=$(PROJECT_PATH)/pcb_configuration/xu5_module_config
 ENCLUSTRA_XU5_SPECS=$(PROJECT_PATH)/pcb_configuration/enclustra_xu5_specs
 XU5_MCOI_PINOUT=$(PROJECT_PATH)/pcb_configuration/xu5_pcb_pinout
+DEVKIT_PINOUT=$(PROJECT_PATH)/pcb_configuration/pe1_devkit_pinout
 DEVICE="ME-XU5-4CG/4EV/5EV-G1"
 DEFAULT_IOSTANDARD="LVCMOS18"
 
@@ -64,7 +65,7 @@ vproject_update:
 vproject_open:
 	@vivado -mode gui -nojournal -source hdl/vivadoprj.tcl &> /dev/null &
 
-update:
+mcoi_xu5_constraints:
 	@printf "Generating constraints files for device $(DEVICE)\n"
 	@python3 scripts/assemble_constraints.py \
 		-d $(DEVICE) \
@@ -75,11 +76,24 @@ update:
 		-o $(PROJECT_PATH)/hdl/constraints \
 		-c $(MCOI_PCB_CONFIG)/xu5_module_config.csv \
 		-io $(DEFAULT_IOSTANDARD)
+
+devkit_constraints:
+	@printf "Generating constraints files for device $(DEVICE)\n"
+	@python3 scripts/assemble_constraints.py \
+		-d $(DEVICE) \
+		-ap $(DEVKIT_PINOUT)/Aconn.csv \
+		-bp $(DEVKIT_PINOUT)/Bconn.csv \
+		-va $(ENCLUSTRA_XU5_SPECS)/Mercury_XU5-R1_FPGA_Pinout_Assembly_Variants.csv \
+		-vp $(ENCLUSTRA_XU5_SPECS)/Mercury_XU5-R1_FPGA_Pinout.csv \
+		-o $(PROJECT_PATH)/hdl/constraints \
+		-c $(MCOI_PCB_CONFIG)/xu5_module_config.csv \
+		-io $(DEFAULT_IOSTANDARD)
+
+update: mcoi_xu5_constraints
 	@python3 scripts/gen_init_coe.py \
 		-s hdl/src/diagnostics/pll_rom.sv \
 		-c hdl/ip_cores/bram/init_files/config_120mhz_50mhz.coe\
 		scripts/register_map/config_xu5_120mhz_50mhz.h
-
 
 # The constraints have to be created based on the current pinout
 # configuration in Altium project, just generate pinout of the module
