@@ -1,4 +1,4 @@
-Pin Designator, NetName,          PE1 devkit Designator,  Display Name,
+Pin Designator, Net Name,          PE1 devkit Designator,  Display Name,
 1,              ,                 NOT_USED,             1,
 2,              ,                 NOT_USED,             2,
 3,              FPGA_SUPPLY_OK,   ioe_d0_led#,          3,
