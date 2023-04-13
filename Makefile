@@ -3,12 +3,15 @@
 PROJECT_PATH := $(shell pwd)
 
 # MAKEFILE GLOBAL VARIABLES
-MCOI_PCB_CONFIG=$(PROJECT_PATH)/pcb_configuration/xu5_module_config
-ENCLUSTRA_XU5_SPECS=$(PROJECT_PATH)/pcb_configuration/enclustra_xu5_specs
-XU5_MCOI_PINOUT=$(PROJECT_PATH)/pcb_configuration/xu5_pcb_pinout
-DEVKIT_PINOUT=$(PROJECT_PATH)/pcb_configuration/pe1_devkit_pinout
-DEVICE="ME-XU5-4CG/4EV/5EV-G1"
-DEFAULT_IOSTANDARD="LVCMOS18"
+ENCLUSTRA_XU5_SPECS := $(PROJECT_PATH)/pcb_configuration/enclustra_xu5_specs
+XU5_MCOI_PINOUT := $(PROJECT_PATH)/pcb_configuration/xu5_pcb_pinout
+DEVKIT_PINOUT := $(PROJECT_PATH)/pcb_configuration/pe1_devkit_pinout
+DEVICE := "ME-XU5-4CG/4EV/5EV-G1"
+DEFAULT_IOSTANDARD := "LVCMOS18"
+
+# choose the desired platform to generate correct constraints
+PLATFORM_PINOUT := $(DEVKIT_PINOUT)
+# PLATFORM_PINOUT := $(XU5_MCOI_PINOUT)
 
 all:
 	@printf 'USAGE: init|check_compatibility|vproject_open|vproject_update|update|clean\n'
@@ -65,31 +68,19 @@ vproject_update:
 vproject_open:
 	@vivado -mode gui -nojournal -source hdl/vivadoprj.tcl &> /dev/null &
 
-mcoi_xu5_constraints:
+platform_constraints:
 	@printf "Generating constraints files for device $(DEVICE)\n"
-	@python3 scripts/assemble_constraints.py \
+	python3 scripts/assemble_constraints.py \
 		-d $(DEVICE) \
-		-ap $(XU5_MCOI_PINOUT)/Aconn.csv \
-		-bp $(XU5_MCOI_PINOUT)/Bconn.csv \
+		-ap $(PLATFORM_PINOUT)/Aconn.csv \
+		-bp $(PLATFORM_PINOUT)/Bconn.csv \
 		-va $(ENCLUSTRA_XU5_SPECS)/Mercury_XU5-R1_FPGA_Pinout_Assembly_Variants.csv \
 		-vp $(ENCLUSTRA_XU5_SPECS)/Mercury_XU5-R1_FPGA_Pinout.csv \
 		-o $(PROJECT_PATH)/hdl/constraints \
-		-c $(MCOI_PCB_CONFIG)/xu5_module_config.csv \
+		-c $(PLATFORM_PINOUT)/config.csv \
 		-io $(DEFAULT_IOSTANDARD)
 
-devkit_constraints:
-	@printf "Generating constraints files for device $(DEVICE)\n"
-	@python3 scripts/assemble_constraints.py \
-		-d $(DEVICE) \
-		-ap $(DEVKIT_PINOUT)/Aconn.csv \
-		-bp $(DEVKIT_PINOUT)/Bconn.csv \
-		-va $(ENCLUSTRA_XU5_SPECS)/Mercury_XU5-R1_FPGA_Pinout_Assembly_Variants.csv \
-		-vp $(ENCLUSTRA_XU5_SPECS)/Mercury_XU5-R1_FPGA_Pinout.csv \
-		-o $(PROJECT_PATH)/hdl/constraints \
-		-c $(MCOI_PCB_CONFIG)/xu5_module_config.csv \
-		-io $(DEFAULT_IOSTANDARD)
-
-update: mcoi_xu5_constraints
+update: platform_constraints
 	@python3 scripts/gen_init_coe.py \
 		-s hdl/src/diagnostics/pll_rom.sv \
 		-c hdl/ip_cores/bram/init_files/config_120mhz_50mhz.coe\
