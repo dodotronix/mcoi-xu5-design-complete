@@ -8,3 +8,5 @@
 /vunit_out/
 /gtwiz_us_nlv.log
 **.log
+hdl/constraints/*
+!hdl/constraints/mcoi_xu5_custom_constr.xdc
