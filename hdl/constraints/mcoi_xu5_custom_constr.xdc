@@ -50,8 +50,8 @@ set_property PACKAGE_PIN D12 [get_ports {i2c_x\.scl}]
 set_property IOSTANDARD LVCMOS18 [get_ports {i2c_x\.scl}]
 
 # PIN GROUPPING: MODULE LEDS
-set_property PACKAGE_PIN H2 [get_ports {diag_x\.mled[0]}] 
-set_property PACKAGE_PIN P9 [get_ports {diag_x\.mled[1]}] 
+set_property PACKAGE_PIN P9 [get_ports {diag_x\.mled[0]}] 
+set_property PACKAGE_PIN H2 [get_ports {diag_x\.mled[1]}] 
 set_property PACKAGE_PIN K5 [get_ports {diag_x\.mled[2]}] 
 set_property DRIVE 4 [get_ports {diag_x\.mled[*]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.mled[*]}]
