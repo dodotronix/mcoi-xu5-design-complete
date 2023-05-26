@@ -40,40 +40,43 @@ import types::*;
 
 
 module mcoi_xu5_design_complete (//motors
-                                 t_motors.producer motors_x,
+                                 /* t_motors.producer motors_x,
                                  //optical interface
+                                 //diagnostics */
                                  t_gbt.producer gbt_x,
-                                 //diagnostics
                                  t_diag.producer diag_x,
-                                 //display
+                                 /* //display
                                  t_display.producer display_x,
-                                 output        mreset_vadj,
+                                 output logic mreset_vadj, */
                                  // clocks - MGT 120MHz
-                                 input         mgt_clk_p,
-                                 input         mgt_clk_n,
+                                 input logic         mgt_clk_p,
+                                 input logic         mgt_clk_n,
+                                 output logic [2:0] mled,
 				 // clocks - MGT derived 50MHz
-                                 input         pl_varclk,
+                                 // input logic         pl_varclk,
 				 // localosc 100MHz
-                                 input         clk100m_pl_p,
-                                 input         clk100m_pl_n,
+                                 input logic         clk100m_pl_p,
+                                 input logic        clk100m_pl_n
 				 // SFP interface
 
-                                 // serial interfaces
-				 t_i2c.endpoint i2c_x,
-                                 input         rs485_pl_di,
-                                 output        rs485_pl_ro);
+                 // serial interfaces
+                 // t_i2c.endpoint i2c_x,
+                 // input logic         rs485_pl_di,
+                 // output logic        rs485_pl_ro
+                                );
 
 
    bit [20:0] 				       reset_cntr = '0;
-   logic 				       master_reset;
+   // logic 				       master_reset;
    logic Clk120MHz_fromgte4, Clk120MHz;
+   t_clocks clk_tree_x();
+
    t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHzMGMT_ix));
    logic txready, rxready;
    logic rx_frmclk, tx_frmclk;
 
-
    // *!! because we cannot access internals of t_motors !!
-   t_motors_structured motors_structured_x();
+   /* t_motors_structured motors_structured_x();
    iface_translator i_iface_translator (.*);
 
    always_ff @(posedge clk_tree_x.ClkRs100MHz_ix.clk)
@@ -82,7 +85,6 @@ module mcoi_xu5_design_complete (//motors
    always_comb master_reset = ~&reset_cntr;
 
 
-   t_clocks clk_tree_x();
 
    // reset synchronization into the respective clock domains
    vme_reset_sync_and_filter u_100MHz_reset_sync
@@ -115,20 +117,48 @@ module mcoi_xu5_design_complete (//motors
       .cen_ie   (1'b1),
       .data_i   (master_reset),
       .data_o   (clk_tree_x.ClkRsVar_ix.reset)
-      );
+      ); */
 
+   logic [31:0] cnt_120mhz;
+   logic tick_120;
 
-   assign clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
-   assign diag_x.test[0] = pl_varclk;
-   assign diag_x.test[1] = Clk120MHz;
-   assign diag_x.test[2] = gbt_x.sfp1_los;
-   assign diag_x.test[3] = rx_frmclk;
-   assign diag_x.test[4] = tx_frmclk;
+   logic [31:0] cnt_100mhz; 
+   logic tick_100;
 
+   // assign clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
+   assign diag_x.test[0] = clk_tree_x.ClkRs40MHzMGMT_ix.clk;
+   assign diag_x.test[1] = tick_120;
+   assign diag_x.test[2] = tick_100;
+   assign diag_x.test[3] = 1'b0;
+   assign diag_x.test[4] = 1'b0;
+   /* assign mled[0] = 1'b0;
+   assign mled[1] = 1'b0;
+   assign mled[2] = 1'b0; */
+
+   // HELLO WORLD WITH LED
+   always_ff@(posedge clk_tree_x.ClkRs100MHz_ix.clk) begin
+       cnt_100mhz <= cnt_100mhz + $size(cnt_100mhz)'(1);
+       if(cnt_100mhz == 32'd10000000) begin
+           cnt_100mhz <= '0;
+           tick_100 <= tick_100 ^ 1'b1;
+       end
+   end
+   assign mled[0] = tick_100;
+   
+   always_ff @(posedge Clk120MHz) begin
+       cnt_120mhz <= cnt_120mhz + $size(cnt_120mhz)'(1);
+       if(cnt_120mhz == 32'd120000000) begin
+           cnt_120mhz <= '0;
+           tick_120 <= tick_120 ^ 1'b1;
+       end
+   end
+
+   assign mled[1] = tick_120;
+   assign mled[2] = 1'b1;
 
    //logic system part
-   McoiXu5System i_mcoi_xu5_system (.gbt_los(gbt_x.sfp1_los),
-				    .*);
+   /* McoiXu5System i_mcoi_xu5_system (
+       .gbt_los(gbt_x.sfp1_los), .*); */
 
    // ps part just for storing data to qspi
    mcoi_xu5_ps_part i_mcoi_xu5_ps_part();
@@ -144,7 +174,8 @@ module mcoi_xu5_design_complete (//motors
    IBUFDS_GTE4 #(.REFCLK_EN_TX_PATH(1'b0),
 		 .REFCLK_HROW_CK_SEL(2'b00),
 		 .REFCLK_ICNTL_RX(2'b00))
-   ibufds_gte4_i (.O(clk_tree_x.ClkRs120MHzMGMT_ix.clk),
+   ibufds_gte4_i (
+          .O(clk_tree_x.ClkRs120MHzMGMT_ix.clk),
 		  .ODIV2(Clk120MHz_fromgte4),
 		  .CEB(1'b0),
 		  .I(mgt_clk_p),
@@ -165,6 +196,26 @@ module mcoi_xu5_design_complete (//motors
 			    .reset(0),
 			    .locked());
 
+    logic clk125mhz;
+     test_pll i_testpll (
+        .clk_out1(clk125mhz),
+        .clk_in1(clk_tree_x.ClkRs100MHz_ix.clk)
+    );
+
+    logic [31:0] dynamic_data;
+
+   always_ff @(posedge tx_frmclk) begin
+       if(gbt_x.sfp1_los) dynamic_data <= '0;
+       else dynamic_data <= dynamic_data + $size(dynamic_data)'(1);
+   end
+
+   assign gbt_data_x.data_sent.motor_data_b64 = dynamic_data;
+
+   logic gbt_rxclkenLogic; 
+   logic mgt_txreset_s, mgt_rxreset_s;
+   logic mgt_txready, mgt_rxready;
+   logic gbt_txreset_s, gbt_rxreset_s;
+
    // GBT instance
    gbt_xu5 gbt_xu5_inst
      (//clock
@@ -175,10 +226,11 @@ module mcoi_xu5_design_complete (//motors
       .tx_frameclk_o(tx_frmclk),
       .tx_wordclk_o(),
       .rx_frameclk_rdy_o(),
+      .test(Clk120MHz),
       // reset
-      .gbtbank_general_reset_i(clk_tree_x.ClkRs40MHzMGMT_ix.reset),
-      .gbtbank_manual_reset_tx_i(1'b0),
-      .gbtbank_manual_reset_rx_i(1'b0),
+      .gbtbank_general_reset_i(gbt_x.sfp1_los),
+      .gbtbank_manual_reset_tx_i(gbt_x.sfp1_los),
+      .gbtbank_manual_reset_rx_i(gbt_x.sfp1_los),
 
       // gbt transceiver inouts
 
@@ -200,7 +252,7 @@ module mcoi_xu5_design_complete (//motors
 
       // reconf.
       .gbtbank_mgt_drp_rst(1'b0),
-      .gbtbank_mgt_drp_clk(1'b0), //connected to 125Mhz
+      .gbtbank_mgt_drp_clk(clk125mhz), //connected to 125Mhz
 
       // tx ctrl
       .tx_encoding_sel_i(1'b0),
@@ -210,7 +262,7 @@ module mcoi_xu5_design_complete (//motors
       // rx ctrl
       .rx_encoding_sel_i(1'b0),
       // @TODO: possibly connect as reset
-      .gbtbank_reset_gbtrxready_lost_flag_i('0),
+      .gbtbank_reset_gbtrxready_lost_flag_i(gbt_x.sfp1_los),
       .gbtbank_reset_data_errorseen_flag_i('0),
       .gbtbank_rxframeclk_alignpatter_i(3'b000),
       .gbtbank_rxbitslit_rstoneven_i(1'b1),
@@ -234,7 +286,44 @@ module mcoi_xu5_design_complete (//motors
       //xcvr ctrl
       .gbtbank_loopback_i(3'b000),
       .gbtbank_tx_pol(1'b1),
-      .gbtbank_rx_pol(1'b1));
+      .gbtbank_rx_pol(1'b1),
+
+      //exclude reset block from the gbt block 
+      .mgt_txreset_s(mgt_txreset_s),
+      .mgt_rxreset_s(mgt_rxreset_s),
+      .gbt_txreset_s(gbt_txreset_s),
+      .gbt_rxreset_s(gbt_rxreset_s),
+      .mgt_rxready(mgt_rxready),
+      .mgt_txready(mgt_txready),
+      .gbt_rxclkenLogic(gbt_rxclkenLogic)
+      );
+
+      // excluded reset block
+      gbt_bank_reset #(.INITIAL_DELAY(40e6))
+      i_gbt_reset(
+         .GBT_CLK_I (clk_tree_x.ClkRs40MHzMGMT_ix.clk),
+         .TX_FRAMECLK_I(tx_frmclk),
+         .TX_CLKEN_I(1'b1),
+         .RX_FRAMECLK_I(rx_frmclk),
+         .RX_CLKEN_I(gbt_rxclkenLogic),
+         .MGTCLK_I(clk125mhz),
+         .GENERAL_RESET_I(gbt_x.sfp1_los),
+         .TX_RESET_I(gbt_x.sfp1_los),
+         .RX_RESET_I(gbt_x.sfp1_los),
+         .MGT_TX_RESET_O(mgt_txreset_s),
+         .MGT_RX_RESET_O(mgt_rxreset_s),
+         .GBT_TX_RESET_O(gbt_txreset_s),
+         .GBT_RX_RESET_O(gbt_rxreset_s),
+         .MGT_TX_RSTDONE_I(mgt_txready),
+         .MGT_RX_RSTDONE_I(mgt_rxready)
+         );
+
+         // meant to serve for framealigner
+          /* .TX_OPTIMIZATION(STANDARD), 
+          .RX_OPTIMIZATION(STANDARD),
+          .DIV_SIZE_CONFIG(3),
+          .METHOD(GATED_CLOCK),
+          .CLOCKING_SCHEME(BC_CLOCK)) */
 
    assign gbt_x.sfp1_rateselect = 1'b0;
    assign gbt_x.sfp1_txdisable = 1'b0;
