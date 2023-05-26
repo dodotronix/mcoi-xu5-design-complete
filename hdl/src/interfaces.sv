@@ -102,13 +102,13 @@ interface t_diag;
    logic 		  fpga_supply_ok;
 
    modport producer(output led,
-                    output mled,
+                    // output mled,
                     output test,
                     input  pcbrev,
                     input  fpga_supply_ok);
 
    modport consumer (input  led,
-                     input  mled,
+                     // input  mled,
                      input  test,
                      output pcbrev,
                      output fpga_supply_ok);
