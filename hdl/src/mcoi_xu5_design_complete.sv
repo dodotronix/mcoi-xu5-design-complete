@@ -215,18 +215,19 @@ module mcoi_xu5_design_complete (//motors
    logic mgt_txreset_s, mgt_rxreset_s;
    logic mgt_txready, mgt_rxready;
    logic gbt_txreset_s, gbt_rxreset_s;
+   logic mgt_headerflag;
 
    // GBT instance
    gbt_xu5 gbt_xu5_inst
      (//clock
       .frameclk_40mhz(clk_tree_x.ClkRs40MHzMGMT_ix.clk),
       .xcvrclk(clk_tree_x.ClkRs120MHzMGMT_ix.clk),
-      .rx_frameclk_o(rx_frmclk),
+      .rx_frameclk_i(rx_frmclk),
+      // .rx_frameclk_o(rx_frmclk),
       .rx_wordclk_o(),
       .tx_frameclk_o(tx_frmclk),
       .tx_wordclk_o(),
       .rx_frameclk_rdy_o(),
-      .test(Clk120MHz),
       // reset
       .gbtbank_general_reset_i(gbt_x.sfp1_los),
       .gbtbank_manual_reset_tx_i(gbt_x.sfp1_los),
@@ -240,6 +241,7 @@ module mcoi_xu5_design_complete (//motors
       // OUT from gbt_xu5
       .gbtbank_mgt_tx_p(gbt_x.sfp1_gbitout_p),
       .gbtbank_mgt_tx_n(gbt_x.sfp1_gbitout_n),
+      .pll_ila(Clk120MHz),
 
       // data
       .gbtbank_gbt_data_i(gbt_data_x.data_sent),
@@ -295,6 +297,7 @@ module mcoi_xu5_design_complete (//motors
       .gbt_rxreset_s(gbt_rxreset_s),
       .mgt_rxready(mgt_rxready),
       .mgt_txready(mgt_txready),
+      .mgt_headerflag(mgt_headerflag),
       .gbt_rxclkenLogic(gbt_rxclkenLogic)
       );
 
@@ -318,12 +321,36 @@ module mcoi_xu5_design_complete (//motors
          .MGT_RX_RSTDONE_I(mgt_rxready)
          );
 
-         // meant to serve for framealigner
-          /* .TX_OPTIMIZATION(STANDARD), 
-          .RX_OPTIMIZATION(STANDARD),
-          .DIV_SIZE_CONFIG(3),
-          .METHOD(GATED_CLOCK),
-          .CLOCKING_SCHEME(BC_CLOCK)) */
+    logic pll_testovani, rx_frameclk_rdy;
+
+     gbt_rx_frameclk_phalgnr #(
+         .TX_OPTIMIZATION(0),
+         .RX_OPTIMIZATION(0),
+         .DIV_SIZE_CONFIG(3),
+         .METHOD(0),
+         .CLOCKING_SCHEME(0))
+     i_frameclk_phalgnr(
+            .RESET_I(~mgt_rxready),
+            .RX_WORDCLK_I(1'b0),
+            .FRAMECLK_I(clk_tree_x.ClkRs40MHzMGMT_ix.clk),
+            .RX_FRAMECLK_O(rx_frmclk),
+            .RX_CLKEn_o(gbt_rxclkenLogic),
+            .SYNC_I(mgt_headerflag),
+            .CLK_ALIGN_CONFIG(3'b000),
+            .DEBUG_CLK_ALIGNMENT(),
+            .PLL_LOCKED_O(pll_testovani),
+            .DONE_O(rx_frameclk_rdy));
+
+    /* illa_gbtcore outside_ila(
+        .clk(Clk120MHz),
+        .probe0(gbt_data_x.data_received.motor_data_b64),
+        .probe1(gbt_data_x.data_sent.motor_data_b64),
+        .probe2(tx_frmclk),
+        .probe3(rx_frmclk),
+        .probe4(rx_frameclk_rdy),
+        .probe5(pll_testovani),
+        .probe6(mgt_txready),
+        .probe7(mgt_rxready)); */
 
    assign gbt_x.sfp1_rateselect = 1'b0;
    assign gbt_x.sfp1_txdisable = 1'b0;
