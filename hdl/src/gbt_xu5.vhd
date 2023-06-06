@@ -31,18 +31,11 @@ entity gbt_xu5 is
              frameclk_40mhz : in std_logic;
              xcvrclk : in  std_logic;
 
-
              rx_frameclk_i : in std_logic_vector(1 to NUM_LINKS);
              rx_wordclk_o : out std_logic_vector(1 to NUM_LINKS);
              tx_frameclk_o : out std_logic_vector(1 to NUM_LINKS);
              tx_wordclk_o : out std_logic_vector(1 to NUM_LINKS);
 
-             -- Reset
-             gbtbank_general_reset_i : in  std_logic;
-             gbtbank_manual_reset_tx_i : in  std_logic;
-             gbtbank_manual_reset_rx_i : in  std_logic;
-
-             rx_frameclk_rdy_o : out std_logic_vector(1 to NUM_LINKS);
              pll_ila : in std_logic;
 
              -- Serial lanes
@@ -57,33 +50,24 @@ entity gbt_xu5 is
              gbtbank_gbt_data_o : out std_logic_vector(83 downto 0);
              gbtbank_wb_data_o : out std_logic_vector(115 downto 0);
 
-             -- Reconf.
-             gbtbank_mgt_drp_rst : in  std_logic;
              gbtbank_mgt_drp_clk : in  std_logic;
 
              -- TX ctrl
-             tx_encoding_sel_i : in  std_logic_vector(1 to NUM_LINKS);    --! Select the Tx encoding in dynamic mode ('1': GBT / '0': WideBus)
+             tx_encoding_sel_i : in  std_logic_vector(1 to NUM_LINKS);
              gbtbank_tx_isdata_sel_i : in  std_logic_vector(1 to NUM_LINKS);
-             gbtbank_test_pattern_sel_i : in  std_logic_vector(1 downto 0);
 
              -- RX ctrl
-             rx_encoding_sel_i : in  std_logic_vector(1 to NUM_LINKS);    --! Select the Rx encoding in dynamic mode ('1': GBT / '0': WideBus)
-             gbtbank_reset_gbtrxready_lost_flag_i : in  std_logic_vector(1 to NUM_LINKS);             
-             gbtbank_reset_data_errorseen_flag_i : in  std_logic_vector(1 to NUM_LINKS);                               
-             gbtbank_rxframeclk_alignpatter_i : in std_logic_vector(2 downto 0);	
+             rx_encoding_sel_i : in  std_logic_vector(1 to NUM_LINKS);    
              gbtbank_rxbitslit_rstoneven_i : in std_logic_vector(1 to NUM_LINKS);
 
              -- TX Status
-             gbtbank_gbttx_ready_o : out std_logic_vector(1 to NUM_LINKS);
-             gbtbank_gbtrx_ready_o : out std_logic_vector(1 to NUM_LINKS);
-             gbtbank_link_ready_o : out std_logic_vector(1 to NUM_LINKS);
+             -- gbtbank_gbttx_ready_o : out std_logic_vector(1 to NUM_LINKS);
+             -- gbtbank_gbtrx_ready_o : out std_logic_vector(1 to NUM_LINKS);
+             -- gbtbank_link_ready_o : out std_logic_vector(1 to NUM_LINKS);
              gbtbank_tx_aligned_o : out std_logic_vector(1 to NUM_LINKS);
              gbtbank_tx_aligncomputed_o : out std_logic_vector(1 to NUM_LINKS);
 
              -- RX Status
-             gbtbank_gbtrxready_lost_flag_o : out std_logic_vector(1 to NUM_LINKS);
-             gbtbank_rxdata_errorseen_flag_o : out std_logic_vector(1 to NUM_LINKS);
-             gbtbank_rxextradata_widebus_errorseen_flag_o : out std_logic_vector(1 to NUM_LINKS);
              gbtbank_rx_isdata_sel_o : out std_logic_vector(1 to NUM_LINKS);
              gbtbank_rx_errordetected_o : out std_logic_vector(1 to NUM_LINKS);
              gbtbank_rx_bitmodified_flag_o : out gbt_reg84_A(1 to NUM_LINKS);
@@ -107,9 +91,19 @@ entity gbt_xu5 is
 end gbt_xu5;
 architecture structural of gbt_xu5 is
 
-    signal gbt_txframeclk_s : std_logic_vector(1 to NUM_LINKS);
     signal gbt_txdata_s : gbt_reg84_A(1 to NUM_LINKS);
     signal wb_txdata_s : gbt_reg32_A(1 to NUM_LINKS);
+
+    signal mgt_devspecific_to_s : mgtDeviceSpecific_i_R;
+    signal mgt_devspecific_from_s : mgtDeviceSpecific_o_R;
+
+    signal gbt_rxdata_s : gbt_reg84_A(1 to NUM_LINKS);
+    signal wb_rxdata_s : gbt_reg32_A(1 to NUM_LINKS);
+
+    signal txData_from_gbtBank_pattGen : gbt_reg84_A(1 to NUM_LINKS);
+    signal txwBData_from_gbtBank_pattGen : gbt_reg32_A(1 to NUM_LINKS);
+
+    signal gbt_txframeclk_s : std_logic_vector(1 to NUM_LINKS);
     signal gbt_txclken_s : std_logic_vector(1 to NUM_LINKS);
 
     signal mgt_txwordclk_s : std_logic_vector(1 to NUM_LINKS);
@@ -119,37 +113,22 @@ architecture structural of gbt_xu5 is
     signal mgt_rxready_s : std_logic_vector(1 to NUM_LINKS);
 
     signal mgt_headerflag_s : std_logic_vector(1 to NUM_LINKS);
-    signal mgt_devspecific_to_s : mgtDeviceSpecific_i_R;
-    signal mgt_devspecific_from_s : mgtDeviceSpecific_o_R;
     signal resetOnBitslip_s : std_logic_vector(1 to NUM_LINKS);
 
     signal gbt_rxframeclk_s : std_logic_vector(1 to NUM_LINKS);
-    --signal gbt_rxreset_s : std_logic_vector(1 to NUM_LINKS);
+
     signal gbt_rxready_s : std_logic_vector(1 to NUM_LINKS);
-    signal gbt_rxdata_s : gbt_reg84_A(1 to NUM_LINKS);
-    signal wb_rxdata_s : gbt_reg32_A(1 to NUM_LINKS);
     signal gbt_rxclken_s : std_logic_vector(1 to NUM_LINKS);
     signal gbt_rxclkenLogic_s : std_logic_vector(1 to NUM_LINKS);
     signal mgt_headerflag_locked_s : std_logic_vector(1 to NUM_LINKS);
-
-    signal gbtBank_txEncodingSel : std_logic_vector(1 downto 0);
-    signal gbtBank_rxEncodingSel : std_logic_vector(1 downto 0);
-    signal txData_from_gbtBank_pattGen : gbt_reg84_A(1 to NUM_LINKS);
-    signal txwBData_from_gbtBank_pattGen : gbt_reg32_A(1 to NUM_LINKS);
 begin
-    -- Clocks 
-    gbtBank_Clk_gen: for i in 1 to NUM_LINKS generate
-
-
-    end generate;
-
     inside_ila : work.illa_gbtcore
     PORT MAP(clk => pll_ila,
              probe0 => gbt_rxdata_s(1)(63 downto 0),
              probe1 => gbt_txdata_s(1)(63 downto 0),
              probe2 => gbt_txframeclk_s(1),
              probe3 => gbt_rxframeclk_s(1),
-             probe4 => rx_frameclk_rdy_o(1),
+             probe4 => '0',
              probe5 => '0',
              probe6 => mgt_txready_s(1),
              probe7 => mgt_rxready_s(1) 
@@ -159,11 +138,10 @@ begin
     gbtBank_mgt_gen: for i in 1 to NUM_LINKS generate
 
         gbt_rxframeclk_s(i) <= rx_frameclk_i(i);
-        -- RX_FRAMECLK_O(i) <= gbt_rxframeclk_s(i); 
         tx_frameclk_o(i) <= frameclk_40mhz;
 
-        TX_WORDCLK_O(i) <= mgt_txwordclk_s(i);
-        RX_WORDCLK_O(i) <= mgt_rxwordclk_s(i);
+        tx_wordclk_o(i) <= mgt_txwordclk_s(i);
+        rx_wordclk_o(i) <= mgt_rxwordclk_s(i);
 
         mgt_headerflag(i) <= mgt_headerflag_s(i);
         gbt_rxclken_s(i) <= mgt_headerflag_s(i) when CLOCKING_SCHEME = FULL_MGTFREQ else '1';
@@ -172,11 +150,9 @@ begin
         mgt_txready(i) <= mgt_txready_s(i);
         mgt_rxready(i) <= MGT_RXREADY_S(i);
 
-        gbtbank_gbtrx_ready_o(i) <= mgt_rxready_s(i) and gbt_rxready_s(i);
-
-        gbtbank_link_ready_o(i) <= mgt_txready_s(i) and mgt_rxready_s(i);
-
-        gbtbank_gbttx_ready_o(i) <= not(gbt_txreset_s(i));
+        -- gbtbank_gbtrx_ready_o(i) <= mgt_rxready_s(i) and gbt_rxready_s(i);
+        -- gbtbank_link_ready_o(i) <= mgt_txready_s(i) and mgt_rxready_s(i);
+        -- gbtbank_gbttx_ready_o(i) <= not(gbt_txreset_s(i));
 
         gbt_txclken_s(i) <= '1';
         gbt_txdata_s(i) <= gbtbank_gbt_data_i;
@@ -190,29 +166,23 @@ begin
         mgt_devspecific_to_s.drp_en(i) <= '0';
         mgt_devspecific_to_s.drp_di(i) <= x"0000";
         mgt_devspecific_to_s.drp_we(i) <= '0';
-        mgt_devspecific_to_s.drp_clk(i) <= GBTBANK_MGT_DRP_CLK;
-
         mgt_devspecific_to_s.prbs_txSel(i) <= "000";
         mgt_devspecific_to_s.prbs_rxSel(i) <= "000";
         mgt_devspecific_to_s.prbs_txForceErr(i) <= '0';
         mgt_devspecific_to_s.prbs_rxCntReset(i) <= '0';
-
         mgt_devspecific_to_s.conf_diffCtrl(i) <= "10000"; -- Comment: 807 mVppd
         mgt_devspecific_to_s.conf_postCursor(i) <= "00000"; -- Comment: 0.00 dB (default)
         mgt_devspecific_to_s.conf_preCursor(i) <= "00000"; -- Comment: 0.00 dB (default)
-        mgt_devspecific_to_s.conf_txPol(i) <= GBTBANK_TX_POL(i); -- Comment: Not inverted
-        mgt_devspecific_to_s.conf_rxPol(i) <= GBTBANK_RX_POL(i); -- Comment: Not inverted 
+        mgt_devspecific_to_s.conf_txPol(i) <= gbtbank_tx_pol(i); -- Comment: Not inverted
+        mgt_devspecific_to_s.conf_rxPol(i) <= gbtbank_rx_pol(i); -- Comment: Not inverted 
+        mgt_devspecific_to_s.drp_clk(i) <= gbtbank_mgt_drp_clk;
+        mgt_devspecific_to_s.loopBack(i) <= gbtbank_loopback_i;
+        mgt_devspecific_to_s.rx_p(i) <= gbtbank_mgt_rx_p(i); 
+        mgt_devspecific_to_s.rx_n(i) <= gbtbank_mgt_rx_n(i);
+        mgt_devspecific_to_s.reset_freeRunningClock(i) <= gbtbank_mgt_drp_clk;
 
-        mgt_devspecific_to_s.loopBack(i) <= GBTBANK_LOOPBACK_I;
-
-        mgt_devspecific_to_s.rx_p(i) <= GBTBANK_MGT_RX_P(i); 
-        mgt_devspecific_to_s.rx_n(i) <= GBTBANK_MGT_RX_N(i);
-
-        mgt_devspecific_to_s.reset_freeRunningClock(i) <= GBTBANK_MGT_DRP_CLK;
-
-        GBTBANK_MGT_TX_P(i) <= mgt_devspecific_from_s.tx_p(i); 
-        GBTBANK_MGT_TX_N(i) <= mgt_devspecific_from_s.tx_n(i);
-
+        gbtbank_mgt_tx_p(i) <= mgt_devspecific_from_s.tx_p(i); 
+        gbtbank_mgt_tx_n(i) <= mgt_devspecific_from_s.tx_n(i);
         resetOnBitslip_s(i) <= '1' when RX_OPTIMIZATION = LATENCY_OPTIMIZED else '0';
     end generate; 
 
@@ -242,7 +212,7 @@ begin
                 MGT_RXWORDCLK_o => mgt_rxwordclk_s,
 
                 -- GBT TX Control --
-                TX_ENCODING_SEL_i => TX_ENCODING_SEL_i,
+                TX_ENCODING_SEL_i => tx_encoding_sel_i,
                 GBT_ISDATAFLAG_i => gbtbank_tx_isdata_sel_i,
 
                 -- GBT TX Status --

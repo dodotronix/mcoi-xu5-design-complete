@@ -223,21 +223,14 @@ module mcoi_xu5_design_complete (//motors
       .frameclk_40mhz(clk_tree_x.ClkRs40MHzMGMT_ix.clk),
       .xcvrclk(clk_tree_x.ClkRs120MHzMGMT_ix.clk),
       .rx_frameclk_i(rx_frmclk),
-      // .rx_frameclk_o(rx_frmclk),
       .rx_wordclk_o(),
       .tx_frameclk_o(tx_frmclk),
       .tx_wordclk_o(),
-      .rx_frameclk_rdy_o(),
-      // reset
-      .gbtbank_general_reset_i(gbt_x.sfp1_los),
-      .gbtbank_manual_reset_tx_i(gbt_x.sfp1_los),
-      .gbtbank_manual_reset_rx_i(gbt_x.sfp1_los),
-
-      // gbt transceiver inouts
 
       // INto gbt_xu5
       .gbtbank_mgt_rx_p(gbt_x.sfp1_gbitin_p),
       .gbtbank_mgt_rx_n(gbt_x.sfp1_gbitin_n),
+
       // OUT from gbt_xu5
       .gbtbank_mgt_tx_p(gbt_x.sfp1_gbitout_p),
       .gbtbank_mgt_tx_n(gbt_x.sfp1_gbitout_n),
@@ -246,40 +239,31 @@ module mcoi_xu5_design_complete (//motors
       // data
       .gbtbank_gbt_data_i(gbt_data_x.data_sent),
       .gbtbank_wb_data_i('0),
-      .tx_data_o(),
-      .wb_data_o(),
 
       .gbtbank_gbt_data_o(gbt_data_x.data_received),
       .gbtbank_wb_data_o(),
 
       // reconf.
-      .gbtbank_mgt_drp_rst(1'b0),
       .gbtbank_mgt_drp_clk(clk125mhz), //connected to 125Mhz
 
       // tx ctrl
       .tx_encoding_sel_i(1'b0),
       .gbtbank_tx_isdata_sel_i(1'b0),
-      .gbtbank_test_pattern_sel_i(2'b11),
 
       // rx ctrl
       .rx_encoding_sel_i(1'b0),
-      // @TODO: possibly connect as reset
-      .gbtbank_reset_gbtrxready_lost_flag_i(gbt_x.sfp1_los),
-      .gbtbank_reset_data_errorseen_flag_i('0),
-      .gbtbank_rxframeclk_alignpatter_i(3'b000),
       .gbtbank_rxbitslit_rstoneven_i(1'b1),
 
       // tx status
-      .gbtbank_link_ready_o(),
       .gbtbank_tx_aligned_o(),
       .gbtbank_tx_aligncomputed_o(),
 
       // rx status
-      .gbtbank_gbttx_ready_o(txready),
+      
+      /* .gbtbank_gbttx_ready_o(txready),
       .gbtbank_gbtrx_ready_o(rxready),
-      .gbtbank_gbtrxready_lost_flag_o(),
-      .gbtbank_rxdata_errorseen_flag_o(),
-      .gbtbank_rxextradata_widebus_errorseen_flag_o(),
+      .gbtbank_link_ready_o(), */
+
       .gbtbank_rx_isdata_sel_o(),
       .gbtbank_rx_errordetected_o(),
       .gbtbank_rx_bitmodified_flag_o(),
