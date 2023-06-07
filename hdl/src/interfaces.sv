@@ -12,23 +12,27 @@ interface t_clocks;
    // 100MHz on-module oscillator
    ckrs_t ClkRs100MHz_ix;
 
-   // MGT 120MHz coming from external PLL and 40MHz derived from MGT
-   ckrs_t ClkRs120MHzMGMT_ix;
-   ckrs_t ClkRs40MHzMGMT_ix;
+   // MGT 120MHz coming from external PLL 
+   ckrs_t ClkRs120MHz_ix;
+
+   // 40MHz derived from MGT Clock
+   ckrs_t ClkRs40MHz_ix;
 
    // 50MHz as separate output from MGT pll - unrelated to all other
    ckrs_t ClkRsVar_ix;
 
 
-   modport producer(output ClkRs100MHz_ix,
-		    output ClkRs120MHzMGMT_ix,
-		    output ClkRs40MHzMGMT_ix,
-		    output ClkRsVar_ix);
+   modport producer(
+       output ClkRs100MHz_ix,
+       output ClkRs120MHz_ix,
+       output ClkRs40MHz_ix,
+       output ClkRsVar_ix);
 
-   modport consumer(input ClkRs100MHz_ix,
-		    input ClkRs120MHzMGMT_ix,
-		    input ClkRs40MHzMGMT_ix,
-		    input ClkRsVar_ix);
+   modport consumer(
+       input ClkRs100MHz_ix,
+       input ClkRs120MHz_ix,
+       input ClkRs40MHz_ix,
+       input ClkRsVar_ix);
 
 endinterface // clocks
 
@@ -118,11 +122,35 @@ endinterface // diag_x
 interface t_gbt_data (input ckrs_t ClkRs_ix);
    t_sfp_stream data_received;
    t_sfp_stream data_sent;
+   logic tx_frameclk;
+   logic rx_frameclk;
+   logic tx_wordclk;
+   logic rx_wordclk;
 
-   // testbench port:
-   modport producer (input ClkRs_ix, output data_received, input data_sent);
+   logic tx_ready;
+   logic rx_ready;
+   logic link_ready;
+
+   // testbench port
+   modport producer (input ClkRs_ix, 
+                     input data_sent,
+                     input tx_frameclk,
+                     output tx_ready,
+                     output rx_ready,
+                     output link_ready,
+                     output rx_frameclk,
+                     output data_received);
+
    // ordinary consumer
-   modport consumer (input ClkRs_ix, input data_received, output data_sent);
+   modport consumer (input ClkRs_ix, 
+                     input rx_frameclk,
+                     input data_received, 
+                     input tx_ready,
+                     input rx_ready,
+                     input link_ready,
+                     output tx_frameclk,
+                     output data_sent);
+
 endinterface // t_gbt_data
 
 

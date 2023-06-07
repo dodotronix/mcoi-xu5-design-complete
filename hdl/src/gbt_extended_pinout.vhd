@@ -1,7 +1,35 @@
---------------------------------------------------------------------------------
--- Petr Pacner | CERN | 2020-03-05 Do 10:05 
--- GBT [XU5 platform]
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- This program is free software; you can redistribute it and/or
+-- modify it under the terms of the GNU General Public License
+-- as published by the Free Software Foundation; either version 2
+-- of the License, or (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-- Foundation, Inc., 51 Franklin Street, Fifth Floor
+-- Boston, MA  02110-1301, USA.
+--
+-- You can dowload a copy of the GNU General Public License here:
+-- http://www.gnu.org/licenses/gpl.txt
+--
+-- Copyright (c) June 2023 CERN
+
+-------------------------------------------------------------------------------
+-- @file GBT_EXTENDED_PINOUT.SV
+-- @brief
+-- @author Petr Pacner  <pepacner@cern.ch>, CERN
+-- @date 6 June 2023
+-- @details
+--
+--
+-- @platform Xilinx Vivado 
+-- @standard IEEE 1800-2012
+-------------------------------------------------------------------------------
 
 -- IEEE VHDL standard library:
 library ieee;
@@ -11,19 +39,14 @@ use ieee.std_logic_1164.all;
 use work.gbt_bank_package.all;
 use work.vendor_specific_gbt_bank_package.all;
 
-entity gbt_xu5 is
+
+entity gbt_extended_pinout is
     generic (
-                NGBT_BANK_ID : integer := 0;  
-                FULL_MGTFREQ : integer := 1;
-                NUM_LINKS : integer := 1;
+                NUM_LINKS       : integer := 1;
                 TX_OPTIMIZATION	: integer range 0 to 1 := STANDARD;
                 RX_OPTIMIZATION : integer range 0 to 1 := STANDARD;
-                TX_ENCODING : integer range 0 to 2 := GBT_FRAME;
-                RX_ENCODING	: integer range 0 to 2 := GBT_FRAME;
-
-                -- Extended configuration --
-                DATA_GENERATOR_ENABLE : integer range 0 to 1 := 1;
-                DATA_CHECKER_ENABLE : integer range 0 to 1 := 1;
+                TX_ENCODING     : integer range 0 to 2 := GBT_FRAME;
+                RX_ENCODING	    : integer range 0 to 2 := GBT_FRAME;
                 CLOCKING_SCHEME : integer range 0 to 1 := 0 
             );
     port (
@@ -32,9 +55,9 @@ entity gbt_xu5 is
              xcvrclk : in  std_logic;
 
              rx_frameclk_i : in std_logic_vector(1 to NUM_LINKS);
-             rx_wordclk_o : out std_logic_vector(1 to NUM_LINKS);
+             rx_wordclk_o  : out std_logic_vector(1 to NUM_LINKS);
              tx_frameclk_o : out std_logic_vector(1 to NUM_LINKS);
-             tx_wordclk_o : out std_logic_vector(1 to NUM_LINKS);
+             tx_wordclk_o  : out std_logic_vector(1 to NUM_LINKS);
 
              pll_ila : in std_logic;
 
@@ -61,9 +84,9 @@ entity gbt_xu5 is
              gbtbank_rxbitslit_rstoneven_i : in std_logic_vector(1 to NUM_LINKS);
 
              -- TX Status
-             -- gbtbank_gbttx_ready_o : out std_logic_vector(1 to NUM_LINKS);
-             -- gbtbank_gbtrx_ready_o : out std_logic_vector(1 to NUM_LINKS);
-             -- gbtbank_link_ready_o : out std_logic_vector(1 to NUM_LINKS);
+             gbtbank_gbttx_ready_o : out std_logic_vector(1 to NUM_LINKS);
+             gbtbank_gbtrx_ready_o : out std_logic_vector(1 to NUM_LINKS);
+             gbtbank_link_ready_o : out std_logic_vector(1 to NUM_LINKS);
              gbtbank_tx_aligned_o : out std_logic_vector(1 to NUM_LINKS);
              gbtbank_tx_aligncomputed_o : out std_logic_vector(1 to NUM_LINKS);
 
@@ -88,8 +111,8 @@ entity gbt_xu5 is
              gbt_rxclkenLogic : in std_logic_vector(1 to NUM_LINKS);
              mgt_headerflag : out std_logic_vector(1 to NUM_LINKS)
          );
-end gbt_xu5;
-architecture structural of gbt_xu5 is
+end gbt_extended_pinout;
+architecture structural of gbt_extended_pinout is
 
     signal gbt_txdata_s : gbt_reg84_A(1 to NUM_LINKS);
     signal wb_txdata_s : gbt_reg32_A(1 to NUM_LINKS);
@@ -122,6 +145,7 @@ architecture structural of gbt_xu5 is
     signal gbt_rxclkenLogic_s : std_logic_vector(1 to NUM_LINKS);
     signal mgt_headerflag_locked_s : std_logic_vector(1 to NUM_LINKS);
 begin
+
     inside_ila : work.illa_gbtcore
     PORT MAP(clk => pll_ila,
              probe0 => gbt_rxdata_s(1)(63 downto 0),
@@ -131,8 +155,7 @@ begin
              probe4 => '0',
              probe5 => '0',
              probe6 => mgt_txready_s(1),
-             probe7 => mgt_rxready_s(1) 
-            );
+             probe7 => mgt_rxready_s(1));
 
     -- Transceiver --
     gbtBank_mgt_gen: for i in 1 to NUM_LINKS generate
@@ -144,15 +167,15 @@ begin
         rx_wordclk_o(i) <= mgt_rxwordclk_s(i);
 
         mgt_headerflag(i) <= mgt_headerflag_s(i);
-        gbt_rxclken_s(i) <= mgt_headerflag_s(i) when CLOCKING_SCHEME = FULL_MGTFREQ else '1';
+        gbt_rxclken_s(i) <= mgt_headerflag_s(i) when CLOCKING_SCHEME = 1 else '1';
         gbt_rxclkenLogic_s(i) <= gbt_rxclkenLogic(i);
 
         mgt_txready(i) <= mgt_txready_s(i);
         mgt_rxready(i) <= MGT_RXREADY_S(i);
 
-        -- gbtbank_gbtrx_ready_o(i) <= mgt_rxready_s(i) and gbt_rxready_s(i);
-        -- gbtbank_link_ready_o(i) <= mgt_txready_s(i) and mgt_rxready_s(i);
-        -- gbtbank_gbttx_ready_o(i) <= not(gbt_txreset_s(i));
+        gbtbank_gbttx_ready_o(i) <= not(gbt_txreset_s(i));
+        gbtbank_gbtrx_ready_o(i) <= mgt_rxready_s(i) and gbt_rxready_s(i);
+        gbtbank_link_ready_o(i) <= mgt_txready_s(i) and mgt_rxready_s(i);
 
         gbt_txclken_s(i) <= '1';
         gbt_txdata_s(i) <= gbtbank_gbt_data_i;
