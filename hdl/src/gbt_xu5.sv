@@ -58,8 +58,8 @@ logic gbt_rxreset;
 logic mgt_txready;
 logic mgt_rxready;
 
-logic rx_frmclk;
-logic tx_frmclk;
+logic rx_frameclk;
+logic tx_frameclk;
 logic clk_40mhz;
 logic clk_120mhz;
 logic reset;
@@ -72,22 +72,24 @@ logic gbt_rxclkenLogic;
 logic mgt_headerflag;
 
 always_comb begin
+    gbt_data_x.tx_ready    = tx_ready;
+    gbt_data_x.rx_ready    = rx_ready;
+    gbt_data_x.link_ready  = link_ready;
+    gbt_data_x.tx_frameclk = tx_frameclk;
+    gbt_data_x.rx_frameclk = rx_frameclk;
+
     clk_120mhz = clk_tree_x.ClkRs120MHz_ix.clk;
     clk_40mhz  = clk_tree_x.ClkRs40MHz_ix.clk;
     reset      = clk_tree_x.ClkRs40MHz_ix.reset | gbt_x.sfp1_los;
-
-    gbt_data_x.tx_ready   = tx_ready;
-    gbt_data_x.rx_ready   = rx_ready;
-    gbt_data_x.link_ready = link_ready;
 end
 
 gbt_bank_reset #(
     .INITIAL_DELAY(40e6))
 i_gbt_reset(
  .GBT_CLK_I (clk_40mhz),
- .TX_FRAMECLK_I(tx_frmclk),
+ .TX_FRAMECLK_I(tx_frameclk),
  .TX_CLKEN_I(1'b1),
- .RX_FRAMECLK_I(rx_frmclk),
+ .RX_FRAMECLK_I(rx_frameclk),
  .RX_CLKEN_I(gbt_rxclkenLogic),
  .MGTCLK_I(clk_120mhz),
  .GENERAL_RESET_I(reset),
@@ -109,8 +111,8 @@ i_gbt_reset(
  i_frameclk_phalgnr(
         .RESET_I(~mgt_rxready),
         .RX_WORDCLK_I(1'b0),
-        .FRAMECLK_I(frameclk_40mhz),
-        .RX_FRAMECLK_O(rx_frmclk),
+        .FRAMECLK_I(clk_40mhz),
+        .RX_FRAMECLK_O(rx_frameclk),
         .RX_CLKEn_o(gbt_rxclkenLogic),
         .SYNC_I(mgt_headerflag),
         .CLK_ALIGN_CONFIG(3'b000),
@@ -130,10 +132,10 @@ gbt_extended_i(
         //clock
       .frameclk_40mhz(clk_40mhz),
       .xcvrclk(external_pll_source_120mhz),
-      .rx_frameclk_i(rx_frmclk),
+      .rx_frameclk_i(rx_frameclk),
       .rx_wordclk_o(),
 
-      .tx_frameclk_o(tx_frmclk),
+      .tx_frameclk_o(tx_frameclk),
       .tx_wordclk_o(),
 
       // INto gbt_xu5
@@ -143,7 +145,7 @@ gbt_extended_i(
       // OUT from gbt_xu5
       .gbtbank_mgt_tx_p(gbt_x.sfp1_gbitout_p),
       .gbtbank_mgt_tx_n(gbt_x.sfp1_gbitout_n),
-      .pll_ila(clk_120mhz),
+      // .pll_ila(clk_120mhz),
 
       // data
       .gbtbank_gbt_data_i(gbt_data_x.data_sent),
@@ -194,6 +196,17 @@ gbt_extended_i(
       .mgt_headerflag(mgt_headerflag),
       .gbt_rxclkenLogic(gbt_rxclkenLogic)
 );
+
+illa_gbtcore inside_ila (
+    .clk(clk_120mhz),
+    .probe0(gbt_data_x.data_received.motor_data_b64),
+    .probe1(gbt_data_x.data_sent.motor_data_b64),
+    .probe2(reset),
+    .probe3(mgt_txreset),
+    .probe4(mgt_rxreset),
+    .probe5(gbt_txreset),
+    .probe6(gbt_rxreset),
+    .probe7(mgt_rxready));
 
 assign gbt_x.sfp1_rateselect = 1'b0;
 assign gbt_x.sfp1_txdisable = 1'b0;
