@@ -59,7 +59,7 @@ entity gbt_extended_pinout is
              tx_frameclk_o : out std_logic_vector(1 to NUM_LINKS);
              tx_wordclk_o  : out std_logic_vector(1 to NUM_LINKS);
 
-             pll_ila : in std_logic;
+             -- pll_ila : in std_logic;
 
              -- Serial lanes
              gbtbank_mgt_rx_p : in  std_logic_vector(1 to NUM_LINKS);
@@ -146,16 +146,16 @@ architecture structural of gbt_extended_pinout is
     signal mgt_headerflag_locked_s : std_logic_vector(1 to NUM_LINKS);
 begin
 
-    inside_ila : work.illa_gbtcore
-    PORT MAP(clk => pll_ila,
-             probe0 => gbt_rxdata_s(1)(63 downto 0),
-             probe1 => gbt_txdata_s(1)(63 downto 0),
-             probe2 => gbt_txframeclk_s(1),
-             probe3 => gbt_rxframeclk_s(1),
-             probe4 => '0',
-             probe5 => '0',
-             probe6 => mgt_txready_s(1),
-             probe7 => mgt_rxready_s(1));
+    -- inside_ila : work.illa_gbtcore
+    -- PORT MAP(clk => pll_ila,
+    --          probe0 => gbt_rxdata_s(1)(63 downto 0),
+    --          probe1 => gbt_txdata_s(1)(63 downto 0),
+    --          probe2 => gbt_txframeclk_s(1),
+    --          probe3 => gbt_rxframeclk_s(1),
+    --          probe4 => reset,
+    --          probe5 => '0',
+    --          probe6 => mgt_txready_s(1),
+    --          probe7 => mgt_rxready_s(1));
 
     -- Transceiver --
     gbtBank_mgt_gen: for i in 1 to NUM_LINKS generate
@@ -171,7 +171,7 @@ begin
         gbt_rxclkenLogic_s(i) <= gbt_rxclkenLogic(i);
 
         mgt_txready(i) <= mgt_txready_s(i);
-        mgt_rxready(i) <= MGT_RXREADY_S(i);
+        mgt_rxready(i) <= mgt_rxready_s(i);
 
         gbtbank_gbttx_ready_o(i) <= not(gbt_txreset_s(i));
         gbtbank_gbtrx_ready_o(i) <= mgt_rxready_s(i) and gbt_rxready_s(i);
