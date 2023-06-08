@@ -124,8 +124,8 @@ interface t_gbt_data (input ckrs_t ClkRs_ix);
    t_sfp_stream data_sent;
    logic tx_frameclk;
    logic rx_frameclk;
-   logic tx_wordclk;
-   logic rx_wordclk;
+   /* logic tx_wordclk;
+   logic rx_wordclk; */
 
    logic tx_ready;
    logic rx_ready;
@@ -134,7 +134,7 @@ interface t_gbt_data (input ckrs_t ClkRs_ix);
    // testbench port
    modport producer (input ClkRs_ix, 
                      input data_sent,
-                     input tx_frameclk,
+                     output tx_frameclk,
                      output tx_ready,
                      output rx_ready,
                      output link_ready,
@@ -148,7 +148,7 @@ interface t_gbt_data (input ckrs_t ClkRs_ix);
                      input tx_ready,
                      input rx_ready,
                      input link_ready,
-                     output tx_frameclk,
+                     input tx_frameclk,
                      output data_sent);
 
 endinterface // t_gbt_data
