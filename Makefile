@@ -55,7 +55,7 @@ compile:
 	@vivado -mode batch -source hdl/compile.tcl
 
 bitstream:
-	@cp hdl/Synthesis/mcoi-xu5-design-complete.runs/impl_1/*.bit output_bitstream/
+	@cp hdl/Synthesis/mcoi-xu5-design-complete.runs/impl_1/*.bit syn/
 
 init:
 	@git submodule update --init --recursive
@@ -70,7 +70,7 @@ vproject_open:
 
 platform_constraints:
 	@printf "Generating constraints files for device $(DEVICE)\n"
-	python3 scripts/assemble_constraints.py \
+	python3 sw/scripts/assemble_constraints.py \
 		-d $(DEVICE) \
 		-ap $(PLATFORM_PINOUT)/Aconn.csv \
 		-bp $(PLATFORM_PINOUT)/Bconn.csv \
@@ -81,10 +81,10 @@ platform_constraints:
 		-io $(DEFAULT_IOSTANDARD)
 
 update: platform_constraints
-	@python3 scripts/gen_init_coe.py \
+	@python3 sw/scripts/gen_init_coe.py \
 		-s hdl/src/diagnostics/pll_rom.sv \
 		-c hdl/ip_cores/bram/init_files/config_120mhz_50mhz.coe\
-		scripts/register_map/config_xu5_120mhz_50mhz.h
+		fw/register_map/mcoi_xu5_devkit_ch0_ch2_120mhz_low_jitter.h
 
 # The constraints have to be created based on the current pinout
 # configuration in Altium project, just generate pinout of the module
