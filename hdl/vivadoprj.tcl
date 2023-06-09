@@ -13,7 +13,7 @@ set bd_name "mcoi_xu5_ps_part.bd"
 #project setup - if you change the names you have to remove the project
 #maually before generating a new project with your names!
 #You can do that by calling make clean and then make openproject
-set proj_path "${script_path}/Synthesis"
+set proj_path "${script_path}/syn/Synthesis"
 set proj_name "mcoi-xu5-design-complete"
 set dev_name "xczu4ev-sfvc784-1-i"
 puts "Modules directory: $modules_path";
