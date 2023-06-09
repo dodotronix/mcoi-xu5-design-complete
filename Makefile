@@ -3,11 +3,11 @@
 PROJECT_PATH := $(shell pwd)
 
 # MAKEFILE GLOBAL VARIABLES
-ENCLUSTRA_XU5_SPECS := $(PROJECT_PATH)/pcb_configuration/enclustra_xu5_specs
-XU5_MCOI_PINOUT := $(PROJECT_PATH)/pcb_configuration/xu5_pcb_pinout
-DEVKIT_PINOUT := $(PROJECT_PATH)/pcb_configuration/pe1_devkit_pinout
 DEVICE := "ME-XU5-4CG/4EV/5EV-G1"
 DEFAULT_IOSTANDARD := "LVCMOS18"
+ENCLUSTRA_XU5_SPECS := $(PROJECT_PATH)/doc/enclustra_xu5_specs
+XU5_MCOI_PINOUT := $(PROJECT_PATH)/pcb_configuration/xu5_pcb_pinout
+DEVKIT_PINOUT := $(PROJECT_PATH)/pcb_configuration/pe1_devkit_pinout
 
 # choose the desired platform to generate correct constraints
 PLATFORM_PINOUT := $(DEVKIT_PINOUT)
