@@ -7,13 +7,6 @@ puts "Modules directory: $modules_path";
 set ip_cores_path $script_path/ip_cores
 puts "IP cores directory: $ip_cores_path";
 
-set si5338b_modules  $script_path/src/diagnostics
-puts "SI5338B modules: $si5338b_modules"
-
-set coe_name config_120mhz.coe
-puts "COE: $coe_name"
-
-
 # block design name
 set bd_name "mcoi_xu5_ps_part.bd"
 
@@ -54,20 +47,9 @@ set_property -name "part" -value "xczu4ev-sfvc784-1-i" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 
 # mcoi xu5 part
-add_files [glob $script_path/src/mcoi_xu5_design_complete.sv]
-add_files [glob $script_path/src/McoiXu5System.sv]
-add_files [glob $script_path/src/build_number.sv]
-add_files [glob $script_path/src/extremity_switches_mapper.sv]
-add_files [glob $script_path/src/led_blinker.sv]
-add_files [glob $script_path/src/iface_translator.sv]
-add_files [glob $script_path/src/types.sv]
-# THESE ARE SYNTHESIS CONSTANTS, SIMULATION CONSTANTS MUST NOT BE INCLUDED
-add_files [glob $script_path/src/constants_synthesis.sv]
-add_files [glob $script_path/src/gbt_xu5.vhd]
-add_files [glob $script_path/src/diagnostics/*.vhd]
-add_files [glob $script_path/src/diagnostics/*.sv]
+add_files [glob $script_path/src/*.vhd]
+add_files [glob $script_path/src/*.sv]
 add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/vme_reset_sync_and_filter.vhd]
-add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/I2cMasterGeneric.v]
 add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/serdes/*.v]
 add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/ip_open_cores/generic_fifo_dc_gray_mod.v]
 add_files [glob $modules_path/BI_HDL_Cores/cores_for_synthesis/ip_open_cores/generic_dpram_mod.v]
@@ -92,9 +74,6 @@ add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/manyff/*.sv]
 add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/clock_divider/*.sv]
 add_files -fileset sources_1 [glob $mcoi_hdl_library_modules/memory_transport/*.sv]
 
-add_files -fileset sources_1 [glob $si5338b_modules/*.vhd]
-add_files -fileset sources_1 [glob $si5338b_modules/*.sv]
-
 set_property top mcoi_xu5_design_complete [current_fileset]
 set_property top_file [glob $script_path/src/mcoi_xu5_design_complete.sv] [current_fileset]
 
@@ -116,7 +95,6 @@ save_bd_design
 
 update_compile_order
 
-
 # Project that are not made by me have different structure,
 # so source files have to be added manually
 
@@ -127,8 +105,6 @@ update_compile_order
 #add_files -fileset sources_1 [glob $bi_hdl_cores/8b10b/*.v]
 #add_files -fileset sources_1 [glob $bi_hdl_cores/GlitchFilter.v]
 #add_files -fileset sources_1 [glob $bi_hdl_cores/serdes/SerDes*?.v]
-
-
 
 #set gefe_modules_path $modules_path/mcoi_gefe_frontend/hdl/modules
 #add_files -fileset sources_1 [glob $gefe_modules_path/extremity_switches_mapper.sv]
