@@ -62,11 +62,19 @@ init:
 
 check_compatibility: __check_software_availability
 
-vproject_update:
+vproject_update: platform_constraints
 	@vivado -mode batch -nojournal -source hdl/vivadoprj.tcl
 
 vproject_open:
 	@vivado -mode gui -nojournal -source hdl/vivadoprj.tcl &> /dev/null &
+
+
+# The constraints have to be created based on the current pinout
+# configuration in Altium project, just generate pinout of the module
+# connection -> save it to the folder "pcb_configuration" and run make
+# update_constraints.
+# IMPORTANT: Names of the files generated with Altium have to have same names
+# as in makefile and must be called with correct parameter (-ap/-bp)!
 
 platform_constraints:
 	@printf "Generating constraints files for device $(DEVICE)\n"
@@ -79,19 +87,6 @@ platform_constraints:
 		-o $(PROJECT_PATH)/hdl/constraints \
 		-c $(PLATFORM_PINOUT)/config.csv \
 		-io $(DEFAULT_IOSTANDARD)
-
-update: platform_constraints
-	@python3 sw/scripts/gen_init_coe.py \
-		-s hdl/src/diagnostics/pll_rom.sv \
-		-c hdl/ip_cores/bram/init_files/config_120mhz_50mhz.coe\
-		fw/register_map/mcoi_xu5_devkit_ch0_ch2_120mhz_low_jitter.h
-
-# The constraints have to be created based on the current pinout
-# configuration in Altium project, just generate pinout of the module
-# connection -> save it to the folder "pcb_configuration" and run make
-# update_constraints.
-# IMPORTANT: Names of the files generated with Altium have to have same names
-# as in makefile and must be called with correct parameter (-ap/-bp)!
 
 clean:
 	@printf 'INF -> removing vivado project files\n' >&2
