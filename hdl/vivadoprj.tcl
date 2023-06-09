@@ -28,7 +28,7 @@ if {![file exists ${proj_path}]} {
   create_project  ${proj_path}/${proj_name} -part ${dev_name}
 } else {
   #open project
-  open_project ${script_path}/Synthesis/${proj_name}
+  open_project ${proj_path}/${proj_name}
   # IMPORTANT: remove non-existing files - this garanties, that you won't
   # have any duplicates after adding new files and if there were any chaneges
   # in paths the non-existent files will be deleted
