@@ -6,9 +6,7 @@ modules = {
                 "ssh://git@gitlab.cern.ch:7999/personal-digital-lib/zynq_usplus_gbt_fpga.git" 
                 ],
 
-        "local": ["hdl/src/", 
-                  "hdl/constraints", 
-                  "hdl/ip_cores"],
+        "local": ["hdl/src/"],
 
         "system": ["vhdl", "xilinx"]
         }
