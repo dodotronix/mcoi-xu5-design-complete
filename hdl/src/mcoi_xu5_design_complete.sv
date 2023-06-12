@@ -30,7 +30,7 @@
 // vivado-ultrascale-libraries.pdf
 //
 //
-// @platform Xilinx Vivado 
+// @platform Xilinx Vivado
 // @standard IEEE 1800-2012
 //-----------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ module mcoi_xu5_design_complete (//motors
    logic [31:0] cnt_120mhz;
    logic tick_120;
 
-   logic [31:0] cnt_100mhz; 
+   logic [31:0] cnt_100mhz;
    logic tick_100;
 
    // assign clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
