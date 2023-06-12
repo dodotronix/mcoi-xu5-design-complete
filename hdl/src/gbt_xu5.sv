@@ -41,14 +41,14 @@ module gbt_xu5 #(
     parameter RX_ENCODING=0,
     parameter CLOCKING_SCHEME=0)(
 
-    // interface connecting hardware to the gbt 
+    // interface connecting hardware to the gbt
     t_gbt.producer gbt_x,
 
     // internal bus iface to readout data
     t_gbt_data.producer gbt_data_x,
     t_clocks.consumer clk_tree_x,
 
-    input external_pll_source_120mhz 
+    input external_pll_source_120mhz
 );
 
 logic mgt_rxreset;
@@ -68,8 +68,9 @@ logic link_ready;
 logic tx_ready;
 logic rx_ready;
 
-logic gbt_rxclkenLogic; 
+logic gbt_rxclkenLogic;
 logic mgt_headerflag;
+logic pll_locked;
 
 always_comb begin
     gbt_data_x.tx_ready    = tx_ready;
@@ -86,39 +87,26 @@ end
 gbt_bank_reset #(
     .INITIAL_DELAY(40e6))
 i_gbt_reset(
- .GBT_CLK_I (clk_40mhz),
- .TX_FRAMECLK_I(tx_frameclk),
- .TX_CLKEN_I(1'b1),
- .RX_FRAMECLK_I(rx_frameclk),
- .RX_CLKEN_I(gbt_rxclkenLogic),
- .MGTCLK_I(clk_120mhz),
- .GENERAL_RESET_I(reset),
- .TX_RESET_I(reset),
- .RX_RESET_I(reset),
- .MGT_TX_RESET_O(mgt_txreset),
- .MGT_RX_RESET_O(mgt_rxreset),
- .GBT_TX_RESET_O(gbt_txreset),
- .GBT_RX_RESET_O(gbt_rxreset),
- .MGT_TX_RSTDONE_I(mgt_txready),
- .MGT_RX_RSTDONE_I(mgt_rxready));
+ .gbt_clk_i (clk_40mhz),
+ .tx_frameclk_i(tx_frameclk),
+ .tx_clken_i(1'b1),
+ .rx_frameclk_i(rx_frameclk),
+ .rx_clken_i(gbt_rxclkenLogic),
+ .mgtclk_i(clk_120mhz),
+ .general_reset_i(reset),
+ .tx_reset_i(reset),
+ .rx_reset_i(reset),
+ .mgt_tx_reset_o(mgt_txreset),
+ .mgt_rx_reset_o(mgt_rxreset),
+ .gbt_tx_reset_o(gbt_txreset),
+ .gbt_rx_reset_o(gbt_rxreset),
+ .mgt_tx_rstdone_i(mgt_txready),
+ .mgt_rx_rstdone_i(mgt_rxready));
 
- gbt_rx_frameclk_phalgnr #(
-     .DIV_SIZE_CONFIG(3),
-     .METHOD(0),
-     .TX_OPTIMIZATION(TX_OPTIMIZATION),
-     .RX_OPTIMIZATION(RX_OPTIMIZATION),
-     .CLOCKING_SCHEME(CLOCKING_SCHEME))
- i_frameclk_phalgnr(
-        .RESET_I(~mgt_rxready),
-        .RX_WORDCLK_I(1'b0),
-        .FRAMECLK_I(clk_40mhz),
-        .RX_FRAMECLK_O(rx_frameclk),
-        .RX_CLKEn_o(gbt_rxclkenLogic),
-        .SYNC_I(mgt_headerflag),
-        .CLK_ALIGN_CONFIG(3'b000),
-        .DEBUG_CLK_ALIGNMENT(),
-        .PLL_LOCKED_O(),
-        .DONE_O());
+assign rx_frameclk = clk_40mhz;
+assign gbt_rxclkenLogic = 1'b1;
+assign pll_locked = !mgt_rxready;
+
 
 // module with extended pinout
 gbt_extended_pinout #(
