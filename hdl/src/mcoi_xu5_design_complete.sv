@@ -129,7 +129,7 @@ module mcoi_xu5_design_complete (//motors
        end
    end
    assign mled[0] = tick_100;
-   
+
    always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk) begin
        cnt_120mhz <= cnt_120mhz + $size(cnt_120mhz)'(1);
        if(cnt_120mhz == 32'd120000000) begin
