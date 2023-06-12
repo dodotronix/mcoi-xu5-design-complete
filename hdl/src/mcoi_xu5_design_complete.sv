@@ -52,12 +52,12 @@ module mcoi_xu5_design_complete (//motors
                                  input logic         mgt_clk_p,
                                  input logic         mgt_clk_n,
                                  output logic [2:0] mled,
-				 // clocks - MGT derived 50MHz
+                                 // clocks - MGT derived 50MHz
                                  // input logic         pl_varclk,
-				 // localosc 100MHz
+                                 // localosc 100MHz
                                  input logic         clk100m_pl_p,
                                  input logic        clk100m_pl_n
-				 // SFP interface
+                                 // SFP interface
 
                  // serial interfaces
                  // t_i2c.endpoint i2c_x,
@@ -157,14 +157,14 @@ module mcoi_xu5_design_complete (//motors
    logic ExternalPll120MHzMGT;
    // 120MHz coming from MGT oscillator
    IBUFDS_GTE4 #(.REFCLK_EN_TX_PATH(1'b0),
-		 .REFCLK_HROW_CK_SEL(2'b00),
-		 .REFCLK_ICNTL_RX(2'b00))
+       .REFCLK_HROW_CK_SEL(2'b00),
+       .REFCLK_ICNTL_RX(2'b00))
    ibufds_gte4_i (
-          .O(ExternalPll120MHzMGT),
-		  .ODIV2(Clk120MHz_fromgte4),
-		  .CEB(1'b0),
-		  .I(mgt_clk_p),
-		  .IB(mgt_clk_n));
+       .O(ExternalPll120MHzMGT),
+       .ODIV2(Clk120MHz_fromgte4),
+       .CEB(1'b0),
+       .I(mgt_clk_p),
+       .IB(mgt_clk_n));
 
    // 120MHz PLL buffer clock copier
    BUFG_GT ibuf_txpll_i (
