@@ -10,3 +10,5 @@
 **.log
 hdl/constraints/*
 !hdl/constraints/mcoi_xu5_custom_constr.xdc
+libs/**
+tmp/**
