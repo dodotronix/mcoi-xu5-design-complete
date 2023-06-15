@@ -45,3 +45,8 @@ for i in $ALL_IP_GENERATORS; do
         printf '\e[1;36mINFO\e[0m %s ALREADY EXISTS IN THE PROJECT\n' $DESTINATION
     fi
 done
+
+# TODO create list of ips and create Manifest
+if [[ ! -f $DESTINATION/Manifest.py ]]; then
+    echo "files=[]" >> $DESTINATION/Manifest.py
+fi
