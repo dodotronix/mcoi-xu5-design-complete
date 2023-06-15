@@ -1,6 +1,8 @@
+set ip_name gbt_pll40m 
+
+# DO NOT CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING
 set project_path [lindex $argv 0]
 set dev_name  [lindex $argv 1]
-set ip_name gbt_pll40m 
 set ip_file_name [join [list $ip_name ".xci"] ""]
 
 if {($dev_name eq "") || ($project_path eq "")} {
@@ -8,7 +10,7 @@ if {($dev_name eq "") || ($project_path eq "")} {
 } 
 
 # Create a Manage IP project
-create_project gbt_pll_clk40m ${project_path} -part ${dev_name} -ip -force
+create_project $ip_name $project_path -part $dev_name -ip -force
 set_property simulator_language Mixed [current_project]
 set_property target_language Verilog [current_project]
 
