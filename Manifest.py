@@ -3,7 +3,8 @@ modules = {
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/mko.git::master",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/get_edge.git::master",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/manyff.git::master",
-                "ssh://git@gitlab.cern.ch:7999/personal-digital-lib/zynq_usplus_gbt_fpga.git" 
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/mcpkg.git::master",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/gbt-fpga.git::master"
                 ],
 
         "local": ["hdl/src/"],
@@ -12,6 +13,10 @@ modules = {
         }
 
 fetchto = "libs"
+
+fetch_pre_cmd = "source ../sw/scripts/compile_all_ips.sh"
+
+# extra_modules = [""]
 
 if action == "simulation":
     modules["local"].append("hdl/tests")
