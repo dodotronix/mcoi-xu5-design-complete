@@ -4,6 +4,7 @@ set ip_name zynq_ultrasp_ps
 set project_path [lindex $argv 0]
 set dev_name  [lindex $argv 1]
 set ip_file_name [join [list $ip_name ".xci"] ""]
+set bd_name ${ip_name}_system 
 
 if {($dev_name eq "") || ($project_path eq "")} {
     exit -1
@@ -13,6 +14,9 @@ if {($dev_name eq "") || ($project_path eq "")} {
 create_project $ip_name $project_path -part $dev_name -ip -force
 set_property simulator_language Mixed [current_project]
 set_property target_language Verilog [current_project]
+
+# create new block design
+create_bd_design $bd_name
 
 # Create an IP customization
 startgroup
@@ -68,13 +72,35 @@ set_property -dict [list CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {0} \
                          CONFIG.PSU_MIO_12_PULLUPDOWN {disable}] \
                          [get_bd_cells $ip_name]
 
-endgroup
+# create_bd_cell -type ip -vlnv xilinx.com:ip:system_management_wiz system_management_wiz
+# create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect smartconnect_00
+# create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 ps_sys_rst
+
+# set_property -dict [ list \
+#   CONFIG.TEMPERATURE_ALARM_OT_TRIGGER {85} \
+#   CONFIG.CHANNEL_ENABLE_VP_VN {false} \
+# ] [get_bd_cells system_management_wiz]
+
+# set_property -dict [list \
+#     CONFIG.NUM_MI {1} \
+#     CONFIG.NUM_CLKS {1} \
+#     CONFIG.NUM_SI {1}
+# ] [get_bd_cells smartconnect_00]
 
 # Create a synthesis design run for the IP
-create_ip_run [get_ips $ip_name]
+# create_ip_run [get_ips smartconnect_00]
+# create_ip_run [get_ips system_management_wiz]
 
-# Launch the synthesis run for the IP
-launch_run ${ip_name}_synth_1 
+# # connec the blocks
+# connect_bd_intf_net [get_bd_intf_pins zynq_ultrasp_ps_0/M_AXI_HPM0_LPD] [get_bd_intf_pins smartconnect_00/S00_AXI]
+# connect_bd_net [get_bd_pins smartconnect_00/aclk] [get_bd_pins zynq_ultrasp_ps_0/maxihpm0_lpd_aclk]
+# connect_bd_net [get_bd_pins ps_sys_rst/slowest_sync_clk] [get_bd_pins smartconnect_00/aclk]
+# connect_bd_net [get_bd_pins system_management_wiz/s_axi_aclk] [get_bd_pins smartconnect_00/aclk]
+# connect_bd_intf_net [get_bd_intf_pins smartconnect_00/M00_AXI] [get_bd_intf_pins system_management_wiz/S_AXI_LITE]
+# connect_bd_net [get_bd_pins zynq_ultrasp_ps_0/pl_clk0] [get_bd_pins smartconnect_00/aclk]
+# connect_bd_net [get_bd_pins smartconnect_00/aresetn] [get_bd_pins ps_sys_rst/interconnect_aresetn]
+# connect_bd_net [get_bd_pins zynq_ultrasp_ps_0/pl_resetn0] [get_bd_pins ps_sys_rst/ext_reset_in]
+# connect_bd_net [get_bd_pins ps_sys_rst/peripheral_aresetn] [get_bd_pins system_management_wiz/s_axi_aresetn]
 
-if {!([get_property CORE_CONTAINER [get_files $ip_file_name]] == "")} {
-    convert_ips [get_files $ip_file_name]}
+endgroup
+save_bd_design
