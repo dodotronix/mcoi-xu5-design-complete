@@ -1,1 +1,1 @@
-files = ["*.sv", "*.v", "*.vhd"]
+files = ["*.sv", "*.vhd"]
