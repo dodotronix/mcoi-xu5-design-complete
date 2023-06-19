@@ -4,17 +4,23 @@ action = "synthesis"
 syn_device = "xczu4ev"
 syn_grade = "-1"
 syn_package = "sfvc784"
-syn_top = "mcoi-xu5-design-complete"
-syn_project = "mcoi-xu5-design-complete"
+syn_top = "mcoi_xu5_design_complete"
+syn_project = "mcoi_xu5"
 syn_tool = "vivado"
-syn_properties = [
-        {"name" : "PRE_MAPPING_RESYNTHESIS", "value" : "ON"},
-        {"name": "FITTER_EFFORT", "value": "STANDARD FIT"}]
+# syn_properties = []
+
+include_dirs = ["../hdl/src"]
 
 # syn_pre_project_cmd = 
-
-include_dirs = ["../hdl/modules"]
-
 # syn_instance_assignments = []
 
 modules = {"local" : ["../"]}
+
+# NOTE hdlmake is going to print some warnings
+# while checking the missing dependencies  
+# the tmp folder is created so when the Makefile
+# is generated, all the tmp content is going to
+# be added
+import os
+if os.path.exists("../tmp"):
+    modules['local'].append("../tmp") 
