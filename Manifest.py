@@ -13,10 +13,7 @@ modules = {
         }
 
 fetchto = "libs"
-
-fetch_pre_cmd = "source ../sw/scripts/compile_all_ips.sh"
-
-# extra_modules = [""]
+fetch_post_cmd = "source ../sw/scripts/compile_all_ips.sh"
 
 if action == "simulation":
     modules["local"].append("hdl/tests")
