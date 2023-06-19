@@ -30,9 +30,9 @@ PROJECT_NAME=mcoi-xu5-design-complete
 DEVICE="xczu4ev-sfvc784-1-i"
 ROOT_PATH=$(pwd | sed "s/\(.*$PROJECT_NAME\).*/\1/" )
 DESTINATION=$ROOT_PATH/tmp
+LIST_OF_IPS=""
 
 ALL_IP_GENERATORS=$(find $ROOT_PATH -name "ip_xilinx_gen_*.tcl")
-echo $ALL_IP_GENERATORS
 
 for i in $ALL_IP_GENERATORS; do
 
@@ -42,11 +42,25 @@ for i in $ALL_IP_GENERATORS; do
         printf '\e[1;36mINFO\e[0m ... GENERATING IP ... %s\n' $MODULE_NAME
         vivado -mode batch -source $i -nojournal -nolog -tclargs $DESTINATION/$MODULE_NAME $DEVICE
     else
-        printf '\e[1;36mINFO\e[0m %s ALREADY EXISTS IN THE PROJECT\n' $DESTINATION
+        printf '\e[1;36mINFO\e[0m %s ALREADY EXISTS IN THE PROJECT\n' $MODULE_NAME
     fi
+    
+    FOUND_PATH=$(find $DESTINATION/$MODULES_NAME -type f \( -name "${MODULE_NAME}.xci" -o -name "${MODULE_NAME}.bd" \))
+    MANIFEST_PATH=$(echo "$FOUND_PATH" | sed "s/.*\/tmp\/\(.*\)/\1/")
+
+    if [ -z "$MANIFEST_PATH" ]; then
+        printf "The path of .xci or .bd file could not be found\n"
+        continue
+    fi
+
+    if [ ! -z "$LIST_OF_IPS" ]; then
+        LIST_OF_IPS=$(printf "%s,\n\"%s\"" "${LIST_OF_IPS}" "${MANIFEST_PATH}")
+    else
+        LIST_OF_IPS=$(printf "\"%s\"" "${MANIFEST_PATH}")
+    fi
+
 done
 
-# TODO create list of ips and create Manifest
-if [[ ! -f $DESTINATION/Manifest.py ]]; then
-    echo "files=[]" >> $DESTINATION/Manifest.py
-fi
+MANIFEST_FILES=$(printf "files=[\n%s\n]" "$LIST_OF_IPS")
+printf "HDLmake Manifest created: %s\n" "$DESTINATION/Manifest.py"
+printf "$MANIFEST_FILES" > $DESTINATION/Manifest.py
