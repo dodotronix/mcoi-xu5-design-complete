@@ -1,4 +1,4 @@
-set ip_name gbt_pll40m 
+set ip_name gbt_pll_clk40m 
 
 # DO NOT CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING
 set project_path [lindex $argv 0]
