@@ -10,8 +10,8 @@ syn_tool = "vivado"
 syn_properties = []
 
 include_dirs = ["../hdl/src"]
+incl_makefiles = ["../extra_rules.mk"]
 
-# syn_pre_project_cmd = 
 # syn_instance_assignments = []
 
 modules = {"local" : ["../"]}
