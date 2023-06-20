@@ -13,6 +13,7 @@ include_dirs = ["../hdl/src"]
 incl_makefiles = ["../extra_rules.mk"]
 
 # syn_instance_assignments = []
+syn_pre_project_cmd = "source ../hdl/constraints/get_constraints.sh >> files.tcl;"
 
 modules = {"local" : ["../"]}
 
