@@ -1,27 +1,33 @@
-set ip_name zynq_ultrasp_ps
+set bd_name zynq_ultrasp_ps_system
 
 # DO NOT CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING
 set project_path [lindex $argv 0]
 set dev_name  [lindex $argv 1]
-set ip_file_name [join [list $ip_name ".xci"] ""]
-set bd_name ${ip_name}_system 
+set ip_file_name [join [list $bd_name ".xci"] ""]
 
 if {($dev_name eq "") || ($project_path eq "")} {
     exit -1
 } 
 
 # Create a Manage IP project
-create_project $ip_name $project_path -part $dev_name -ip -force
+create_project $bd_name $project_path -part $dev_name -ip -force
 set_property simulator_language Mixed [current_project]
 set_property target_language Verilog [current_project]
 
 # create new block design
 create_bd_design $bd_name
 
+set ps ps_part
+set conn smart_connect
+set reset ps_reset
+set sysmanager system_management
+
 # Create an IP customization
 startgroup
-    create_bd_cell -type ip\
-                   -vlnv xilinx.com:ip:zynq_ultra_ps_e:3.4 $ip_name 
+create_bd_cell -type ip -vlnv xilinx.com:ip:zynq_ultra_ps_e:3.4 $ps 
+create_bd_cell -type ip -vlnv xilinx.com:ip:system_management_wiz $sysmanager
+create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect $conn 
+create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 $reset 
 
 set_property -dict [list CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {0} \
                          CONFIG.PSU_BANK_0_IO_STANDARD {LVCMOS18} \
@@ -70,37 +76,30 @@ set_property -dict [list CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {0} \
                          CONFIG.PSU_MIO_20_PULLUPDOWN {disable} \
                          CONFIG.PSU_MIO_21_PULLUPDOWN {disable} \
                          CONFIG.PSU_MIO_12_PULLUPDOWN {disable}] \
-                         [get_bd_cells $ip_name]
+                         [get_bd_cells $ps]
 
-# create_bd_cell -type ip -vlnv xilinx.com:ip:system_management_wiz system_management_wiz
-# create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect smartconnect_00
-# create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 ps_sys_rst
+set_property -dict [ list \
+  CONFIG.TEMPERATURE_ALARM_OT_TRIGGER {85} \
+  CONFIG.CHANNEL_ENABLE_VP_VN {false} \
+] [get_bd_cells $sysmanager]
 
-# set_property -dict [ list \
-#   CONFIG.TEMPERATURE_ALARM_OT_TRIGGER {85} \
-#   CONFIG.CHANNEL_ENABLE_VP_VN {false} \
-# ] [get_bd_cells system_management_wiz]
+set_property -dict [list \
+    CONFIG.NUM_MI {1} \
+    CONFIG.NUM_CLKS {1} \
+    CONFIG.NUM_SI {1} \
+] [get_bd_cells $conn]
 
-# set_property -dict [list \
-#     CONFIG.NUM_MI {1} \
-#     CONFIG.NUM_CLKS {1} \
-#     CONFIG.NUM_SI {1}
-# ] [get_bd_cells smartconnect_00]
+# connec the blocks
+connect_bd_intf_net [get_bd_intf_pins ${conn}/S00_AXI] [get_bd_intf_pins ${ps}/M_AXI_HPM0_LPD]
+connect_bd_intf_net [get_bd_intf_pins ${conn}/M00_AXI] [get_bd_intf_pins ${sysmanager}/S_AXI_LITE]
 
-# Create a synthesis design run for the IP
-# create_ip_run [get_ips smartconnect_00]
-# create_ip_run [get_ips system_management_wiz]
-
-# # connec the blocks
-# connect_bd_intf_net [get_bd_intf_pins zynq_ultrasp_ps_0/M_AXI_HPM0_LPD] [get_bd_intf_pins smartconnect_00/S00_AXI]
-# connect_bd_net [get_bd_pins smartconnect_00/aclk] [get_bd_pins zynq_ultrasp_ps_0/maxihpm0_lpd_aclk]
-# connect_bd_net [get_bd_pins ps_sys_rst/slowest_sync_clk] [get_bd_pins smartconnect_00/aclk]
-# connect_bd_net [get_bd_pins system_management_wiz/s_axi_aclk] [get_bd_pins smartconnect_00/aclk]
-# connect_bd_intf_net [get_bd_intf_pins smartconnect_00/M00_AXI] [get_bd_intf_pins system_management_wiz/S_AXI_LITE]
-# connect_bd_net [get_bd_pins zynq_ultrasp_ps_0/pl_clk0] [get_bd_pins smartconnect_00/aclk]
-# connect_bd_net [get_bd_pins smartconnect_00/aresetn] [get_bd_pins ps_sys_rst/interconnect_aresetn]
-# connect_bd_net [get_bd_pins zynq_ultrasp_ps_0/pl_resetn0] [get_bd_pins ps_sys_rst/ext_reset_in]
-# connect_bd_net [get_bd_pins ps_sys_rst/peripheral_aresetn] [get_bd_pins system_management_wiz/s_axi_aresetn]
+connect_bd_net [get_bd_pins ${conn}/aresetn] [get_bd_pins ${reset}/interconnect_aresetn]
+connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${reset}/slowest_sync_clk]
+connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${ps}/maxihpm0_lpd_aclk]
+connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${ps}/pl_clk0]
+connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${sysmanager}/s_axi_aclk]
+connect_bd_net [get_bd_pins ${reset}/peripheral_aresetn] [get_bd_pins ${sysmanager}/s_axi_aresetn]
+connect_bd_net [get_bd_pins ${ps}/pl_resetn0] [get_bd_pins ${reset}/ext_reset_in]
 
 endgroup
 save_bd_design
