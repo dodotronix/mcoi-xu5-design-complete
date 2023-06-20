@@ -12,11 +12,15 @@ tool = "modelsim"
 # target script to run by makefile:
 vunit_script = "sim_run.py"
 
-include_dirs = ["../hdl/modules"]
+include_dirs = ["../hdl/src"]
 
 modules = {
     "local": ["../", ],
 }
 
 # this one assures that all the libraries for IP cores get compiled
-# sim_pre_cmd = 
+sim_pre_cmd = ("\n\t"
+               "@if [ ! -f ./libraries/.compiled ]; then\\\n\t\t"
+               "vsim -batch -do compile_libs.tcl;\\\n\t\t"
+               "touch libraries/.compiled;\\\n\t"
+               "fi")
