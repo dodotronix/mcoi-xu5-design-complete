@@ -145,43 +145,43 @@ module mcoi_xu5_design_complete (//motors
        .gbt_los(gbt_x.sfp1_los), .*); */
 
    // ps part just for storing data to qspi
-   mcoi_xu5_ps_part i_mcoi_xu5_ps_part();
+   zynq_ultrasp_ps_system i_ps_system();
 
    // clock generation
    // 100MHz oscillator and associated reset
    IBUFDS ibufds_i(
-       .O(clk_tree_x.ClkRs100MHz_ix.clk),
-       .I(clk100m_pl_p),
-       .IB(clk100m_pl_n));
+      .O(clk_tree_x.ClkRs100MHz_ix.clk),
+      .I(clk100m_pl_p),
+      .IB(clk100m_pl_n));
 
-   logic ExternalPll120MHzMGT;
-   // 120MHz coming from MGT oscillator
-   IBUFDS_GTE4 #(.REFCLK_EN_TX_PATH(1'b0),
-       .REFCLK_HROW_CK_SEL(2'b00),
-       .REFCLK_ICNTL_RX(2'b00))
-   ibufds_gte4_i (
-       .O(ExternalPll120MHzMGT),
-       .ODIV2(Clk120MHz_fromgte4),
-       .CEB(1'b0),
-       .I(mgt_clk_p),
-       .IB(mgt_clk_n));
+  logic ExternalPll120MHzMGT;
+  // 120MHz coming from MGT oscillator
+  IBUFDS_GTE4 #(.REFCLK_EN_TX_PATH(1'b0),
+      .REFCLK_HROW_CK_SEL(2'b00),
+      .REFCLK_ICNTL_RX(2'b00))
+  ibufds_gte4_i (
+      .O(ExternalPll120MHzMGT),
+      .ODIV2(Clk120MHz_fromgte4),
+      .CEB(1'b0),
+      .I(mgt_clk_p),
+      .IB(mgt_clk_n));
 
-   // 120MHz PLL buffer clock copier
-   BUFG_GT ibuf_txpll_i (
-       .O(clk_tree_x.ClkRs120MHz_ix.clk),
-       .CE(1'b1),
-       .CEMASK(1'b0),
-       .CLR(1'b0),
-       .CLRMASK(1'b0),
-       .DIV(3'b000),
-       .I(Clk120MHz_fromgte4));
+  // 120MHz PLL buffer clock copier
+  BUFG_GT ibuf_txpll_i (
+      .O(clk_tree_x.ClkRs120MHz_ix.clk),
+      .CE(1'b1),
+      .CEMASK(1'b0),
+      .CLR(1'b0),
+      .CLRMASK(1'b0),
+      .DIV(3'b000),
+      .I(Clk120MHz_fromgte4));
 
-   // 40MHz PLL derived from MGT clock
-   gbt_pll40m gbt_pll40m_i (
-       .clk120m_i(clk_tree_x.ClkRs120MHz_ix.clk),
-       .clk40m_o(clk_tree_x.ClkRs40MHz_ix.clk),
-       .reset(0),
-       .locked());
+  // 40MHz PLL derived from MGT clock
+  gbt_pll_clk40m gbt_pll40m_i (
+      .clk120m_i(clk_tree_x.ClkRs120MHz_ix.clk),
+      .clk40m_o(clk_tree_x.ClkRs40MHz_ix.clk),
+      .reset(0),
+      .locked());
 
     logic [31:0] dynamic_data;
     always_ff @(posedge gbt_data_x.tx_frameclk) begin
@@ -191,11 +191,11 @@ module mcoi_xu5_design_complete (//motors
 
     assign gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
 
-   // GBT instance
-   gbt_xu5 gbt_xu5_ins(
-       .external_pll_source_120mhz(ExternalPll120MHzMGT),
-       .*);
+    // GBT instance
+    gbt_xu5 gbt_xu5_ins(
+        .external_pll_source_120mhz(ExternalPll120MHzMGT),
+        .*);
 
-   assign mled[2] = | gbt_data_x.data_received;
+    assign mled[2] = | gbt_data_x.data_received;
 
 endmodule // mcoi_xu5_design_complete
