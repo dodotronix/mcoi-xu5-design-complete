@@ -7,7 +7,6 @@ syn_package = "-sfvc784"
 syn_top = "mcoi_xu5_design_complete"
 syn_project = "mcoi_xu5"
 syn_tool = "vivado"
-syn_properties = []
 
 include_dirs = ["../hdl/src"]
 incl_makefiles = ["../extra_rules.mk"]
