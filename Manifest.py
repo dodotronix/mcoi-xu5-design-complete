@@ -9,6 +9,9 @@ modules = {
 
         "local": ["hdl/src/"],
 
+        # the ultrascale plus components are not in the hdlmake, so
+        # it gives warnings, that the graph_solver could not find the
+        # dependencies, but vivado is going to find them
         "system": ["vhdl", "xilinx"]
         }
 
