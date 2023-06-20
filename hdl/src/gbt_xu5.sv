@@ -185,7 +185,7 @@ gbt_extended_i(
       .gbt_rxclkenLogic(gbt_rxclkenLogic)
 );
 
-illa_gbtcore inside_ila (
+gbt_ila inside_ila (
     .clk(clk_120mhz),
     .probe0(gbt_data_x.data_received.motor_data_b64),
     .probe1(gbt_data_x.data_sent.motor_data_b64),
