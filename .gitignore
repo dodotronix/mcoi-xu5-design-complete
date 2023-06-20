@@ -10,6 +10,7 @@
 **.log
 hdl/constraints/*
 !hdl/constraints/mcoi_xu5_custom_constr.xdc
+!hdl/constraints/get_constraints.sh
 libs/**
 tmp/**
 syn/**
