@@ -15,12 +15,3 @@ incl_makefiles = ["../extra_rules.mk"]
 syn_pre_project_cmd = "source ../hdl/constraints/get_constraints.sh >> files.tcl;"
 
 modules = {"local" : ["../"]}
-
-# NOTE hdlmake might print some warnings
-# while checking the missing dependencies  
-# the tmp folder is created so when the 
-# Makefile  is generated, all the tmp 
-# content is going to be added
-import os
-if os.path.exists("../tmp"):
-    modules['local'].append("../tmp") 
