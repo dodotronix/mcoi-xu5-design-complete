@@ -16,3 +16,6 @@ tmp/**
 syn/**
 !syn/Manifest.py
 !syn/*.bit
+sim/**
+!sim/Manifest.py
+!sim/run_sim.py
