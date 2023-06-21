@@ -27,5 +27,5 @@ if action == "simulation":
 # Makefile  is generated, all the tmp 
 # content is going to be added
 import os
-if os.path.exists("../tmp"):
-    modules['local'].append("../tmp") 
+if os.path.exists("tmp"):
+    modules['local'].append("tmp") 
