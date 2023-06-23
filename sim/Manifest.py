@@ -4,6 +4,7 @@ sim_tool = "vunit"
 
 target = "xilinx"
 syn_device =  "xczu4ev-sfvc784-1-i"
+syn_family = "Zynq UltraScale+ MPSoCs"
 langugage = "verilog"
 
 # VUnit will use modelsim
@@ -14,13 +15,9 @@ vunit_script = "sim_run.py"
 
 include_dirs = ["../hdl/src"]
 
-modules = {
-    "local": ["../", ],
-}
+modules = {"local": ["../"]}
 
 # this one assures that all the libraries for IP cores get compiled
-sim_pre_cmd = ("\n\t"
-               "@if [ ! -f ./libraries/.compiled ]; then\\\n\t\t"
-               "vsim -batch -do compile_libs.tcl;\\\n\t\t"
-               "touch libraries/.compiled;\\\n\t"
+sim_pre_cmd = ("@if [ ! -d ./compiled_libs ]; then\\\n\t\t"
+               "vivado -mode batch -source compile_libs.tcl;\\\n\t\t"
                "fi")
