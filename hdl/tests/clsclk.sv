@@ -40,16 +40,16 @@ class clock_generator;
 	    clk_tree_x.ClkRs100MHz_ix.reset = '0;
 	 end
 	 begin
-	    clk_tree_x.ClkRs120MHzMGMT_ix.reset = '1;
+	    clk_tree_x.ClkRs120MHz_ix.reset = '1;
 	    #(r.ResetTimes[1] * 1ns);
-	    @(negedge clk_tree_x.ClkRs120MHzMGMT_ix.clk);
-	    clk_tree_x.ClkRs120MHzMGMT_ix.reset = '0;
+	    @(negedge clk_tree_x.ClkRs120MHz_ix.clk);
+	    clk_tree_x.ClkRs120MHz_ix.reset = '0;
 	 end
 	 begin
-	    clk_tree_x.ClkRs40MHzMGMT_ix.reset = '1;
+	    clk_tree_x.ClkRs40MHz_ix.reset = '1;
 	    #(r.ResetTimes[2] * 1ns);
-	    @(negedge clk_tree_x.ClkRs40MHzMGMT_ix.clk);
-	    clk_tree_x.ClkRs40MHzMGMT_ix.reset = '0;
+	    @(negedge clk_tree_x.ClkRs40MHz_ix.clk);
+	    clk_tree_x.ClkRs40MHz_ix.reset = '0;
 	 end
 
       // WAIT FOR ALL PROCESSES TO FINISH TO BRING THE SYSTEMS FROM
@@ -60,9 +60,9 @@ class clock_generator;
    task run_GBT_clock;
       // two clocks generated here: 120MHz and 40MHz frame clock
       forever begin : gbt_clocks
-	 clk_tree_x.ClkRs120MHzMGMT_ix.clk = '1;
+	 clk_tree_x.ClkRs120MHz_ix.clk = '1;
 	 #4ns;
-	 clk_tree_x.ClkRs120MHzMGMT_ix.clk = '0;
+	 clk_tree_x.ClkRs120MHz_ix.clk = '0;
 	 #4ns;
       end
    endtask // run_GBT_clock
@@ -70,12 +70,12 @@ class clock_generator;
    task run_GBT40_clock;
       #100ns;
       // sync with 120MHz as it comes from the same PLL
-      @(posedge clk_tree_x.ClkRs120MHzMGMT_ix.clk);
+      @(posedge clk_tree_x.ClkRs120MHz_ix.clk);
       // two clocks generated here: 120MHz and 40MHz frame clock
       forever begin : gbt_clocks
-	 clk_tree_x.ClkRs40MHzMGMT_ix.clk = '1;
+	 clk_tree_x.ClkRs40MHz_ix.clk = '1;
 	 #12.5ns;
-	 clk_tree_x.ClkRs40MHzMGMT_ix.clk = '0;
+	 clk_tree_x.ClkRs40MHz_ix.clk = '0;
 	 #12.5ns;
       end
    endtask // run_GBT_clock
