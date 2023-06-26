@@ -69,7 +69,7 @@ entity gbt_extended_pinout is
 
              -- Data
              gbtbank_gbt_data_i : in  std_logic_vector(83 downto 0);
-             gbtbank_wb_data_i : in std_logic_vector(115 downto 0);
+             gbtbank_wb_data_i : in std_logic_vector(31 downto 0);
              gbtbank_gbt_data_o : out std_logic_vector(83 downto 0);
              gbtbank_wb_data_o : out std_logic_vector(115 downto 0);
 
@@ -179,7 +179,7 @@ begin
 
         gbt_txclken_s(i) <= '1';
         gbt_txdata_s(i) <= gbtbank_gbt_data_i;
-        wb_txdata_s(i) <= gbtbank_wb_data_i(31 downto 0);
+        wb_txdata_s(i) <= gbtbank_wb_data_i;
         gbt_txframeclk_s(i) <= frameclk_40mhz;
 
         gbtbank_gbt_data_o <= gbt_rxdata_s(i);
