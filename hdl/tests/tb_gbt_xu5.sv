@@ -35,7 +35,6 @@
 
 import CKRSPkg::*;
 import clsclk::*;
-import clsi2c::*;
 import MCPkg::*;
 
 module tb_gbt_xu5;
@@ -44,22 +43,23 @@ module tb_gbt_xu5;
 
    /*AUTOWIRE*/
    /*AUTOREGINPUT*/
+   // Beginning of automatic regs inputs (for undeclared instantiated-module inputs)
+   logic external_pll_source_120mhz;       // To DUT of gbt_xu5.sv
+   // End of automatics
 
    t_clocks clk_tree_x();
    clock_generator clkg;
 
    t_gbt gbt_x();
    // GBT data stream runs in frame clock
-   t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHzMGMT_ix));
+   t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHz_ix));
 
-   default clocking cb @(posedge gbt_data_x.ClkRs_ix.clk); endclocking
+   default clocking cb @(posedge gbt_data_x.ClkRs_ix.clk);
+   endclocking
 
    `TEST_SUITE begin
-
        `TEST_SUITE_SETUP begin
            gbt_x.sfp1_los = '0;
-           gbt_x.sfp1_txdisable = '0;
-           gbt_x.sfp1_rateselect = '1;
 
            // classes:
            clkg = new;
@@ -70,13 +70,12 @@ module tb_gbt_xu5;
        `TEST_CASE("link_verification") begin
            `CHECK_EQUAL (1,1);
        end
-
-   end
+   end;
 
    // The watchdog macro is optional, but recommended. If present, it
    // must not be placed inside any initial or always-block.
    `WATCHDOG(200ms);
 
-   gbt_xu5 DUT (.*);
+gbt_xu5 #(.DEBUG(0)) DUT (.*);
 
 endmodule // tb_gbt_xu5
