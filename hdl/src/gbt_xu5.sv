@@ -39,7 +39,8 @@ module gbt_xu5 #(
     parameter RX_OPTIMIZATION=0,
     parameter TX_ENCODING=0,
     parameter RX_ENCODING=0,
-    parameter CLOCKING_SCHEME=0)(
+    parameter CLOCKING_SCHEME=0,
+    parameter DEBUG=1)(
 
     // interface connecting hardware to the gbt
     t_gbt.producer gbt_x,
@@ -48,7 +49,7 @@ module gbt_xu5 #(
     t_gbt_data.producer gbt_data_x,
     t_clocks.consumer clk_tree_x,
 
-    input external_pll_source_120mhz
+    input logic external_pll_source_120mhz
 );
 
 logic mgt_rxreset;
@@ -137,7 +138,7 @@ gbt_extended_i(
 
       // data
       .gbtbank_gbt_data_i(gbt_data_x.data_sent),
-      .gbtbank_wb_data_i('0),
+      .gbtbank_wb_data_i(32'b0),
 
       .gbtbank_gbt_data_o(gbt_data_x.data_received),
       .gbtbank_wb_data_o(),
@@ -185,6 +186,8 @@ gbt_extended_i(
       .gbt_rxclkenLogic(gbt_rxclkenLogic)
 );
 
+generate
+if (DEBUG == 1) begin : gen_gbtx_debugging_ila
 gbt_ila inside_ila (
     .clk(clk_120mhz),
     .probe0(gbt_data_x.data_received.motor_data_b64),
@@ -195,6 +198,8 @@ gbt_ila inside_ila (
     .probe5(gbt_txreset),
     .probe6(gbt_rxreset),
     .probe7(mgt_rxready));
+end
+endgenerate
 
 assign gbt_x.sfp1_rateselect = 1'b0;
 assign gbt_x.sfp1_txdisable = 1'b0;
