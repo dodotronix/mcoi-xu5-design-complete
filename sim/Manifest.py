@@ -7,8 +7,6 @@ syn_device =  "xczu4ev-sfvc784-1-i"
 syn_family = "zynq uplus"
 language = "verilog"
 
-vivado_libs = ["unisim"]
-
 # VUnit will use modelsim
 tool = "modelsim"
 
