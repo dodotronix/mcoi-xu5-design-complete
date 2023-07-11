@@ -10,11 +10,13 @@ ENCLUSTRA_XU5_SPECS := $(PROJECT_PATH)/doc/enclustra_xu5_specs
 XU5_MCOI_PINOUT := $(PROJECT_PATH)/pcb_configuration/xu5_pcb_pinout
 DEVKIT_PINOUT := $(PROJECT_PATH)/pcb_configuration/pe1_devkit_pinout
 SCRIPTS := $(PROJECT_PATH)/sw/scripts
+HW_TCL := hardware.tcl
+XSA := exported_hw.xsa
 
 PLATFORM_PINOUT := $(DEVKIT_PINOUT)
 # PLATFORM_PINOUT := $(XU5_MCOI_PINOUT)
 
-all_derived: platform_constraints all
+all_derived: platform_constraints all $(XSA)
 
 init: platform_constraints project 
 
@@ -39,3 +41,11 @@ platform_constraints:
 		-o $(PROJECT_PATH)/hdl/constraints \
 		-c $(PLATFORM_PINOUT)/config.csv \
 		-io $(DEFAULT_IOSTANDARD)
+
+$(HW_TCL):
+	@echo "open_project $(PROJECT_FILE)" >> $@
+	@echo "write_hw_platform -fixed -include_bit -force -verbose -file $(XSA)" >> $@
+
+$(XSA): $(HW_TCL)
+	@vivado -mode batch -source $<;
+
