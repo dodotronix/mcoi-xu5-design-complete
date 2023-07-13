@@ -105,4 +105,7 @@ clean:
 	@rm -rf $(BUILD)
 	@rm -rf .Xil
 
+#TODO upload the fw project to vitis and generate the cproject files
+#TODO try to run the basic application configuring the PLL
+
 .PHONY: clean
