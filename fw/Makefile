@@ -106,13 +106,3 @@ clean:
 	@rm -rf .Xil
 
 .PHONY: clean
-
-# platform create -name {test} \
-# 	-hw {/home/pepacner/projects/mcoi-xu5-design-complete/syn/exported_hw.xsa} \
-# 	-proc {psu_cortexa53_0} \
-# 	-os {standalone} \
-# 	-arch {64-bit} \
-# 	-fsbl-target {psu_cortexa53_0}\
-# 	-out {/home/pepacner/vitis_workspace};platform write; \
-# 	platform read {/home/pepacner/vitis_workspace/test/platform.spr} \
-# 	platform active {test}
