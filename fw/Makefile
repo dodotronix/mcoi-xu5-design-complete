@@ -26,18 +26,24 @@
 CC := arm-none-eabi-gcc
 XS := xsct
 
-ROOT := $(PWD)
 GCCVERSION := $$(arm-none-eabi-gcc --version | head -n1 | sed -e "s/[^0-9]\+\s\+\(.*\)/\1/")
 TARGET := mcoi_app
 DEVICE := armv7-a
 FPU := vfpv3
 PLATFORM := mcoi_platform
 
+ROOT := $(PWD)
+HW := $(ROOT)/../syn/exported_hw.xsa
 USER_SRC := $(ROOT)/src
 USER_LIBS := $(ROOT)/libs
-BUILD := $(ROOT)/build
 OUTPUT := $(ROOT)/bin
-HW := $(ROOT)/../syn/exported_hw.xsa
+BUILD := $(ROOT)/build
+BSP_INCLUDES := $(BUILD)/bsp_include
+BSP_SOURCES := $(BUILD)/bsp_sources
+BSP_ASM := $(BUILD)/bsp_asm
+
+BSP_SRCS := $(wildcard $(BSP_SOURCES)/*.c)
+BSP_OBJS := $(BSP_SRCS:.c=.o)
 
 PMU_DIR := $(BUILD)/zynqmp_pmufw
 FSBL_DIR := $(BUILD)/zynqmp_fsbl
@@ -56,7 +62,6 @@ XILINX_PATHS := $(addprefix $(BUILD)/, $(XS_DIR_NAMES))
 
 # ASM_SOURCES := $(PMU_DIR)/**/libs
 # C_SOURCES := $(wildcard)
-INCLUDES := $(wildcard $(PMU_DIR)/**/*.h)
 
 # check if you have arm-gcc in 
 # the PATHS and the correct version
@@ -75,18 +80,23 @@ $(BUILD):
 $(BUILD)/$(PLATFORM): $(HW) | $(BUILD)
 	@$(XS) -eval 'platform create -name $(PLATFORM) -out $@/../  -hw $(HW)'; \
 		rm -rf $@/platform.spr; \
-		rm -rf $@/logs;
+		rm -rf $@/logs; \
+		mkdir $(BSP_INCLUDES) $(BSP_SOURCES) $(BSP_ASM); \
+		cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/include/*.h $(BSP_INCLUDES); \
+		cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/libsrc/**/src/*.h $(BSP_INCLUDES); \
+		cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/libsrc/standalone_v8_0/src/includes_ps/platform/ZynqMP/*.h $(BSP_INCLUDES); \
+		cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/libsrc/**/src/*.c $(BSP_SOURCES); \
+		cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/libsrc/**/src/*.S $(BSP_ASM);
 
-test: $(BUILD)/$(PLATFORM)
+$(BSP_SOURCES)/%.o: $(BSP_SOURCES)/%.c
+	@echo 'Building file: $<'
+	arm-none-eabi-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"$@" \
+		-march=$(DEVICE) -mfpu=$(FPU) -mfloat-abi=hard \
+		-I $(BSP_INCLUDES) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	@echo 'Finished building: $<'
+
+test: $(BUILD)/$(PLATFORM) $(BSP_OBJS)
 	@echo "THIS IS THE END" 
-
-# $(BUILD)/%.o: $(SRC)/%.c
-# 	@echo 'Building file: $<'
-# 	arm-none-eabi-gcc -Wall -O0 -g3 -c -fmessage-length=0 -MT"$@" \
-# 		-march=$(DEVICE) -mfpu=$(FPU) -mfloat-abi=hard \
-# 		-I /home/pepacner/vitis_workspace/mcoi_xu5_platform/export/mcoi_xu5_platform/sw/mcoi_xu5_platform/standalone_domain/bspinclude/include \
-# 		-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
-# 	@echo 'Finished building: $<'
 
 # # the pipe is needed to not recreate the 
 # # directory when its content is updated
