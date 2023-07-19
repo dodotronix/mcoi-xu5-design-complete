@@ -26,37 +26,34 @@
 CC := aarch64-none-elf-gcc
 XS := xsct
 
-GCCVERSION := $$($(CC) --version | head -n1 | sed -e "s/[^0-9]\+\s\+\(.*\)/\1/")
+GCCVERSION := $$($(CC) --version | head -n1 | sed -e "s/\([^ ]\+\s\)\{2\}\(.*\)/\2/")
 TARGET := mcoi_app
 PLATFORM := mcoi_platform
 
 ROOT := $(PWD)
-HW := $(ROOT)/../syn/exported_hw.xsa
 BUILD := $(ROOT)/build
-USER_SOURCE := $(ROOT)/src
-USER_INCLUDES := $(ROOT)/include
-BSP_INCLUDES := $(BUILD)/bsp_include
-BSP_SOURCES := $(BUILD)/bsp_sources
-BSP_ASM := $(BUILD)/bsp_asm
+USER_SRC := $(ROOT)/src
+USER_INC := $(ROOT)/inc
+
+HW := $(ROOT)/../syn/exported_hw.xsa
 
 LD := lscript.ld
 LD_FLAGS := -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
 
-BSP_SRCS=$(wildcard $(BSP_SOURCES)/*.c)
 USER_SOURCES=$(wildcard $(USER_SOURCE)/*.c)
-OBJS=$(BSP_SRCS:.c=.o) $(USER_SOURCES:.c=.o) 
-TEST=$(BSP_SRCS:.c=.o)
+OBJS=$(USER_SOURCES:.c=.o) 
 
 INCLUDES = -I $(BSP_INCLUDES) \
 		   -I $(USER_INCLUDES)
 
-# generated paths by the xsct tool, and 
-# we want to place them to our own paths
-XS_DIR_NAMES := zynqmp_pmufw zynqmp_fsbl hw
+XILINX_BSP_DIR := $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp
+XILINX_COMPILED_LIBS := $(XILINX_BSP_DIR)/psu_cortexa53_0/lib
+
+GET_BSP_SRCS := find $(XILINX_BSP_DIR)/psu_cortexa53_0/ \
+				-type f \( -iname \*.c -o -iname \*.h -o -iname \*.S \)
 
 # all: $(TARGET).elf 
-all: $(BUILD)/$(PLATFORM) $(TEST)
-	@echo $(TEST)
+all: $(BUILD)/.xilinx_libs_compiled 
 	@echo "Build Finished" $(shell date) 
 
 # check if you have arm-gcc in the PATHS and the 
@@ -66,42 +63,34 @@ $(BUILD):
 		printf '\e[1;31m[ERR]\e[0m $(XS) command is not in PATH'; false; };
 	@which $(CC) &> /dev/null || { \
 		printf '\e[1;31m[ERR]\e[0m $(CC) is not in PATH'; false; };
-	@if [ "$(GCCVERSION)" != "11.2.0" ]; then\
-		echo "Version of the $(CC) is not 11.2.0";\
+	@if [ "$(GCCVERSION)" != "11.2.0" ]; then \
+		echo "Version of the $(CC) is not 11.2.0"; \
+		echo $(GCCVERSION); \
 		false; \
-	fi; \
-	mkdir $@
+	fi;  
+	@mkdir -p $@
 
 $(BUILD)/$(PLATFORM): $(HW) | $(BUILD)
-	@$(XS) -eval 'platform create -name $(PLATFORM) -out $@/../  -hw $(HW)'; \
-		rm -rf $@/platform.spr; \
-		rm -rf $@/logs; mkdir $(BSP_INCLUDES) $(BSP_SOURCES) $(BSP_ASM); 
-	@cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/include/*.h $(BSP_INCLUDES);
-	@cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/libsrc/**/src/*.h $(BSP_INCLUDES);
-	@cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/libsrc/**/src/*.c $(BSP_SOURCES);
-	@cp $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp/psu_cortexa53_0/libsrc/**/src/*.S $(BSP_ASM);
+	@[ -d $@ ] && { rm -rf $@; } || { \
+	$(XS) -eval 'platform create -name $(PLATFORM) -out $(BUILD) -hw $(HW)'; }
 
-$(BSP_SOURCES)/%.o: $(BSP_SOURCES)/%.c
-	@echo 'Building file: $<'
-	$(CC) -I $(BSP_INCLUDES) -c -g -Wall -Wextra \
-		-fno-tree-loop-distribute-patterns \
-		-Os -flto -ffat-lto-objects -I $(BSP_INCLUDES) -MMD -MP $< -o $@ 
-	@echo 'Finished building: $<'
+$(BUILD)/.xilinx_libs_compiled: $(BUILD)/$(PLATFORM) $(shell $(GET_BSP_SRCS))
+	@echo "COMPILING XILINX BSP LIBS"
+	@cd $(XILINX_LIBS_DIR) && $(MAKE)
+	@touch $@
 
-$(USER_SOURCE)/%.o: $(USER_SOURCE)/%.c
-	@echo 'Building file: $<'
-	$(CC) -Wall -O0 -g3 -c -fmessage-length=0 $(INCLUDES) -MMD -MP $<  -o $@
-	@echo 'Finished building: $<'
+# $(USER_SOURCE)/%.o: $(USER_SOURCE)/%.c
+# 	@echo 'Building file: $<'
+# 	$(CC) -Wall -O0 -g3 -c -fmessage-length=0 $(INCLUDES) -MMD -MP $<  -o $@
+# 	@echo 'Finished building: $<'
 
-$(TARGET).elf: $(BUILD)/$(PLATFORM) $(OBJS) $(LD)
-	@echo 'Building target: $@'
-	$(CC) -Wl,-T -Wl,$(LD) -o $@ $(OBJS)
-	@echo 'Finished building target: $@'
+# $(TARGET).elf: $(BUILD)/$(PLATFORM) $(OBJS) $(LD)
+# 	@echo 'Building target: $@'
+# 	$(CC) -Wl,-T -Wl,$(LD) -o $@ $(OBJS)
+# 	@echo 'Finished building target: $@'
 
 clean:
 	@rm -rf $(BUILD)
-	@rm -rf $(USER_SOURCE)/*.o
-	@rm -rf $(USER_SOURCE)/*.d
 	@rm -rf .Xil
 
 .PHONY: clean
