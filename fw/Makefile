@@ -49,8 +49,7 @@ INCLUDES = -I $(BSP_INCLUDES) \
 XILINX_BSP_DIR := $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp
 XILINX_COMPILED_LIBS := $(XILINX_BSP_DIR)/psu_cortexa53_0/lib
 
-GET_BSP_SRCS := find $(XILINX_BSP_DIR)/psu_cortexa53_0/ \
-				-type f \( -iname \*.c -o -iname \*.h -o -iname \*.S \)
+GET_BSP_SRCS := 
 
 # all: $(TARGET).elf 
 all: $(BUILD)/.xilinx_libs_compiled 
@@ -70,13 +69,15 @@ $(BUILD):
 	fi;  
 	@mkdir -p $@
 
-$(BUILD)/$(PLATFORM): $(HW) | $(BUILD)
-	@[ -d $@ ] && { rm -rf $@; } || { \
-	$(XS) -eval 'platform create -name $(PLATFORM) -out $(BUILD) -hw $(HW)'; }
+$(BUILD)/test: $(HW) | $(BUILD)
+	@[ -d $(BUILD)/$(PLATFORM) ] && { rm -rf $(BUILD)/$(PLATFORM); } || { \
+		$(XS) -eval 'platform create -name $(PLATFORM) -out $(BUILD) -hw $(HW)'; }
+	@find $(XILINX_BSP_DIR)/psu_cortexa53_0/ \
+		-type f \( -iname \*.c -o -iname \*.h -o -iname \*.S \) >> $@
 
-$(BUILD)/.xilinx_libs_compiled: $(BUILD)/$(PLATFORM) $(shell $(GET_BSP_SRCS))
+$(BUILD)/.xilinx_libs_compiled:  $(shell cat $(BUILD)/test) 
 	@echo "COMPILING XILINX BSP LIBS"
-	@cd $(XILINX_LIBS_DIR) && $(MAKE)
+	# @cd $(XILINX_BSP_DIR) && $(MAKE)
 	@touch $@
 
 # $(USER_SOURCE)/%.o: $(USER_SOURCE)/%.c
