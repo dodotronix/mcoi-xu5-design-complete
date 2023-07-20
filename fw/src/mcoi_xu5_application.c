@@ -47,7 +47,7 @@ void set_bits(XIicPs *iic_dev, u8 reg, u8 val);
 void clear_bits(XIicPs *iic_dev, u8 reg, u8 val);
 void copy_bits(XIicPs *iic_dev, u8 reg0, u8 reg1, u8 mask);
 void validate_value(XIicPs *iic_dev, u8 reg, u8 mask, u8 val);
-void write_config_map(XIicPs *iic_dev, __Reg_Data const *map, u32 map_length);
+void write_config_map(XIicPs *iic_dev, t_reg_data const *map, u32 map_length);
 int initialize_clock(u16 DeviceId);
 
 u8 SendBuffer[2];
@@ -104,8 +104,8 @@ void validate_value(XIicPs *iic_dev, u8 reg, u8 mask, u8 val) {
     printf("ok\n");
 }
 
-void write_config_map(XIicPs *iic_dev, __Reg_Data const *map, u32 map_length) {
-    __Reg_Data const *element; 
+void write_config_map(XIicPs *iic_dev, t_reg_data const *map, u32 map_length) {
+    t_reg_data const *element; 
     u8 current_reg, combined, clear_cur_val, tmp;
 
     for(u32 i=1; i<map_length; ++i) {
