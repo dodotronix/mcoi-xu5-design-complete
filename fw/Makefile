@@ -32,23 +32,25 @@ PLATFORM := mcoi_platform
 
 ROOT := $(PWD)
 BUILD := $(ROOT)/build
-USER_SRC := $(ROOT)/src
-USER_INC := $(ROOT)/inc
+USER_SOURCES := $(ROOT)/src
+USER_INCLUDES := $(ROOT)/inc
+USER_OBJ_DIR := $(BUILD)/user_objs
+OUTPUT_DIR := $(BUILD)/bin
 
 HW := $(ROOT)/../syn/exported_hw.xsa
 
 LD := lscript.ld
 LD_FLAGS := -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
 
-USER_SOURCES=$(wildcard $(USER_SOURCE)/*.c)
-OBJS=$(USER_SOURCES:.c=.o) 
-
-INCLUDES = -I $(BSP_INCLUDES) \
-		   -I $(USER_INCLUDES)
+USER_C_FILES=$(wildcard $(USER_SOURCES)/*.c)
+# compile object to the USER_OBJ_DIR
+USER_OBJS=$(addsuffix .o, $(addprefix $(USER_OBJ_DIR)/,\
+	 $(notdir $(basename $(USER_C_FILES)))))
 
 XILINX_BSP_DIR := $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp
-XILINX_BSP_LIBS := $(BUILD)/.xilinx_bsp_libs
 XILINX_COMPILED_LIBS := $(XILINX_BSP_DIR)/psu_cortexa53_0/lib
+XILINX_LIB_INCLUDES := $(XILINX_BSP_DIR)/psu_cortexa53_0/include
+XILINX_BSP_LIBS := $(BUILD)/.xilinx_bsp_libs
 
 ## SEVERITY 
 INF := \e[1;34m[INF]\e[0m
@@ -61,9 +63,12 @@ WARN := \e[0;33m[WARN]\e[0m
 GET_BSP_LIBS := $(shell [ ! -f $(XILINX_BSP_LIBS) ] && \
 				{ echo $(XILINX_BSP_LIBS); } || { cat $(XILINX_BSP_LIBS); })
 
-# all: $(TARGET).elf 
-all: $(BUILD)/.xilinx_libs_compiled 
+INCLUDES := -I $(XILINX_LIB_INCLUDES) \
+			-I $(USER_INCLUDES)
+
+all: $(OUTPUT_DIR)/$(TARGET).elf 
 	@printf '$(INF) Build Finished $(shell date)\n'   
+# all: $(BUILD)/.xilinx_libs_compiled 
 
 # check if you have arm-gcc in the PATHS and the 
 # correct version and create BUILD directory
@@ -77,6 +82,8 @@ $(BUILD):
 		false; \
 	fi;  
 	@mkdir -p $@
+	@mkdir -p $(USER_OBJ_DIR)
+	@mkdir -p $(OUTPUT_DIR)
 
 $(BUILD)/$(PLATFORM): $(HW) | $(BUILD)
 	@printf '$(INF) RUNNING PLATFORM GENERATOR\n'
@@ -93,15 +100,17 @@ $(BUILD)/.xilinx_libs_compiled: $(GET_BSP_LIBS)
 	@cd $(XILINX_BSP_DIR) && $(MAKE)
 	@touch $@
 
-# $(USER_SOURCE)/%.o: $(USER_SOURCE)/%.c
-# 	@echo 'Building file: $<'
-# 	$(CC) -Wall -O0 -g3 -c -fmessage-length=0 $(INCLUDES) -MMD -MP $<  -o $@
-# 	@echo 'Finished building: $<'
+$(USER_OBJ_DIR)/%.o: $(USER_SOURCES)/%.c
+	@printf 'Building file: $<\n'
+	$(CC) -Wall -O0 -g3 -c -fmessage-length=0 -MT"$@" \
+		$(INCLUDES) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	@printf 'Finished building: $<\n'
 
-# $(TARGET).elf: $(BUILD)/$(PLATFORM) $(OBJS) $(LD)
-# 	@echo 'Building target: $@'
-# 	$(CC) -Wl,-T -Wl,$(LD) -o $@ $(OBJS)
-# 	@echo 'Finished building target: $@'
+$(OUTPUT_DIR)/$(TARGET).elf: $(BUILD)/.xilinx_libs_compiled $(LD) $(USER_OBJS)
+	@printf '$(INF) BUILDING TARGET: $@\n'
+	$(CC) -Wl,-T -Wl,$(LD) -L $(XILINX_COMPILED_LIBS) \
+		-o $@ $(OBJS) -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+	@printf '$(INF) FINISHED BUILDING TARGET: $@\n'
 
 clean:
 	@rm -rf $(BUILD)
