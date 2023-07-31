@@ -29,6 +29,9 @@ XS := xsct
 GCCVERSION := $$($(CC) --version | head -n1 | sed -e "s/\([^ ]\+\s\)\{2\}\(.*\)/\2/")
 TARGET := mcoi_app
 PLATFORM := mcoi_platform
+PROC := psu_cortexa53_0
+ARCH := 64-bit
+OS := standalone
 
 ROOT := $(PWD)
 BUILD := $(ROOT)/build
@@ -49,7 +52,9 @@ USER_OBJS=$(addsuffix .o, $(addprefix $(USER_OBJ_DIR)/,\
 
 XILINX_BSP_DIR := $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp
 XILINX_COMPILED_LIBS := $(XILINX_BSP_DIR)/psu_cortexa53_0/lib
+# XILINX_COMPILED_LIBS := $(BUILD)/mcoi_platform/export/mcoi_platform/sw/mcoi_platform/standalone_domain/bsplib/lib
 XILINX_LIB_INCLUDES := $(XILINX_BSP_DIR)/psu_cortexa53_0/include
+# XILINX_LIB_INCLUDES := $(BUILD)/mcoi_platform/export/mcoi_platform/sw/mcoi_platform/standalone_domain/bspinclude/include
 XILINX_BSP_LIBS := $(BUILD)/.xilinx_bsp_libs
 
 ## SEVERITY 
@@ -88,7 +93,8 @@ $(BUILD):
 $(BUILD)/$(PLATFORM): $(HW) | $(BUILD)
 	@printf '$(INF) RUNNING PLATFORM GENERATOR\n'
 	@[ -d $@ ] && { rm -rf $@; } || { \
-		$(XS) -eval 'platform create -name $(PLATFORM) -out $@/../ -hw $(HW)'; }
+		$(XS) -eval 'platform create -name $(PLATFORM) -out $@/../ -hw $(HW) \
+		-proc $(PROC) -arch $(ARCH) -os $(OS)'; }
 
 $(XILINX_BSP_LIBS): $(BUILD)/$(PLATFORM)
 	@printf '$(INF) CREATING LIST OF ALL BSP SOURCE FILES\n'
@@ -109,7 +115,7 @@ $(USER_OBJ_DIR)/%.o: $(USER_SOURCES)/%.c
 $(OUTPUT_DIR)/$(TARGET).elf: $(BUILD)/.xilinx_libs_compiled $(LD) $(USER_OBJS)
 	@printf '$(INF) BUILDING TARGET: $@\n'
 	$(CC) -Wl,-T -Wl,$(LD) -L $(XILINX_COMPILED_LIBS) \
-		-o $@ $(OBJS) -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
+		-o $@ $(USER_OBJS) -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
 	@printf '$(INF) FINISHED BUILDING TARGET: $@\n'
 
 clean:
