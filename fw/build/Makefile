@@ -34,15 +34,16 @@ ARCH := 64-bit
 OS := standalone
 
 ROOT := $(PWD)
-BUILD := $(ROOT)/build
-USER_SOURCES := $(ROOT)/src
-USER_INCLUDES := $(ROOT)/inc
-USER_OBJ_DIR := $(BUILD)/user_objs
-OUTPUT_DIR := $(BUILD)/bin
+USER_SOURCES := $(ROOT)/../src
+USER_INCLUDES := $(ROOT)/../inc
 
-HW := $(ROOT)/../syn/exported_hw.xsa
+USER_OBJ_DIR := user_objs
+OUTPUT_DIR := bin
+DIRS := $(OUTPUT_DIR) $(USER_OBJ_DIR)
 
-LD := lscript.ld
+HW := $(ROOT)/../../syn/exported_hw.xsa
+
+LD := ./../lscript.ld
 LD_FLAGS := -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
 
 USER_C_FILES=$(wildcard $(USER_SOURCES)/*.c)
@@ -50,12 +51,12 @@ USER_C_FILES=$(wildcard $(USER_SOURCES)/*.c)
 USER_OBJS=$(addsuffix .o, $(addprefix $(USER_OBJ_DIR)/,\
 	 $(notdir $(basename $(USER_C_FILES)))))
 
-XILINX_BSP_DIR := $(BUILD)/$(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp
+XILINX_BSP_DIR := $(PLATFORM)/zynqmp_fsbl/zynqmp_fsbl_bsp
 XILINX_COMPILED_LIBS := $(XILINX_BSP_DIR)/psu_cortexa53_0/lib
 # XILINX_COMPILED_LIBS := $(BUILD)/mcoi_platform/export/mcoi_platform/sw/mcoi_platform/standalone_domain/bsplib/lib
 XILINX_LIB_INCLUDES := $(XILINX_BSP_DIR)/psu_cortexa53_0/include
 # XILINX_LIB_INCLUDES := $(BUILD)/mcoi_platform/export/mcoi_platform/sw/mcoi_platform/standalone_domain/bspinclude/include
-XILINX_BSP_LIBS := $(BUILD)/.xilinx_bsp_libs
+XILINX_BSP_LIBS := xilinx_bsp_libs
 
 ## SEVERITY 
 INF := \e[1;34m[INF]\e[0m
@@ -73,11 +74,11 @@ INCLUDES := -I $(XILINX_LIB_INCLUDES) \
 
 all: $(OUTPUT_DIR)/$(TARGET).elf 
 	@printf '$(INF) Build Finished $(shell date)\n'   
-# all: $(BUILD)/.xilinx_libs_compiled 
+# all: $(BUILD)/xilinx_libs_compiled 
 
 # check if you have arm-gcc in the PATHS and the 
 # correct version and create BUILD directory
-$(BUILD): 
+$(DIRS): 
 	@which $(XS) &> /dev/null || { \
 		printf '$(ERR) $(XS) command is not in PATH\n'; false; };
 	@which $(CC) &> /dev/null || { \
@@ -86,22 +87,21 @@ $(BUILD):
 		printf '$(WARN) Version of the $(CC) is $(GCCVERSION) and not 11.2.0\n'; \
 		false; \
 	fi;  
+	@printf '$(INF) CREATING DIRECTORY $@\n'
 	@mkdir -p $@
-	@mkdir -p $(USER_OBJ_DIR)
-	@mkdir -p $(OUTPUT_DIR)
 
-$(BUILD)/$(PLATFORM): $(HW) | $(BUILD)
+$(PLATFORM): $(HW) | $(DIRS)
 	@printf '$(INF) RUNNING PLATFORM GENERATOR\n'
 	@[ -d $@ ] && { rm -rf $@; } || { \
 		$(XS) -eval 'platform create -name $(PLATFORM) -out $@/../ -hw $(HW) \
 		-proc $(PROC) -arch $(ARCH) -os $(OS)'; }
 
-$(XILINX_BSP_LIBS): $(BUILD)/$(PLATFORM)
+$(XILINX_BSP_LIBS): $(PLATFORM)
 	@printf '$(INF) CREATING LIST OF ALL BSP SOURCE FILES\n'
 	@find $(XILINX_BSP_DIR)/psu_cortexa53_0/ \
 		-type f \( -iname \*.c -o -iname \*.h -o -iname \*.S \) >> $@
 
-$(BUILD)/.xilinx_libs_compiled: $(GET_BSP_LIBS)
+xilinx_libs_compiled: $(GET_BSP_LIBS)
 	@printf '$(INF) COMPILING XILINX BSP LIBS\n'
 	@cd $(XILINX_BSP_DIR) && $(MAKE)
 	@touch $@
@@ -112,16 +112,16 @@ $(USER_OBJ_DIR)/%.o: $(USER_SOURCES)/%.c
 		$(INCLUDES) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@printf 'Finished building: $<\n'
 
-$(OUTPUT_DIR)/$(TARGET).elf: $(BUILD)/.xilinx_libs_compiled $(LD) $(USER_OBJS)
+$(OUTPUT_DIR)/$(TARGET).elf: xilinx_libs_compiled $(LD) $(USER_OBJS)
 	@printf '$(INF) BUILDING TARGET: $@\n'
 	$(CC) -Wl,-T -Wl,$(LD) -L $(XILINX_COMPILED_LIBS) \
 		-o $@ $(USER_OBJS) -Wl,--start-group,-lxil,-lgcc,-lc,--end-group
 	@printf '$(INF) FINISHED BUILDING TARGET: $@\n'
 
 clean:
-	@rm -rf $(BUILD)
-	@rm -rf .Xil
+	rm -rf $(filter-out Makefile, $(wildcard *))
+	rm -rf .Xil
 
-.PHONY: clean
+.PHONY: clean all
 
 #TODO add target to create fsbl_a53.elf
