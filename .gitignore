@@ -20,7 +20,9 @@ sim/**
 !sim/Manifest.py
 !sim/run_sim.py
 fw/.*
-fw/vitis/build
+fw/vitis/**
+!fw/vitis/Makefile
+!fw/vitis/*.tcl
 fw/build/*
 fw/build/Makefile
 !fw/.cproject
