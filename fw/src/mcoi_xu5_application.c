@@ -18,22 +18,22 @@
 
 void show_iic_setup(XIicPs *InstancePtr) {
     printf("Device ID: %x\n", InstancePtr->Config.DeviceId);
-    printf("Base Address: %x\n", InstancePtr->Config.BaseAddress);
-    printf("Input Clock Hz: %li\n", InstancePtr->Config.InputClockHz);
+    printf("Base Address: %lx\n", InstancePtr->Config.BaseAddress);
+    printf("Input Clock Hz: %u\n", InstancePtr->Config.InputClockHz);
 
-    printf("Is Ready: %lx\n", InstancePtr->IsReady);
-    printf("Options: %lx\n", InstancePtr->Options);
+    printf("Is Ready: %x\n", InstancePtr->IsReady);
+    printf("Options: %x\n", InstancePtr->Options);
 
     /* printf("Received buffer data: %i\n", *(InstancePtr->RecvBufferPtr));
     printf("Send buffer data: %i\n", *(InstancePtr->SendBufferPtr)); */
-    printf("Send Byte Count: %lx\n", InstancePtr->SendByteCount);
+    printf("Send Byte Count: %x\n", InstancePtr->SendByteCount);
 
-    printf("Recv Byte Count: %lx\n", InstancePtr->RecvByteCount);
-    printf("Current Byte Count: %lx\n", InstancePtr->CurrByteCount);
-    printf("Update Tx size: %lx\n", InstancePtr->UpdateTxSize);
-    printf("Is Send: %lx\n", InstancePtr->IsSend);
-    printf("Is Repeated Start: %lx\n", InstancePtr->IsRepeatedStart);
-    printf("Is 10Bit Addr: %lx\n", InstancePtr->Is10BitAddr);
+    printf("Recv Byte Count: %x\n", InstancePtr->RecvByteCount);
+    printf("Current Byte Count: %x\n", InstancePtr->CurrByteCount);
+    printf("Update Tx size: %x\n", InstancePtr->UpdateTxSize);
+    printf("Is Send: %x\n", InstancePtr->IsSend);
+    printf("Is Repeated Start: %x\n", InstancePtr->IsRepeatedStart);
+    printf("Is 10Bit Addr: %x\n", InstancePtr->Is10BitAddr);
 }
 
 #define IIC_DEVICE_ID		XPAR_XIICPS_0_DEVICE_ID
