@@ -1,3 +1,5 @@
+# all paths have to be in the absolute path form 
+# otherwise the soft links won't be found
 set SCRIPT_PATH [file normalize [info script]]
 set SCRIPT_FOLDER [file dirname $SCRIPT_PATH]
 
@@ -23,30 +25,35 @@ if ![file exists $XSA] {
 file delete -force build 
 setws build 
 
-platform create -name $PLATFORM \
-    -hw $XSA \
-    -arch $ARCH \
-    -fsbl-target $PROC
+# platform create -name $PLATFORM \
+#     -hw $XSA \
+#     -arch $ARCH \
+#     -fsbl-target $PROC
 
-domain create -name {standalone_psu_cortexa53_0} \
-    -display-name {standalone_psu_cortexa53_0} \
-    -os {standalone} \
-    -proc $PROC \
-    -runtime {cpp} \
-    -arch $ARCH \
-    -support-app {empty_application}
+# domain create -name {standalone_psu_cortexa53_0} \
+#     -display-name {standalone_psu_cortexa53_0} \
+#     -os {standalone} \
+#     -proc $PROC \
+#     -runtime {cpp} \
+#     -arch $ARCH \
+#     -support-app {empty_application}
 
-platform active $PLATFORM
-domain active {standalone_psu_cortexa53_0}
+# platform active $PLATFORM
+# domain active {standalone_psu_cortexa53_0}
 
-platform generate 
+# app create -name $NAME \
+#     -platform $PLATFORM \
+#     -domain {standalone_psu_cortexa53_0} \
+#     -template "Empty Application(C)"
 
 app create -name $NAME \
-    -platform $PLATFORM \
-    -domain {standalone_psu_cortexa53_0} \
+    -hw $XSA \
+    -proc $PROC \
+    -os $OS \
     -template "Empty Application(C)"
 
 app config -name $NAME -add include-path $INCLUDE_PATH
 importsources -name $NAME -path $SOURCE_PATH -soft-link 
 
+platform generate 
 app build -name mcoi_app
