@@ -31,7 +31,7 @@
 // @standard IEEE 1800-2012
 //-----------------------------------------------------------------------------
 
-`include "vunit_defines.svh"
+//`include "vunit_defines.svh"
 
 import CKRSPkg::*;
 import clsclk::*;
@@ -43,9 +43,6 @@ module tb_gbt_xu5;
 
    /*AUTOWIRE*/
    /*AUTOREGINPUT*/
-   // Beginning of automatic regs inputs (for undeclared instantiated-module inputs)
-   logic external_pll_source_120mhz;       // To DUT of gbt_xu5.sv
-   // End of automatics
 
    t_clocks clk_tree_x();
    clock_generator clkg;
@@ -57,25 +54,62 @@ module tb_gbt_xu5;
    default clocking cb @(posedge gbt_data_x.ClkRs_ix.clk);
    endclocking
 
-   `TEST_SUITE begin
-       `TEST_SUITE_SETUP begin
-           gbt_x.sfp1_los = '0;
+   logic [31:0] dynamic_data;
+   task automatic generator();
+       fork begin
+           forever begin
+               while(gbt_data_x.ClkRs_ix.reset) #1;
+               dynamic_data = dynamic_data + 1;
+               gbt_data_x.data_sent = '0;
+               gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
+               #1;
+           end
+       end join_none
+   endtask : generator
 
-           // classes:
-           clkg = new;
-           clkg.clk_tree_x = clk_tree_x;
-           clkg.run();
-       end
+   initial begin
+    gbt_x.sfp1_los = 1'b1;
+    dynamic_data = '0;
+    generator();
 
-       `TEST_CASE("link_verification") begin
-           `CHECK_EQUAL (1,1);
-       end
-   end;
+    // classes:
+    clkg = new;
+    clkg.clk_tree_x = clk_tree_x;
+    clkg.run();
+   end
 
-   // The watchdog macro is optional, but recommended. If present, it
-   // must not be placed inside any initial or always-block.
-   `WATCHDOG(200ms);
+   always begin
+    #1us;
+    assign gbt_x.sfp1_los = 1'b0;
+    #10us;
+   end
 
-gbt_xu5 #(.DEBUG(0)) DUT (.*);
+
+//   `TEST_SUITE begin
+//       `TEST_SUITE_SETUP begin
+//           gbt_x.sfp1_los = 1'b1;
+//           dynamic_data = '0;
+//           generator();
+
+//           // classes:
+//           clkg = new;
+//           clkg.clk_tree_x = clk_tree_x;
+//           clkg.run();
+//       end
+
+//       `TEST_CASE("link_verification") begin
+//           #5us;
+//           gbt_x.sfp1_los = 1'b0;
+//           #10us;
+//           `CHECK_EQUAL (1,1);
+//       end
+//   end;
+
+//   // The watchdog macro is optional, but recommended. If present, it
+//   // must not be placed inside any initial or always-block.
+//   `WATCHDOG(50us);
+
+   gbt_xu5 #(.DEBUG(0)) DUT (.*,
+   .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk));
 
 endmodule // tb_gbt_xu5

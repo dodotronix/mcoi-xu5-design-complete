@@ -12,7 +12,7 @@ interface t_clocks;
    // 100MHz on-module oscillator
    ckrs_t ClkRs100MHz_ix;
 
-   // MGT 120MHz coming from external PLL 
+   // MGT 120MHz coming from external PLL
    ckrs_t ClkRs120MHz_ix;
 
    // 40MHz derived from MGT Clock
@@ -41,9 +41,10 @@ interface t_motors_structured;
    motorsControls_t motorsControls;
 
    modport producer(output motorsStatuses,
-		    input motorsControls);
+       input motorsControls);
+
    modport consumer(input motorsStatuses,
-		    output motorsControls);
+       output motorsControls);
 endinterface // t_motors_structured
 
 
@@ -92,18 +93,18 @@ interface t_gbt;
                     input sfp1_rateselect,
                     input sfp1_txdisable);
 
-   modport status(input sfp1_los,
-		  input sfp1_txdisable,
-		  input sfp1_rateselect);
+    modport status(input sfp1_los,
+                   input sfp1_txdisable,
+                   input sfp1_rateselect);
 
 endinterface // gbt_x
 
 interface t_diag;
-   logic [6:0] 		  led;
-   logic [2:0]        mled;
-   logic [5:0] 		  test;
-   logic [3:0] 		  pcbrev;
-   logic 		  fpga_supply_ok;
+    logic [6:0] led;
+    logic [2:0] mled;
+    logic [5:0] test;
+    logic [3:0] pcbrev;
+    logic fpga_supply_ok;
 
    modport producer(output led,
                     // output mled,
@@ -132,57 +133,58 @@ interface t_gbt_data (input ckrs_t ClkRs_ix);
    logic link_ready;
 
    // testbench port
-   modport producer (input ClkRs_ix, 
-                     input data_sent,
-                     output tx_frameclk,
-                     output tx_ready,
-                     output rx_ready,
-                     output link_ready,
-                     output rx_frameclk,
-                     output data_received);
+   modport producer (
+       input ClkRs_ix,
+       input data_sent,
+       output tx_frameclk,
+       output tx_ready,
+       output rx_ready,
+       output link_ready,
+       output rx_frameclk,
+       output data_received);
 
    // ordinary consumer
-   modport consumer (input ClkRs_ix, 
-                     input rx_frameclk,
-                     input data_received, 
-                     input tx_ready,
-                     input rx_ready,
-                     input link_ready,
-                     input tx_frameclk,
-                     output data_sent);
+   modport consumer (
+       input ClkRs_ix,
+       input rx_frameclk,
+       input data_received,
+       input tx_ready,
+       input rx_ready,
+       input link_ready,
+       input tx_frameclk,
+       output data_sent);
 
 endinterface // t_gbt_data
 
 
 interface t_i2c;
-   wire 		    sda;
-   wire 		    scl;
+   wire sda;
+   wire scl;
 
    // tri-state i2c - write register (during compilation this is
    // synthesized away as constant signal)
-   logic 		    sda_reg = 'z;
+   logic sda_reg = 'z;
    assign sda = sda_reg;
 
 
    // debugging - will be synthesized away
    i2c_state_t state;
-   logic [7:0] 		    address_received_b8;
-   logic [7:0] 		    register_address_received_b8;
-
+   logic [7:0] address_received_b8;
+   logic [7:0] register_address_received_b8;
 
 
    // in multimaster environment SCL is inout as well
-   modport endpoint(inout scl,
-		    inout sda);
+   modport endpoint(inout scl, inout sda);
 
    // bidir driving: when reading we can directly use read from sda,
    // but when driving the net we have to set value to sda_reg, which
    // resolves to sda being driven by resolver function
-   modport debugger(inout scl,
-		    input  sda,
-		    output sda_reg,
-		    output state,
-		    output address_received_b8,
-		    output register_address_received_b8);
+   modport debugger(
+       inout scl,
+       input  sda,
+       output sda_reg,
+       output state,
+       output address_received_b8,
+       output register_address_received_b8);
 
 endinterface // t_i2c

@@ -169,7 +169,7 @@ gbt_extended_i(
       .gbtbank_gbttx_ready_o(tx_ready),
 
       //xcvr ctrl
-      .gbtbank_loopback_i(3'b000),
+      .gbtbank_loopback_i(3'b100),
       .gbtbank_tx_pol(1'b1),
       .gbtbank_rx_pol(1'b1),
 
