@@ -44,6 +44,10 @@ module tb_gbt_xu5;
    /*AUTOWIRE*/
    /*AUTOREGINPUT*/
 
+   // wires to create a loopback
+   wire sfp_xn;
+   wire sfp_xp;
+
    t_clocks clk_tree_x();
    clock_generator clkg;
 
@@ -58,11 +62,11 @@ module tb_gbt_xu5;
    task automatic generator();
        fork begin
            forever begin
-               while(gbt_data_x.ClkRs_ix.reset) #1;
+               @(posedge gbt_data_x.ClkRs_ix.clk);
+               while(gbt_data_x.ClkRs_ix.reset) @(posedge gbt_data_x.ClkRs_ix.clk);
                dynamic_data = dynamic_data + 1;
                gbt_data_x.data_sent = '0;
                gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
-               #1;
            end
        end join_none
    endtask : generator
@@ -76,14 +80,25 @@ module tb_gbt_xu5;
     clkg = new;
     clkg.clk_tree_x = clk_tree_x;
     clkg.run();
-   end
 
-   always begin
     #1us;
-    assign gbt_x.sfp1_los = 1'b0;
-    #10us;
+    gbt_x.sfp1_los = 1'b0;
+    while(!gbt_data_x.tx_ready) #1;
+    /* #1us;
+    gbt_x.sfp1_los = 1'b1;
+    #5us;
+    gbt_x.sfp1_los = 1'b0; */
+    #40us;
+
+    $finish;
    end
 
+   logic clk_125mhz;
+   initial begin
+       clk_125mhz = 1'b0;
+       forever
+           clk_125mhz = #4ns ~clk_125mhz;
+   end
 
 //   `TEST_SUITE begin
 //       `TEST_SUITE_SETUP begin
@@ -111,5 +126,10 @@ module tb_gbt_xu5;
 
    gbt_xu5 #(.DEBUG(0)) DUT (.*,
    .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk));
+
+   assign gbt_x.sfp1_gbitin_n = sfp_xn;
+   assign gbt_x.sfp1_gbitin_p = sfp_xp;
+   assign sfp_xn = gbt_x.sfp1_gbitout_n;
+   assign sfp_xp = gbt_x.sfp1_gbitout_p;
 
 endmodule // tb_gbt_xu5
