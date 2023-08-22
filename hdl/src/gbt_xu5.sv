@@ -63,6 +63,7 @@ logic rx_frameclk;
 logic tx_frameclk;
 logic clk_40mhz;
 logic clk_120mhz;
+logic diff_clk_120mhz;
 logic reset;
 
 logic link_ready;
@@ -86,14 +87,14 @@ always_comb begin
 end
 
 gbt_bank_reset #(
-    .INITIAL_DELAY(40e6))
+    .INITIAL_DELAY(40))
 i_gbt_reset(
  .gbt_clk_i (clk_40mhz),
  .tx_frameclk_i(tx_frameclk),
  .tx_clken_i(1'b1),
- .rx_frameclk_i(rx_frameclk),
  .rx_clken_i(gbt_rxclkenLogic),
- .mgtclk_i(clk_120mhz),
+ .rx_frameclk_i(rx_frameclk),
+ .mgtclk_i(external_pll_source_120mhz),
  .general_reset_i(reset),
  .tx_reset_i(reset),
  .rx_reset_i(reset),
@@ -145,11 +146,11 @@ gbt_extended_i(
 
       // reconf.
       // NOTE test if it works with 120Mhz
-      .gbtbank_mgt_drp_clk(clk_120mhz), //connected to 125Mhz
+      .gbtbank_mgt_drp_clk(external_pll_source_120mhz),
 
       // tx ctrl
       .tx_encoding_sel_i(1'b0),
-      .gbtbank_tx_isdata_sel_i(1'b0),
+      .gbtbank_tx_isdata_sel_i(1'b1),
 
       // rx ctrl
       .rx_encoding_sel_i(1'b0),
@@ -169,7 +170,7 @@ gbt_extended_i(
       .gbtbank_gbttx_ready_o(tx_ready),
 
       //xcvr ctrl
-      .gbtbank_loopback_i(3'b100),
+      .gbtbank_loopback_i(3'b001),
       .gbtbank_tx_pol(1'b1),
       .gbtbank_rx_pol(1'b1),
 
@@ -179,8 +180,8 @@ gbt_extended_i(
       .gbt_txreset_s(gbt_txreset),
       .gbt_rxreset_s(gbt_rxreset),
 
-      .mgt_rxready(mgt_rxready),
       .mgt_txready(mgt_txready),
+      .mgt_rxready(mgt_rxready),
 
       .mgt_headerflag(mgt_headerflag),
       .gbt_rxclkenLogic(gbt_rxclkenLogic)

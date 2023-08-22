@@ -123,8 +123,8 @@ architecture structural of gbt_extended_pinout is
     signal gbt_rxdata_s : gbt_reg84_A(1 to NUM_LINKS);
     signal wb_rxdata_s : gbt_reg32_A(1 to NUM_LINKS);
 
-    signal txData_from_gbtBank_pattGen : gbt_reg84_A(1 to NUM_LINKS);
-    signal txwBData_from_gbtBank_pattGen : gbt_reg32_A(1 to NUM_LINKS);
+    -- signal txData_from_gbtBank_pattGen : gbt_reg84_A(1 to NUM_LINKS);
+    -- signal txwBData_from_gbtBank_pattGen : gbt_reg32_A(1 to NUM_LINKS);
 
     signal gbt_txframeclk_s : std_logic_vector(1 to NUM_LINKS);
     signal gbt_txclken_s : std_logic_vector(1 to NUM_LINKS);
