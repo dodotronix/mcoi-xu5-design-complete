@@ -27,3 +27,5 @@ fw/build/*
 fw/build/Makefile
 !fw/.cproject
 !fw/.project
+hdl/tests/gbt_rx_frameclk_phalgnr/
+!hdl/tests/gbt_rx_frameclk_phalgnr/rx_frmclk_pll.xci
