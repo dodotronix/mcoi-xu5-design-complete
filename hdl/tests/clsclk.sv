@@ -73,9 +73,9 @@ package clsclk;
             // two clocks generated here: 120MHz and 40MHz frame clock
             forever begin : gbt_clocks
                 clk_tree_x.ClkRs40MHz_ix.clk = '1;
-                #12.5ns;
+                #12.501ns;
                 clk_tree_x.ClkRs40MHz_ix.clk = '0;
-                #12.5ns;
+                #12.501ns;
             end
         endtask : run_GBT40_clock
 
