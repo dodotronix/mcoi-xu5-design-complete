@@ -94,7 +94,7 @@ module tb_gbt_xu5;
     reset_from_user = 1'b0;
     #10us;
     if (!link_ready) reset_bitslip = 1'b1;
-    #850us;
+    #1ms;
 
     $finish;
    end
@@ -176,7 +176,7 @@ module tb_gbt_xu5;
            .GBTBANK_GBT_DATA_O(),
            .GBTBANK_WB_DATA_O(),
 
-           .GBTBANK_MGT_DRP_RST(0),
+           .GBTBANK_MGT_DRP_RST(reset_from_user),
            .GBTBANK_MGT_DRP_CLK(clk_tree_x.ClkRs120MHz_ix.clk),
 
            .TX_ENCODING_SEL_i(1'b0),
@@ -205,7 +205,7 @@ module tb_gbt_xu5;
            .GBTBANK_RX_BITMODIFIED_FLAG_O(),
            .GBTBANK_RXBITSLIP_RST_CNT_O(),
 
-           .GBTBANK_LOOPBACK_I(3'b001),
+           .GBTBANK_LOOPBACK_I(3'b000),
            .GBTBANK_TX_POL(1'b0),
            .GBTBANK_RX_POL(1'b0));
 
@@ -213,9 +213,9 @@ module tb_gbt_xu5;
    .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk)); */
 
    // loopback
-   /* assign gbt_x.sfp1_gbitin_n = sfp_xn;
+   assign gbt_x.sfp1_gbitin_n = sfp_xn;
    assign gbt_x.sfp1_gbitin_p = sfp_xp;
    assign sfp_xn = gbt_x.sfp1_gbitout_n;
-   assign sfp_xp = gbt_x.sfp1_gbitout_p; */
+   assign sfp_xp = gbt_x.sfp1_gbitout_p;
 
 endmodule // tb_gbt_xu5
