@@ -49,30 +49,19 @@ module gbt_xu5 #(
     t_gbt_data.producer gbt_data_x,
     t_clocks.consumer clk_tree_x,
 
-    input logic external_pll_source_120mhz
+    input logic external_pll_source_120mhz,
+    input logic reset_bitslip
 );
-
-logic mgt_rxreset;
-logic mgt_txreset;
-logic gbt_txreset;
-logic gbt_rxreset;
-logic mgt_txready;
-logic mgt_rxready;
 
 logic rx_frameclk;
 logic tx_frameclk;
 logic clk_40mhz;
 logic clk_120mhz;
-logic diff_clk_120mhz;
 logic reset;
 
 logic link_ready;
 logic tx_ready;
 logic rx_ready;
-
-logic gbt_rxclkenLogic;
-logic mgt_headerflag;
-logic pll_locked;
 
 always_comb begin
     gbt_data_x.tx_ready    = tx_ready;
@@ -86,7 +75,7 @@ always_comb begin
     reset      = clk_tree_x.ClkRs40MHz_ix.reset | gbt_x.sfp1_los;
 end
 
-gbt_bank_reset #(
+/* gbt_bank_reset #(
     .INITIAL_DELAY(40))
 i_gbt_reset(
  .gbt_clk_i (clk_40mhz),
@@ -103,91 +92,79 @@ i_gbt_reset(
  .gbt_tx_reset_o(gbt_txreset),
  .gbt_rx_reset_o(gbt_rxreset),
  .mgt_tx_rstdone_i(mgt_txready),
- .mgt_rx_rstdone_i(mgt_rxready));
+ .mgt_rx_rstdone_i(mgt_rxready)); */
 
-assign rx_frameclk = clk_40mhz;
-assign gbt_rxclkenLogic = 1'b1;
-assign pll_locked = !mgt_rxready;
-
-
-// module with extended pinout
-gbt_extended_pinout #(
+// module with expanded pinout
+gbt_expanded_pinout #(
     .NUM_LINKS(1),
     .TX_OPTIMIZATION(TX_OPTIMIZATION),
     .RX_OPTIMIZATION(RX_OPTIMIZATION),
     .TX_ENCODING(TX_ENCODING),
     .RX_ENCODING(RX_ENCODING),
     .CLOCKING_SCHEME(CLOCKING_SCHEME))
-gbt_extended_i(
-        //clock
-      .frameclk_40mhz(clk_40mhz),
-      .xcvrclk(external_pll_source_120mhz),
-      .rx_frameclk_i(rx_frameclk),
-      .rx_wordclk_o(),
+gbt_expanded_i(
+    // Clocks --
+    .frameclk_40mhz(clk_40mhz),
+    .xcvrclk(external_pll_source_120mhz),
+    .rx_frameclk_o(rx_frameclk),
+    .rx_wordclk_o(),
+    .tx_frameclk_o(tx_frameclk),
+    .tx_wordclk_o(),
+    .rx_frameclk_rdy_o(),
 
-      .tx_frameclk_o(tx_frameclk),
-      .tx_wordclk_o(),
+    // Reset --
+    .gbtbank_general_reset_i(reset),
+    .gbtbank_manual_reset_tx_i(1'b0),
+    .gbtbank_manual_reset_rx_i(1'b0),
 
-      // INto gbt_xu5
-      .gbtbank_mgt_rx_p(gbt_x.sfp1_gbitin_p),
-      .gbtbank_mgt_rx_n(gbt_x.sfp1_gbitin_n),
+    // INto gbt_xu5
+    .gbtbank_mgt_rx_p(gbt_x.sfp1_gbitin_p),
+    .gbtbank_mgt_rx_n(gbt_x.sfp1_gbitin_n),
 
-      // OUT from gbt_xu5
-      .gbtbank_mgt_tx_p(gbt_x.sfp1_gbitout_p),
-      .gbtbank_mgt_tx_n(gbt_x.sfp1_gbitout_n),
-      // .pll_ila(clk_120mhz),
+    // OUT from gbt_xu5
+    .gbtbank_mgt_tx_p(gbt_x.sfp1_gbitout_p),
+    .gbtbank_mgt_tx_n(gbt_x.sfp1_gbitout_n),
 
-      // data
-      .gbtbank_gbt_data_i(gbt_data_x.data_sent),
-      .gbtbank_wb_data_i(32'b0),
+    // Data --
+    .gbtbank_gbt_data_i(gbt_data_x.data_sent),
+    .gbtbank_wb_data_i(116'd0),
 
-      .gbtbank_gbt_data_o(gbt_data_x.data_received),
-      .gbtbank_wb_data_o(),
+    .tx_data_o(),
+    .wb_data_o(),
+    .gbtbank_gbt_data_o(gbt_data_x.data_received),
+    .gbtbank_wb_data_o(),
 
-      // reconf.
-      // NOTE test if it works with 120Mhz
-      .gbtbank_mgt_drp_clk(external_pll_source_120mhz),
+    // Reconf. --
+    .gbtbank_mgt_drp_clk(clk_120mhz),
 
-      // tx ctrl
-      .tx_encoding_sel_i(1'b0),
-      .gbtbank_tx_isdata_sel_i(1'b1),
+    // TX ctrl --
+    .tx_encoding_sel_I(1'b0),
+    .gbtbank_tx_isdata_sel_i(1'b1),
 
-      // rx ctrl
-      .rx_encoding_sel_i(1'b0),
-      .gbtbank_rxbitslit_rstoneven_i(1'b1),
+    // RX ctrl --
+    .rx_encoding_sel_I(1'b1),
+    .gbtbank_rxframeclk_alignpatter_i(3'b000),
+    .gbtbank_rxbitslit_rstoneven_i(reset_bitslip),
 
-      // tx status
-      .gbtbank_tx_aligned_o(),
-      .gbtbank_tx_aligncomputed_o(),
+    // TX Status --
+    .gbtbank_gbttx_ready_o(tx_ready),
+    .gbtbank_gbtrx_ready_o(rx_ready),
+    .gbtbank_link_ready_o(link_ready),
+    .gbtbank_tx_aligned_o(),
+    .gbtbank_tx_aligncomputed_o(),
 
-      .gbtbank_rx_isdata_sel_o(),
-      .gbtbank_rx_errordetected_o(),
-      .gbtbank_rx_bitmodified_flag_o(),
-      .gbtbank_rxbitslip_rst_cnt_o(),
+    // RX Status --
+    .gbtbank_rx_isdata_sel_o(),
+    .gbtbank_rx_errordetected_o(),
+    .gbtbank_rx_bitmodified_flag_o(),
+    .gbtbank_rxbitslip_rst_cnt_o(),
 
-      .gbtbank_link_ready_o(link_ready),
-      .gbtbank_gbtrx_ready_o(rx_ready),
-      .gbtbank_gbttx_ready_o(tx_ready),
+    // XCVR ctrl --
+    .gbtbank_loopback_i(3'b000),
+    .gbtbank_tx_pol(1'b0),
+    .gbtbank_rx_pol(1'b0));
 
-      //xcvr ctrl
-      .gbtbank_loopback_i(3'b001),
-      .gbtbank_tx_pol(1'b1),
-      .gbtbank_rx_pol(1'b1),
-
-      .mgt_txreset_s(mgt_txreset),
-      .mgt_rxreset_s(mgt_rxreset),
-
-      .gbt_txreset_s(gbt_txreset),
-      .gbt_rxreset_s(gbt_rxreset),
-
-      .mgt_txready(mgt_txready),
-      .mgt_rxready(mgt_rxready),
-
-      .mgt_headerflag(mgt_headerflag),
-      .gbt_rxclkenLogic(gbt_rxclkenLogic)
-);
-
-generate
+/* generate
 if (DEBUG == 1) begin : gen_gbtx_debugging_ila
 gbt_ila inside_ila (
     .clk(clk_120mhz),
@@ -200,7 +177,7 @@ gbt_ila inside_ila (
     .probe6(gbt_rxreset),
     .probe7(mgt_rxready));
 end
-endgenerate
+endgenerate */
 
 assign gbt_x.sfp1_rateselect = 1'b0;
 assign gbt_x.sfp1_txdisable = 1'b0;

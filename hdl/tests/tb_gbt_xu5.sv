@@ -59,31 +59,15 @@ module tb_gbt_xu5;
    t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHz_ix));
 
    logic reset_from_design_reset;
-   logic reset_from_user, reset_bitslip;
-   logic link_ready;
+   logic reset_bitslip;
 
    default clocking cb @(posedge gbt_data_x.ClkRs_ix.clk);
    endclocking
 
-   logic [31:0] dynamic_data;
-   task automatic generator();
-       gbt_data_x.data_sent = 84'hc000babeac1dacdcfffff;
-       // gbt_data_x.data_sent.motor_data_b64 = 64'd1000;
-       fork begin
-           forever begin
-               @(posedge gbt_data_x.ClkRs_ix.clk);
-               while(gbt_data_x.ClkRs_ix.reset) @(posedge gbt_data_x.ClkRs_ix.clk);
-               dynamic_data = dynamic_data + 1;
-               /* gbt_data_x.data_sent = '0;
-               gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data}; */
-           end
-       end join_none
-   endtask : generator
-
   initial begin
-    // gbt_x.sfp1_los = 1'b1;
     reset_bitslip = 1'b0;
-    reset_from_user = 1'b1;
+    gbt_x.sfp1_los = 1'b1;
+    gbt_data_x.data_sent = 84'h000bebeac1dacdcfffff;
 
     // classes:
     clkg = new;
@@ -91,9 +75,9 @@ module tb_gbt_xu5;
     clkg.run();
 
     #10us;
-    reset_from_user = 1'b0;
+     gbt_x.sfp1_los = 1'b0;
     #10us;
-    if (!link_ready) reset_bitslip = 1'b1;
+    if (!gbt_data_x.link_ready) reset_bitslip = 1'b1;
     #1ms;
 
     $finish;
@@ -107,8 +91,7 @@ module tb_gbt_xu5;
 //       `TEST_SUITE_SETUP begin
 //           gbt_x.sfp1_los = 1'b1;
 //           dynamic_data = '0;
-//           generator();
-
+//
 //           // classes:
 //           clkg = new;
 //           clkg.clk_tree_x = clk_tree_x;
@@ -135,7 +118,7 @@ module tb_gbt_xu5;
        end
    end
 
-   xlx_ku_reset #(.CLK_FREQ(156e6)) design_reset (
+   /* xlx_ku_reset #(.CLK_FREQ(156e6)) design_reset (
        .CLK_I (clk_156mhz),
        .RESET1_B_I (1'b1),
        .RESET2_B_I(!reset_from_user),
@@ -195,10 +178,10 @@ module tb_gbt_xu5;
 
            .GBTBANK_LOOPBACK_I(3'b000),
            .GBTBANK_TX_POL(1'b0),
-           .GBTBANK_RX_POL(1'b0));
+           .GBTBANK_RX_POL(1'b0)); */
 
-   /* gbt_xu5 #(.DEBUG(0)) DUT (.*,
-   .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk)); */
+   gbt_xu5 #(.DEBUG(0)) DUT (.*,
+   .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk));
 
    // loopback
    assign gbt_x.sfp1_gbitin_n = sfp_xn;
