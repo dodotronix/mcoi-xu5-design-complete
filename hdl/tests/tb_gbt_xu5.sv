@@ -147,9 +147,6 @@ module tb_gbt_xu5;
        .RX_OPTIMIZATION (0),
        .TX_ENCODING (0),
        .RX_ENCODING (0),
-       .DATA_GENERATOR_ENABLE (1),
-       .DATA_CHECKER_ENABLE (1),
-       .MATCH_FLAG_ENABLE (1),
        .CLOCKING_SCHEME (0))
        DUT (
            .FRAMECLK_40MHZ(clk_tree_x.ClkRs40MHz_ix.clk),
@@ -169,37 +166,28 @@ module tb_gbt_xu5;
            .GBTBANK_MGT_TX_P(gbt_x.sfp1_gbitout_p),
            .GBTBANK_MGT_TX_N(gbt_x.sfp1_gbitout_n),
 
-           .GBTBANK_GBT_DATA_I(84'd0),
+           .GBTBANK_GBT_DATA_I(84'h000bebeac1dacdcfffff),
            .GBTBANK_WB_DATA_I(116'd0),
            .TX_DATA_O(),
            .WB_DATA_O(),
            .GBTBANK_GBT_DATA_O(),
            .GBTBANK_WB_DATA_O(),
 
-           .GBTBANK_MGT_DRP_RST(reset_from_user),
            .GBTBANK_MGT_DRP_CLK(clk_tree_x.ClkRs120MHz_ix.clk),
 
            .TX_ENCODING_SEL_i(1'b0),
            .GBTBANK_TX_ISDATA_SEL_I(1'b1),
-           .GBTBANK_TEST_PATTERN_SEL_I(2'b10),
 
            .RX_ENCODING_SEL_i(1'b0),
-           .GBTBANK_RESET_GBTRXREADY_LOST_FLAG_I(1'b0),
-           .GBTBANK_RESET_DATA_ERRORSEEN_FLAG_I(1'b0),
            .GBTBANK_RXFRAMECLK_ALIGNPATTER_I(3'b000),
            .GBTBANK_RXBITSLIT_RSTONEVEN_I(reset_bitslip),
 
            .GBTBANK_GBTTX_READY_O(),
            .GBTBANK_GBTRX_READY_O(),
            .GBTBANK_LINK_READY_O(link_ready),
-           .GBTBANK_TX_MATCHFLAG_O(),
            .GBTBANK_TX_ALIGNED_O(),
            .GBTBANK_TX_ALIGNCOMPUTED_O(),
 
-           .GBTBANK_GBTRXREADY_LOST_FLAG_O(),
-           .GBTBANK_RXDATA_ERRORSEEN_FLAG_O(),
-           .GBTBANK_RXEXTRADATA_WIDEBUS_ERRORSEEN_FLAG_O(),
-           .GBTBANK_RX_MATCHFLAG_O(),
            .GBTBANK_RX_ISDATA_SEL_O(),
            .GBTBANK_RX_ERRORDETECTED_O(),
            .GBTBANK_RX_BITMODIFIED_FLAG_O(),
