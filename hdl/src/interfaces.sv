@@ -131,14 +131,18 @@ interface t_gbt_data (input ckrs_t ClkRs_ix);
    logic tx_ready;
    logic rx_ready;
    logic link_ready;
+   logic bitslip_reset;
+   logic rx_frameclk_ready;
 
    // testbench port
    modport producer (
        input ClkRs_ix,
        input data_sent,
+       input bitslip_reset,
        output tx_frameclk,
        output tx_ready,
        output rx_ready,
+       output rx_frameclk_ready,
        output link_ready,
        output rx_frameclk,
        output data_received);
@@ -150,9 +154,11 @@ interface t_gbt_data (input ckrs_t ClkRs_ix);
        input data_received,
        input tx_ready,
        input rx_ready,
+       input rx_frameclk_ready,
        input link_ready,
        input tx_frameclk,
-       output data_sent);
+       output data_sent,
+       output bitslip_reset);
 
 endinterface // t_gbt_data
 

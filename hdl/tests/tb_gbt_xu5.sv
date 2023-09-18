@@ -65,9 +65,9 @@ module tb_gbt_xu5;
    endclocking
 
   initial begin
-    reset_bitslip = 1'b0;
-    gbt_x.sfp1_los = 1'b1;
+    gbt_data_x.bitslip_reset = 1'b0;
     gbt_data_x.data_sent = 84'h000bebeac1dacdcfffff;
+    gbt_x.sfp1_los = 1'b1;
 
     // classes:
     clkg = new;
@@ -75,9 +75,10 @@ module tb_gbt_xu5;
     clkg.run();
 
     #10us;
-     gbt_x.sfp1_los = 1'b0;
+    gbt_x.sfp1_los = 1'b0;
+
     #10us;
-    if (!gbt_data_x.link_ready) reset_bitslip = 1'b1;
+    if (!gbt_data_x.link_ready) gbt_data_x.bitslip_reset = 1'b1;
     #1ms;
 
     $finish;
@@ -110,78 +111,9 @@ module tb_gbt_xu5;
 //   // must not be placed inside any initial or always-block.
 //   `WATCHDOG(50us);
 
-   logic clk_156mhz;
-   initial begin
-       clk_156mhz = 1'b0;
-       forever begin
-           clk_156mhz = #3.2ns ~clk_156mhz;
-       end
-   end
-
-   /* xlx_ku_reset #(.CLK_FREQ(156e6)) design_reset (
-       .CLK_I (clk_156mhz),
-       .RESET1_B_I (1'b1),
-       .RESET2_B_I(!reset_from_user),
-       .RESET_O (reset_from_design_reset));
-
-   xlx_ku_gbt_example_design #(
-       .NUM_LINKS(1),
-       .TX_OPTIMIZATION (0),
-       .RX_OPTIMIZATION (0),
-       .TX_ENCODING (0),
-       .RX_ENCODING (0),
-       .CLOCKING_SCHEME (0))
-       DUT (
-           .FRAMECLK_40MHZ(clk_tree_x.ClkRs40MHz_ix.clk),
-           .XCVRCLK(clk_tree_x.ClkRs120MHz_ix.clk),
-           .RX_FRAMECLK_O(),
-           .RX_WORDCLK_O(),
-           .TX_FRAMECLK_O(),
-           .TX_WORDCLK_O(),
-           .RX_FRAMECLK_RDY_O(),
-
-           .GBTBANK_GENERAL_RESET_I(reset_from_design_reset),
-           .GBTBANK_MANUAL_RESET_TX_I(1'b0),
-           .GBTBANK_MANUAL_RESET_RX_I(1'b0),
-
-           .GBTBANK_MGT_RX_P(gbt_x.sfp1_gbitin_p),
-           .GBTBANK_MGT_RX_N(gbt_x.sfp1_gbitin_n),
-           .GBTBANK_MGT_TX_P(gbt_x.sfp1_gbitout_p),
-           .GBTBANK_MGT_TX_N(gbt_x.sfp1_gbitout_n),
-
-           .GBTBANK_GBT_DATA_I(84'h000bebeac1dacdcfffff),
-           .GBTBANK_WB_DATA_I(116'd0),
-           .TX_DATA_O(),
-           .WB_DATA_O(),
-           .GBTBANK_GBT_DATA_O(),
-           .GBTBANK_WB_DATA_O(),
-
-           .GBTBANK_MGT_DRP_CLK(clk_tree_x.ClkRs120MHz_ix.clk),
-
-           .TX_ENCODING_SEL_i(1'b0),
-           .GBTBANK_TX_ISDATA_SEL_I(1'b1),
-
-           .RX_ENCODING_SEL_i(1'b0),
-           .GBTBANK_RXFRAMECLK_ALIGNPATTER_I(3'b000),
-           .GBTBANK_RXBITSLIT_RSTONEVEN_I(reset_bitslip),
-
-           .GBTBANK_GBTTX_READY_O(),
-           .GBTBANK_GBTRX_READY_O(),
-           .GBTBANK_LINK_READY_O(link_ready),
-           .GBTBANK_TX_ALIGNED_O(),
-           .GBTBANK_TX_ALIGNCOMPUTED_O(),
-
-           .GBTBANK_RX_ISDATA_SEL_O(),
-           .GBTBANK_RX_ERRORDETECTED_O(),
-           .GBTBANK_RX_BITMODIFIED_FLAG_O(),
-           .GBTBANK_RXBITSLIP_RST_CNT_O(),
-
-           .GBTBANK_LOOPBACK_I(3'b000),
-           .GBTBANK_TX_POL(1'b0),
-           .GBTBANK_RX_POL(1'b0)); */
-
-   gbt_xu5 #(.DEBUG(0)) DUT (.*,
-   .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk));
+    gbt_xu5 #(.DEBUG(0)) hahah(
+        .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk),
+        .*);
 
    // loopback
    assign gbt_x.sfp1_gbitin_n = sfp_xn;
