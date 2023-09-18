@@ -60,13 +60,31 @@ module tb_gbt_xu5;
 
    logic reset_from_design_reset;
    logic reset_bitslip;
+   logic [31:0] dynamic_data;
 
    default clocking cb @(posedge gbt_data_x.ClkRs_ix.clk);
    endclocking
 
+   task automatic generator();
+       gbt_data_x.data_sent = 84'hc000babeac1dacdcfffff;
+       dynamic_data = '0;
+       // gbt_data_x.data_sent.motor_data_b64 = 64'd1000;
+       fork begin
+           forever begin
+               //wait when locked
+               while(!gbt_data_x.link_ready) @(posedge gbt_data_x.ClkRs_ix.clk);
+               dynamic_data = dynamic_data + 1;
+               @(posedge gbt_data_x.ClkRs_ix.clk);
+               gbt_data_x.data_sent = '0;
+               gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
+               end
+           end join_none
+       endtask : generator
+
   initial begin
     gbt_data_x.bitslip_reset = 1'b0;
-    gbt_data_x.data_sent = 84'h000bebeac1dacdcfffff;
+    // gbt_data_x.data_sent = 84'h000bebeac1dacdcfffff;
+    generator();
     gbt_x.sfp1_los = 1'b1;
 
     // classes:
