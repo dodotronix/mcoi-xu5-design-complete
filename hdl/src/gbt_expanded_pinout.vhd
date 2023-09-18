@@ -97,11 +97,11 @@ entity gbt_expanded_pinout is
 		gbtbank_mgt_drp_clk : in  std_logic;
 		
 		-- TX ctrl --
-        tx_encoding_sel_I : in  std_logic_vector(1 to NUM_LINKS);    --! Select the Tx encoding in dynamic mode ('1': GBT / '0': WideBus)
+        tx_encoding_sel_i : in  std_logic_vector(1 to NUM_LINKS);    --! Select the Tx encoding in dynamic mode ('1': GBT / '0': WideBus)
 		gbtbank_tx_isdata_sel_i : in  std_logic_vector(1 to NUM_LINKS);
 		
 		-- RX ctrl --
-        rx_encoding_sel_I : in  std_logic_vector(1 to NUM_LINKS);    --! Select the Rx encoding in dynamic mode ('1': GBT / '0': WideBus)
+        rx_encoding_sel_i : in  std_logic_vector(1 to NUM_LINKS);    --! Select the Rx encoding in dynamic mode ('1': GBT / '0': WideBus)
 		gbtbank_rxframeclk_alignpatter_i : in std_logic_vector(2 downto 0);	
 		gbtbank_rxbitslit_rstoneven_i : in std_logic_vector(1 to NUM_LINKS);
 		
@@ -314,7 +314,7 @@ begin
 
                -- GBT TX Control --
                GBT_ISDATAFLAG_i         => gbtbank_tx_isdata_sel_i,
-               TX_ENCODING_SEL_i        => tx_encoding_sel_I,
+               TX_ENCODING_SEL_i        => tx_encoding_sel_i,
 
 
                -- GBT TX Status --
@@ -323,7 +323,7 @@ begin
 
 
                -- GBT RX Control --
-               RX_ENCODING_SEL_i        => rx_encoding_sel_I,
+               RX_ENCODING_SEL_i        => rx_encoding_sel_i,
 
 
                -- GBT RX Status --
