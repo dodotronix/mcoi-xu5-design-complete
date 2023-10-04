@@ -61,6 +61,7 @@ ui.add_verilog_builtins()
 hdlmake_file_set = get_design_files()
 lib = ui.add_library("lib")
 lib.add_source_files(hdlmake_file_set)
+lib.add_source_files("glbl.v")
 
 for path in glob(f'./libraries/*/'):
     name = path.rsplit("/", 2)[1]
@@ -82,7 +83,8 @@ lib.set_compile_option("modelsim.vlog_flags", vlog_options)
 vsim_options = ["-sva", 
                 "-msgmode both", 
                 "-sv_seed",
-                str(SEED)]
+                str(SEED),
+                "lib.glbl"]
 
 lib.set_sim_option("modelsim.vsim_flags", vsim_options)
 lib.set_sim_option('disable_ieee_warnings', 1)
