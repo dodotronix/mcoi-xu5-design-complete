@@ -18,7 +18,7 @@ syn/**
 !syn/*.bit
 sim/**
 !sim/Manifest.py
-!sim/run_sim.py
+!sim/sim_run.py
 fw/.*
 fw/vitis/**
 !fw/vitis/Makefile
