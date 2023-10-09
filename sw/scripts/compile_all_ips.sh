@@ -31,6 +31,7 @@ DEVICE="xczu4ev-sfvc784-1-i"
 ROOT_PATH=$(pwd | sed "s/\(.*$PROJECT_NAME\).*/\1/" )
 DESTINATION=$ROOT_PATH/tmp
 LIST_OF_IPS=""
+LIST_OF_SIM_SOURCE_FILES="" 
 
 ALL_IP_GENERATORS=$(find $ROOT_PATH -name "ip_xilinx_gen_*.tcl")
 
@@ -45,8 +46,20 @@ for i in $ALL_IP_GENERATORS; do
         printf '\e[1;36mINFO\e[0m %s ALREADY EXISTS IN THE PROJECT\n' $MODULE_NAME
     fi
     
-    FOUND_PATH=$(find $DESTINATION/$MODULES_NAME -type f \( -name "${MODULE_NAME}.xci" -o -name "${MODULE_NAME}.bd" \))
+    FOUND_PATH=$(find $DESTINATION/$MODULE_NAME -type f \( -name "${MODULE_NAME}.xci" -o -name "${MODULE_NAME}.bd" \))
     MANIFEST_PATH=$(echo "$FOUND_PATH" | sed "s/.*\/tmp\/\(.*\)/\1/")
+
+    # This finds location of the sim directory created by the export
+    NETLIST_PATH=$(find $DESTINATION/$MODULE_NAME/${MODULE_NAME}.gen -type f -name "*_netlist.v" 2>/dev/null)
+
+    if [ ! -z $NETLIST_PATH ]; then
+        MANIFEST_NETLIST_PATH=$(echo "${NETLIST_PATH}" | sed "s/.*\/tmp\/\(.*\)/\1/")
+        if [ ! -z "$LIST_OF_SIM_SOURCE_FILES" ]; then
+            LIST_OF_SIM_SOURCE_FILES=$(printf "%s,\n\"%s\"" "${LIST_OF_SIM_SOURCE_FILES}" "${MANIFEST_NETLIST_PATH}")  
+        else
+            LIST_OF_SIM_SOURCE_FILES=$(printf "\"%s\"" "${MANIFEST_NETLIST_PATH}")  
+        fi
+    fi
 
     if [ -z "$MANIFEST_PATH" ]; then
         printf "The path of .xci or .bd file could not be found\n"
@@ -61,6 +74,9 @@ for i in $ALL_IP_GENERATORS; do
 
 done
 
+# GENERATE MANIFEST FOR tmp/ 
+MANIFEST_SIM_FILES=$(printf "\n\nif action == \"simulation\":\n\tfiles.extend([%s])" "${LIST_OF_SIM_SOURCE_FILES}")
 MANIFEST_FILES=$(printf "files=[\n%s\n]" "$LIST_OF_IPS")
 printf "HDLmake Manifest created: %s\n" "$DESTINATION/Manifest.py"
 printf "$MANIFEST_FILES" > $DESTINATION/Manifest.py
+printf "$MANIFEST_SIM_FILES" >> $DESTINATION/Manifest.py
