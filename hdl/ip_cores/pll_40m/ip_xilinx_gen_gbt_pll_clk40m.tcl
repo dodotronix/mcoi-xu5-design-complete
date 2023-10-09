@@ -51,3 +51,5 @@ launch_run ${ip_name}_synth_1
 
 if {!([get_property CORE_CONTAINER [get_files $ip_file_name]] == "")} {
     convert_ips [get_files $ip_file_name]}
+
+wait_on_run ${ip_name}_synth_1 
