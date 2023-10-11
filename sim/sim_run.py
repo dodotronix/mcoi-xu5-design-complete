@@ -67,9 +67,10 @@ for path in glob(f'./libraries/*/'):
     name = path.rsplit("/", 2)[1]
     ui.add_external_library(name, path)
 
+# V and SV flags
 vlog_options = ["+acc",
                 "-assertdebug",
-                "-sv12compat",
+                "-sv17compat",
                 f"+incdir+{abspath('../hdl/modules')}",
                 "+define+den8192Mb",
                 "+define+sg125",
