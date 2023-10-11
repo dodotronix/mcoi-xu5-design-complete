@@ -63,7 +63,7 @@ module gbt_xu5 #(
        .TX_ENCODING (TX_ENCODING),
        .RX_ENCODING (RX_ENCODING),
        .CLOCKING_SCHEME (CLOCKING_SCHEME))
-       DUT (
+       gbt_expanded_inst (
            .frameclk_40mhz(clk_tree_x.ClkRs40MHz_ix.clk),
            .xcvrclk(external_pll_source_120mhz),
            .rx_frameclk_o(gbt_data_x.rx_frameclk),
