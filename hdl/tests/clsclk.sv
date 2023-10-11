@@ -73,9 +73,10 @@ package clsclk;
 
         task run_GBT40_clock;
             clk_tree_x.ClkRs40MHz_ix.clk = '0;
-            #100ns;
+            #120ns;
             forever begin : gbt_clocks
-                repeat(3) @(clk_tree_x.ClkRs120MHz_ix.clk);
+                @(posedge clk_tree_x.ClkRs120MHz_ix.clk);
+                repeat(2) @(clk_tree_x.ClkRs120MHz_ix.clk);
                 clk_tree_x.ClkRs40MHz_ix.clk = '1;
                 repeat(3) @(clk_tree_x.ClkRs120MHz_ix.clk);
                 clk_tree_x.ClkRs40MHz_ix.clk = '0;
