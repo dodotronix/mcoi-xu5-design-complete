@@ -79,7 +79,11 @@ vlog_options = ["+acc",
                 "+define+DEBUG",
                 "-64"]
 
+# VHDL flags
+vcom_options = ["+acc", "-64", "-2008"]
+
 lib.set_compile_option("modelsim.vlog_flags", vlog_options)
+lib.set_compile_option("modelsim.vcom_flags", vcom_options)
 
 vsim_options = ["-sva", 
                 "-msgmode both", 
