@@ -18,9 +18,6 @@ modules = {
 fetchto = "libs"
 fetch_post_cmd = "source ../sw/scripts/compile_all_ips.sh"
 
-if action == "simulation":
-    modules["local"].append("hdl/tests")
-
 # NOTE hdlmake might print some warnings
 # while checking the missing dependencies  
 # the tmp folder is created so when the 
@@ -29,3 +26,7 @@ if action == "simulation":
 import os
 if os.path.exists("tmp"):
     modules['local'].append("tmp") 
+
+if action == "simulation":
+    modules["local"].append("hdl/tests")
+
