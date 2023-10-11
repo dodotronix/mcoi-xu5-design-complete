@@ -31,8 +31,9 @@
 // @standard IEEE 1800-2012
 //-----------------------------------------------------------------------------
 
+`include "vunit_defines.svh"
+
 `timescale 1ps/1ps
-//`include "vunit_defines.svh"
 
 import CKRSPkg::*;
 import clsclk::*;
@@ -81,7 +82,7 @@ module tb_gbt_xu5;
            end join_none
        endtask : generator
 
-  initial begin
+  /* initial begin
     gbt_data_x.bitslip_reset = 1'b0;
     // gbt_data_x.data_sent = 84'h000bebeac1dacdcfffff;
     generator();
@@ -100,36 +101,43 @@ module tb_gbt_xu5;
     #1ms;
 
     $finish;
-   end
+   end */
 
    /* gbt_uscale #(.DEBUG(0)) DUT (.*,
    .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk));
-
    */
-//   `TEST_SUITE begin
-//       `TEST_SUITE_SETUP begin
-//           gbt_x.sfp1_los = 1'b1;
-//           dynamic_data = '0;
-//
-//           // classes:
-//           clkg = new;
-//           clkg.clk_tree_x = clk_tree_x;
-//           clkg.run();
-//       end
 
-//       `TEST_CASE("link_verification") begin
-//           #5us;
-//           gbt_x.sfp1_los = 1'b0;
-//           #10us;
-//           `CHECK_EQUAL (1,1);
-//       end
-//   end;
+  `TEST_SUITE begin
+      `TEST_SUITE_SETUP begin
 
-//   // The watchdog macro is optional, but recommended. If present, it
-//   // must not be placed inside any initial or always-block.
-//   `WATCHDOG(50us);
+          gbt_data_x.bitslip_reset = 1'b0;
+          // gbt_data_x.data_sent = 84'h000bebeac1dacdcfffff;
+          generator();
+          gbt_x.sfp1_los = 1'b1;
 
-    gbt_xu5 #(.DEBUG(0)) hahah(
+          // classes:
+          clkg = new;
+          clkg.clk_tree_x = clk_tree_x;
+          clkg.run();
+
+      end
+
+      `TEST_CASE("link_verification") begin
+          #10us;
+          gbt_x.sfp1_los = 1'b0;
+
+          #10us;
+          if (!gbt_data_x.link_ready) gbt_data_x.bitslip_reset = 1'b1;
+          #1ms;
+          `CHECK_EQUAL (1,1);
+      end
+  end
+
+  // The watchdog macro is optional, but recommended. If present, it
+  // must not be placed inside any initial or always-block.
+  `WATCHDOG(2ms);
+
+    gbt_xu5 #(.DEBUG(0)) DUT(
         .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk),
         .*);
 
