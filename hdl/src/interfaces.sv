@@ -68,37 +68,6 @@ interface t_motors;
 
 endinterface // motors_x
 
-interface t_gbt;
-   logic sfp1_gbitin_p;
-   logic sfp1_gbitin_n;
-   logic sfp1_los;
-   logic sfp1_gbitout_p;
-   logic sfp1_gbitout_n;
-   logic sfp1_rateselect;
-   logic sfp1_txdisable;
-
-   modport producer(input  sfp1_gbitin_p,
-                    input  sfp1_gbitin_n,
-                    input  sfp1_los,
-                    output sfp1_gbitout_p,
-                    output sfp1_gbitout_n,
-                    output sfp1_rateselect,
-                    output sfp1_txdisable);
-
-   modport consumer(output sfp1_gbitin_p,
-                    output sfp1_gbitin_n,
-                    output sfp1_los,
-                    input sfp1_gbitout_p,
-                    input sfp1_gbitout_n,
-                    input sfp1_rateselect,
-                    input sfp1_txdisable);
-
-    modport status(input sfp1_los,
-                   input sfp1_txdisable,
-                   input sfp1_rateselect);
-
-endinterface // gbt_x
-
 interface t_diag;
     logic [6:0] led;
     logic [2:0] mled;
@@ -118,50 +87,6 @@ interface t_diag;
                      output pcbrev,
                      output fpga_supply_ok);
 endinterface // diag_x
-
-
-interface t_gbt_data (input ckrs_t ClkRs_ix);
-   t_sfp_stream data_received;
-   t_sfp_stream data_sent;
-   logic tx_frameclk;
-   logic rx_frameclk;
-   /* logic tx_wordclk;
-   logic rx_wordclk; */
-
-   logic tx_ready;
-   logic rx_ready;
-   logic link_ready;
-   logic bitslip_reset;
-   logic rx_frameclk_ready;
-
-   // testbench port
-   modport producer (
-       input ClkRs_ix,
-       input data_sent,
-       input bitslip_reset,
-       output tx_frameclk,
-       output tx_ready,
-       output rx_ready,
-       output rx_frameclk_ready,
-       output link_ready,
-       output rx_frameclk,
-       output data_received);
-
-   // ordinary consumer
-   modport consumer (
-       input ClkRs_ix,
-       input rx_frameclk,
-       input data_received,
-       input tx_ready,
-       input rx_ready,
-       input rx_frameclk_ready,
-       input link_ready,
-       input tx_frameclk,
-       output data_sent,
-       output bitslip_reset);
-
-endinterface // t_gbt_data
-
 
 interface t_i2c;
    wire sda;
