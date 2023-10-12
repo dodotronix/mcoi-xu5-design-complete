@@ -23,6 +23,9 @@ $> make
    build folder)
 4. set the RUN and DEBUG configuration as it is described in the official guide
    for [reference design from enclustra](https://github.com/enclustra/Mercury_XU5_PE1_Reference_Design/tree/master/reference_design/doc)
+   The tutorial advises to use Single Application Debug (GDB), but this could
+   be buggy. Therefore it's more convenient to use just the Single Application
+   Debug, which runs the Xilinx debugger. 
 5. If you need to recompile platform project the platform.spr file has to be
    opened, when we want to compile it for the first time
 
