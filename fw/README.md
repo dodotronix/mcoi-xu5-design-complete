@@ -18,8 +18,9 @@ $> cd vitis
 $> make
 ```
 
-3. import the project in vitis by navigating to path/to/build (open all the
-   projects available in build folder)
+3. import the project in vitis (click on File -> Import -> Eclipse workspace or
+   zip file) by navigating to path/to/build (open all the projects available in
+   build folder)
 4. set the RUN and DEBUG configuration as it is described in the official guide
    for [reference design from enclustra](https://github.com/enclustra/Mercury_XU5_PE1_Reference_Design/tree/master/reference_design/doc)
 5. If you need to recompile platform project the platform.spr file has to be
