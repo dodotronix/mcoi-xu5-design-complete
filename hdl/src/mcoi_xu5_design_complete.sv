@@ -185,8 +185,13 @@ module mcoi_xu5_design_complete (//motors
 
     logic [31:0] dynamic_data;
     always_ff @(posedge gbt_data_x.tx_frameclk) begin
-        if(gbt_x.sfp1_los) dynamic_data <= '0;
-        else dynamic_data <= dynamic_data + $size(dynamic_data)'(1);
+        if(gbt_x.sfp1_los) begin
+            dynamic_data <= '0;
+            gbt_data_x.bitslip_reset <= 1'b0;
+        end else begin
+            dynamic_data <= dynamic_data + $size(dynamic_data)'(1);
+            gbt_data_x.bitslip_reset <= (!gbt_data_x.link_ready) ? 1'b0 : 1'b1;
+        end
     end
 
     assign gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
