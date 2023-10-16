@@ -168,7 +168,7 @@ class si5338b_loader:
 if __name__ == '__main__':
     # USER SETUP
     # here you write the path to your generated c file
-    reg_file = '../../fw/inc/mcoi_xu5_devkit_ch0_ch2_120mhz_low_jitter.h' 
+    reg_file = '../../fw/inc/si5338b_evb_ch0_ch2_24mhz_ch1_100mhz_ch3_120mhz_lvds_low_jitter_source_in1_in2_reference_25mhz.h'
 
     # 7 bit address
     DEVICE_ADDRESS = 0x70 
