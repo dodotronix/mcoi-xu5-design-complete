@@ -197,7 +197,7 @@ module mcoi_xu5_design_complete (//motors
     assign gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
 
     // GBT instance
-    gbt_zynq_usplus gbt_zynq_usplus_inst(
+    gbt_zynq_usplus #(.DEBUG(1)) gbt_zynq_usplus_inst(
         .external_pll_source_120mhz(ExternalPll120MHzMGT),
         .*);
 
