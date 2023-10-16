@@ -84,9 +84,9 @@ typedef struct Reg_Data{
    unsigned char Reg_Addr;
    unsigned char Reg_Val;
    unsigned char Reg_Mask;
-} Reg_Data;
+} t_reg_data;
 
-Reg_Data const code Reg_Store[NUM_REGS_MAX] = {
+t_reg_data const code_Reg_Store[NUM_REGS_MAX] = {
 {  0,0x00,0x00},
 {  1,0x00,0x00},
 {  2,0x00,0x00},
