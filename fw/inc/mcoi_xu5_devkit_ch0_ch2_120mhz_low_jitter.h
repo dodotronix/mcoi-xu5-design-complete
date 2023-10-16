@@ -1,7 +1,7 @@
 //Register map for use with AN428 (JumpStart)
 //http://www.skyworksinc.com/timing
 //#BEGIN_HEADER
-//Date = Monday, May 08, 2023 9:29 AM
+//Date = Monday, October 16, 2023 3:18 PM
 //File version = 3
 //Software Name = ClockBuilder Pro
 //Software version = 4.6.0.0
@@ -10,9 +10,9 @@
 //Part Number = Si533x
 //#END_HEADER
 //Input Frequency (MHz) = 24.000000000
-//Input Type = Crystal
+//Input Type = CMOS_SSTL_HSTL
 //P1 = 1
-//Input Mux = XoClk
+//Input Mux = RefClk
 //FDBK Input Frequency (MHz) = 24.000000000
 //FDBK Input Type = OFF
 //P2 = 1
@@ -45,7 +45,7 @@
 // Disabled
 // Powered off
 // Output voltage = 3.30
-// Output type = 3.3V LVDS
+// Output type = 3.3V CMOS on A
 // Output state when disabled = StopLow
 //Driver 2
 // Enabled
@@ -56,8 +56,8 @@
 //Driver 3
 // Disabled
 // Powered off
-// Output voltage = 3.30
-// Output type = 3.3V LVDS
+// Output voltage = 1.80
+// Output type = 1.8V LVDS
 // Output state when disabled = StopLow
 //Clock 0 phase inc/dec step size (ns) = 0.000
 //Clock 1 phase inc/dec step size (ns) = 0.000
@@ -78,9 +78,9 @@ typedef struct Reg_Data{
    unsigned char Reg_Addr;
    unsigned char Reg_Val;
    unsigned char Reg_Mask;
-} t_reg_data;
+} Reg_Data;
 
-t_reg_data const code_Reg_Store[NUM_REGS_MAX] = {
+Reg_Data const code Reg_Store[NUM_REGS_MAX] = {
 {  0,0x00,0x00},
 {  1,0x00,0x00},
 {  2,0x00,0x00},
@@ -109,21 +109,21 @@ t_reg_data const code_Reg_Store[NUM_REGS_MAX] = {
 { 25,0x00,0x00},
 { 26,0x00,0x00},
 { 27,0x70,0x80},
-{ 28,0x16,0xFF},
-{ 29,0x90,0xFF},
+{ 28,0x0B,0xFF},
+{ 29,0x08,0xFF},
 { 30,0xB0,0xFF},
 { 31,0xC0,0xFF},
 { 32,0xE3,0xFF},
 { 33,0xC0,0xFF},
 { 34,0xE3,0xFF},
-{ 35,0x02,0xFF},
+{ 35,0x82,0xFF},
 { 36,0x06,0x1F},
 { 37,0x00,0x1F},
 { 38,0x01,0x1F},
 { 39,0x00,0x1F},
-{ 40,0x64,0xFF},
-{ 41,0x5C,0x7F},
-{ 42,0x23,0x3F},
+{ 40,0xE4,0xFF},
+{ 41,0x5E,0x7F},
+{ 42,0x24,0x3F},
 { 43,0x00,0x00},
 { 44,0x00,0x00},
 { 45,0x00,0xFF},
