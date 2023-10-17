@@ -1,10 +1,10 @@
 modules = {
-        "git": ["ssh://git@gitlab.cern.ch:7999/vfc_components/ckrs.git::master",
-                "ssh://git@gitlab.cern.ch:7999/vfc_components/mko.git::master",
-                "ssh://git@gitlab.cern.ch:7999/vfc_components/get_edge.git::master",
-                "ssh://git@gitlab.cern.ch:7999/vfc_components/manyff.git::master",
-                "ssh://git@gitlab.cern.ch:7999/vfc_components/mcpkg.git::master",
-                "ssh://git@gitlab.cern.ch:7999/vfc_components/gbt-fpga.git::master"
+        "git": ["ssh://git@gitlab.cern.ch:7999/vfc_components/ckrs.git@@207f9cedbbd40028bafc55283177ac497e5c3db5",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/mko.git@@6d8e08f73f2f16875505ce08fc7f98587c3fbace",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/get_edge.git@@fef48c44f551f92b46cb42f914a5feea0cd7c46f",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/manyff.git@@256e16feaa17edce335b1a0305cd520dd511f96b",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/mcpkg.git@@3a31bee59404ac163634dbd5a9f28d120c88a89e",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/gbt-fpga.git@@8a048686d53e16268d35d85ce15e412655a3a707"
                 ],
 
         "local": ["hdl/src/"],
