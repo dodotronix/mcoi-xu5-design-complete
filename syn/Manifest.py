@@ -8,6 +8,9 @@ syn_top = "mcoi_xu5_design_complete"
 syn_project = "mcoi_xu5"
 syn_tool = "vivado"
 
+# this picks only the components the projects requires
+bi_hdl_cores = ["serdes"]
+
 include_dirs = ["../hdl/src"]
 incl_makefiles = ["../extra_rules.mk"]
 
