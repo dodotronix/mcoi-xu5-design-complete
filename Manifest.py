@@ -5,7 +5,14 @@ modules = {
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/manyff.git@@256e16feaa17edce335b1a0305cd520dd511f96b",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/mcpkg.git@@3a31bee59404ac163634dbd5a9f28d120c88a89e",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/gbt-fpga.git@@8a048686d53e16268d35d85ce15e412655a3a707",
-                "ssh://git@gitlab.cern.ch:7999/vfc_components/serdes.git::master"
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/serdes.git::master",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/memory_transport.git::master",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/glitch_filter.git::master",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/cyclic_redundancy_check.git::master",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/heart_beat.git::master",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/pwm::master",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/scrambler::master",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/tlc5920::master"
                 ],
 
         "local": ["hdl/src/"],
