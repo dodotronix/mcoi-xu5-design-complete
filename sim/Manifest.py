@@ -10,9 +10,6 @@ language = "verilog"
 # VUnit will use modelsim
 tool = "modelsim"
 
-# this picks only the components the projects requires
-bi_hdl_cores = ["serdes"]
-
 # target script to run by makefile:
 vunit_script = "sim_run.py"
 

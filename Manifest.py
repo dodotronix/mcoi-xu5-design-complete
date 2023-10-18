@@ -5,7 +5,7 @@ modules = {
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/manyff.git@@256e16feaa17edce335b1a0305cd520dd511f96b",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/mcpkg.git@@3a31bee59404ac163634dbd5a9f28d120c88a89e",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/gbt-fpga.git@@8a048686d53e16268d35d85ce15e412655a3a707",
-                "ssh://git@gitlab.cern.ch:7999/bi/BI_HDL_Cores.git::hdlmake"
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/serdes.git::master"
                 ],
 
         "local": ["hdl/src/"],
