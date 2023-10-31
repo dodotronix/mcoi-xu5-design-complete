@@ -15,8 +15,7 @@ package types;
    typedef struct packed {
       // entire SC/IC + data stream
       // SC lines are used for serial registers
-      logic [1:0] sc_data_b2;
-      logic [1:0] ic_data_b2;
+      logic [3:0] sc_data_b4;
       // follows 64 bit 4x16 motors assignments
       logic [63:0] motor_data_b64;
       // and paged memory interface
