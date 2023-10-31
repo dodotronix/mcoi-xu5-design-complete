@@ -35,170 +35,163 @@ import MCPkg::*;
 import CKRSPkg::*;
 import constants::*;
 
-module mcoi_xu5_application#(
-    parameter g_clock_divider = 25000)(
+module mcoi_xu5_application(
     t_gbt_data.consumer gbt_data_x,
-    c_clock clk_tree_x,
+    t_clocks.consumer clk_tree_x,
+    t_display.producer display_x,
     t_motors motors_x,
-    t_display.consumer display_x,
-    // TODO maby add signals to check voltage on the board
-    t_diag.consumer diag_x
+    // TODO maybe add signals to check voltage on the board
+    t_diag.producer diag_x
 );
 
-    manyff #(.g_Latency (2))
-    i_manyff (
-        .d_o (ClkRxGBT_x.reset),
-        .ClkRs_ix (ClkRxGBT_x),
-        .d_i (~OptoLosReset_iran));
+/*AUTOWIRE*/
+// Beginning of automatic wires outputs (for undeclared instantiated-module outputs)
+logic [31:0] build_number_b32;           // From i_build_number of build_number.sv
+// End of automatics
 
-    manyff #(.g_Latency (2))
-    i_manyff_rx (
-        .d_o (ClkRs_x.reset),
-        .ClkRs_ix (ClkRs_x),
-        .d_i (~GeneralReset_iran));
+/*AUTOREGINPUT*/
 
-   serial_register i_serial_register (.*);
+// module namespace for of the signals
+logic clock, reset, supply_ok, vfc_data_arrived;
+logic [31:0] page_selector_b32, serial_feedback_b32,
+    mux_b32, loopback_b32, serial_feedback_cc_b32;
+logic [3:0] sc_idata, sc_odata;
+ckrs_t gbt_rx_clkrs;
 
-   serial_register i_serial_register_feedback (.*);
+always_comb begin
+    clock = clk_tree_x.ClkRs40MHz_ix.clk;
+    reset = clk_tree_x.ClkRs40MHz_ix.reset;
+    supply_ok = diag_x.fpga_supply_ok;
+
+    // TODO use the whole width of 4bits in the communication
+    sc_idata = gbt_data_x.data_received.sc_data_b4;
+    gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
+
+    gbt_rx_clkrs.clk = gbt_data_x.rx_frameclk;
+    gbt_rx_clkrs.reset = !gbt_data_x.rx_ready;
+end
+
+// STATUS INDICATION (LEDs)
+assign diag_x.mled[0] = tick_120;
+assign diag_x.mled[1] = (serial_feedback_b32 == GEFE_INTERLOCK
+                         && !page_selector_b32[31])? '1 : '0;
+assign diag_x.mled[2] = 1'b0;
+assign diag_x.led = '0;
+
+// indication that the 120M clock is running
+logic [31:0] cnt_120mhz;
+logic tick_120;
+always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk) begin
+    cnt_120mhz <= cnt_120mhz + $size(cnt_120mhz)'(1);
+    if(cnt_120mhz == 32'd120000000) begin
+        cnt_120mhz <= '0;
+        tick_120 <= tick_120 ^ 1'b1;
+    end
+end
+
+
+assign diag_x.test[0] = clk_tree_x.ClkRs40MHz_ix.clk;
+assign diag_x.test[1] = clk_tree_x.ClkRs120MHz_ix.clk;
+assign diag_x.test[2] = 1'b1;
+assign diag_x.test[3] = 1'b1;
+assign diag_x.test[4] = 1'b1;
+
+
+always_ff @(posedge gbt_rx_clkrs.clk)
+    if (gbt_rx_clkrs.reset) loopback_b32 <= 1;
+    else if (vfc_data_arrived)
+        loopback_b32 <= {page_selector_b32[31], 30'b0, 1'b1};
+
+   serial_register i_serial_register (
+       .Rx_i(sc_idata[0]),
+       .Tx_o(sc_odata[0]),
+       .data_ib32(mux_b32),
+       .data_ob32(page_selector_b32),
+       .newdata_o(vfc_data_arrived),
+       .resetflags_i(1'b0),
+       .ClkRs_ix(gbt_rx_clkrs),
+       .ClkRxGBT_ix(gbt_rx_clkrs),
+       .ClkTxGBT_ix(gbt_rx_clkrs),
+       .TxBusy_o(),
+       .TxEmptyFifo_o(),
+       .txerror_o(),
+       .SerialLinkUp_o(),
+       .RxLocked_o()
+   );
+
+   always_ff @(posedge gbt_rx_clkrs.clk)
+       serial_feedback_cc_b32 <= serial_feedback_b32;
+
+   serial_register i_serial_register_feedback (
+       .Rx_i(sc_idata[1]),
+       .Tx_o(sc_odata[1]),
+       .data_ib32(serial_feedback_cc_b32),
+       .data_ob32(serial_feedback_b32),
+       .resetflags_i(1'b0),
+       .ClkRs_ix(gbt_rx_clkrs),
+       .ClkRxGBT_ix(gbt_rx_clkrs),
+       .ClkTxGBT_ix(gbt_rx_clkrs),
+       .newdata_o(),
+       .TxBusy_o(),
+       .TxEmptyFifo_o(),
+       .txerror_o(),
+       .SerialLinkUp_o(),
+       .RxLocked_o()
+   );
 
    build_number i_build_number (.*);
 
-   manyff #(.g_Latency(3)) i_dvalidled
-     (.ClkRs_ix(ClkRs_x),
-      .d_i(DValidLed),
-      .d_o(RxDataValidOsc25MHz));
+   // mux
+   always_ff @(posedge gbt_rx_clkrs.clk) begin
+       case (page_selector_b32[7:0])
+           0: mux_b32 <= loopback_b32;
+           1: mux_b32 <= build_number_b32;
+           2: mux_b32 <= {28'b0, diag_x.pcbrev};
+           3: mux_b32 <= 32'd1;
+           4: mux_b32 <= 32'd1;
+           5: mux_b32 <= 32'd1;
+           6: mux_b32 <= 32'd1;
+           7: mux_b32 <= 32'd1;
+           16: mux_b32 <= 32'd1;
+           17: mux_b32 <= 32'd1;
+           18: mux_b32 <= 32'd1;
+           19: mux_b32 <= 32'd1;
+           20: mux_b32 <= 32'd1;
+           21: mux_b32 <= 32'd1;
+           22: mux_b32 <= 32'd1;
+           23: mux_b32 <= 32'd1;
+           24: mux_b32 <= 32'd1;
+           25: mux_b32 <= 32'd1;
+           26: mux_b32 <= 32'd1;
+           27: mux_b32 <= 32'd1;
+           28: mux_b32 <= 32'd1;
+           29: mux_b32 <= 32'd1;
+           30: mux_b32 <= 32'd1;
+           31: mux_b32 <= 32'd1;
+           default: mux_b32 <= 32'hdeadbeef;
 
-   // MUX
-   always_ff @(posedge ClkRxGBT_x.clk) begin
-       case (PageSelector_b32[7:0])
-           // loopback data
-           0: MuxOut_b32 <= RegLoopback_b32;
-           // build number
-           1: MuxOut_b32 <= build_number_ob32;
-           // PCB revision:
-           2: MuxOut_b32 <= {28'b0, PCBrevision_o4};
-           // PLL lock and other status:
-           // for the sake of script compatibility
-           3: MuxOut_b32 <= 32'd1;
-           // 4,5 = serial number:
-           4: MuxOut_b32 <= UniqueID_oqb64[63:32];
-           5: MuxOut_b32 <= UniqueID_oqb64[31:0];
-           // scratchpad (temperature readout)
-           6: MuxOut_b32 <= Scratchpad_oqb64[63:32];
-           7: MuxOut_b32 <= Scratchpad_oqb64[31:0];
-           // 16 to 31 are MOTORS statuses. This is somewhat redundant
-           // info to 80 bits data stream returned back to VFC, but - why
-           // not, does not cost anything here ....
-           16: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[1]};
-           17: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[2]};
-           18: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[3]};
-           19: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[4]};
-           20: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[5]};
-           21: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[6]};
-           22: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[7]};
-           23: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[8]};
-           24: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[9]};
-           25: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[10]};
-           26: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[11]};
-           27: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[12]};
-           28: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[13]};
-           29: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[14]};
-           30: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[15]};
-           31: MuxOut_b32 <= {28'b0, debounced_motorStatus_b[16]};
-
-           default:
-               MuxOut_b32 <= 32'hdeadbeef;
        endcase
-   end // always_comb
-
-   /* mko #(.g_CounterBits (18)) i_mko (
-       .q_o (),
-       .q_on (forceOne_in),
-       .ClkRs_ix (ClkRs_x),
-       .enable_i ('1),
-       .width_ib (18'(250000)),
-       .start_i (RxDataValidOsc25MHz)); */
-
-
-   /* led_blinker #(
-       .g_totalPeriod (GEFE_LED_BLINKER_PERIOD),
-       .g_blinkOn (GEFE_LED_BLINKER_ON_TIME),
-       .g_blinkOff (GEFE_LED_BLINKER_OFF_TIME))
-       i_led_blinker (
-           .led_o (blinker),
-           .period_o (),
-           .ClkRs_ix (ClkRs_x),
-           .forceOne_i ('0),
-           .amount_ib (8'(3)));
-
-   rx_memory #(.g_pages (NUMBER_OF_MOTORS_PER_FIBER))
-   i_rx_memory (
-       .data_ob32 (SwitchesConfiguration_b32),
-       .resync (),
-       .data_valid_o (),
-       .data_ib16 (ValidRXMemData_b16),
-       .ClkRs_ix (ClkRxGBT_x)); */
-
-    // GENERATE this for each motor
-    /* mko #(.g_CounterBits (22)) i_mko_stepout (
-         .q_o (),
-         .q_on (stepout_diode[motor]),
-         .ClkRs_ix (ClkRs_x),
-         .enable_i ('1),
-         .width_ib (22'(4000000)),
-         .start_i (!motorControl_ib[motor+1].StepOutP_o));
-
-   extremity_switches_mapper i_extremity_switches_mapper (
-       .led_lg (led_lg[motor]),
-       .led_lr (led_lr[motor]),
-       .led_rg (led_rg[motor]),
-       .led_rr (led_rr[motor]),
-       .ClkRs_ix (ClkRs_x),
-       .rawswitches (debounced_motorStatus_b[motor+1].RawSwitches_b2),
-       .switchesconfig (SwitchesConfiguration_2b16[motor]),
-       .blinker_i (blinker)); */
-
-//   tlc5920 #(.g_divider (4)) tlc_5920_i (
-//       .display (display),
-//       .ClkRs_ix (ClkRs_x),
-//       .data_ib (ledData_b/*[3:0][1:0][15:0]*/));
-
-/*
-
-    clock_divider #(.g_divider (g_clock_divider)) i_clock_divider (
-        .enable_o (),
-        .ClkRs_ix ());
-
-   get_edge i_get_edge (
-      .rising_o (increaseAmplitude),
-      .falling_o (),
-      .data_o (),
-      .ClkRs_ix (ClkRs_x),
-      .data_i (cycleStart_o));
-
-   pwm #( .g_CounterBits (5)) i_pwm (
-       .cycleStart_o(cycleStart_o),
-       .pwm_o (),
-       .pwm_on (mreset_i),
-       .ClkRs_ix (ClkRs_x),
-       .amplitude_ib (amplitude_ib),
-       .forceOne_i ('0),
-       .enable_i (ClkRs1ms_e));
-
-   genvar ms;
-   generate
-   for (ms = 0; ms < $bits(metain); ms++) begin : debouncing_
-       manyff #(.g_Latency(3)) i_manyff
-       (.ClkRs_ix(ClkRxGBT_x),
-           .d_i(metain[ms]),
-           .d_o(metaout[ms]));
    end
-   endgenerate
 
-   initial begin
-      $display("motorStatus_ob pack size: ", $size(motorStatus_ob));
-      $display("motorStatus_ob bits size: ", $bits(motorStatus_ob));
-      $display("MotorsData_b80 bits size: ", $bits(MotorsData_b80));
-   end */
+   // inactive display
+   tlc5920 #(.g_divider (4)) tlc_5920_i (
+       .ClkRs_ix(clk_tree_x.ClkRs40MHz_ix),
+       .ledData_b(32'd0),
+       .*);
+
+    // send dummy data for the motors
+    logic [31:0] dynamic_data;
+    always_ff @(posedge gbt_rx_clkrs.clk) begin
+        if(gbt_rx_clkrs.reset) begin
+            dynamic_data <= '0;
+            gbt_data_x.bitslip_reset <= 1'b0;
+        end else begin
+            dynamic_data <= dynamic_data + $size(dynamic_data)'(1);
+            gbt_data_x.bitslip_reset <= (!gbt_data_x.link_ready) ? 1'b0 : 1'b1;
+        end
+    end
+
+    assign gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
+    assign gbt_data_x.data_sent.mem_data_b16 = '0;
 
 endmodule

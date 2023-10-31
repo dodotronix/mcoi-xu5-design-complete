@@ -38,7 +38,6 @@ set_property IOSTANDARD DIFF_SSTL12_DCI [get_ports clk100m_pl_n]
 create_clock -period 10.000 -name clk100m_pl [get_ports clk100m_pl_p]
 
 # Current limit for the LEDs
-# set_property DRIVE 4 [get_ports {diag_x\.led[*]}]
 # set_property PULLUP true [get_ports {i2c_x\.sda}]
 # set_property PULLUP true [get_ports {i2c_x\.scl}]
 
@@ -50,16 +49,11 @@ create_clock -period 10.000 -name clk100m_pl [get_ports clk100m_pl_p]
 # set_property IOSTANDARD LVCMOS18 [get_ports {i2c_x\.scl}]
 
 # PIN GROUPPING: MODULE LEDS
-# set_property PACKAGE_PIN P9 [get_ports {diag_x\.mled[0]}]
-# set_property PACKAGE_PIN H2 [get_ports {diag_x\.mled[1]}]
-# set_property PACKAGE_PIN K5 [get_ports {diag_x\.mled[2]}]
-# set_property DRIVE 4 [get_ports {diag_x\.mled[*]}]
-# set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.mled[*]}]
-set_property PACKAGE_PIN P9 [get_ports {mled[0]}]
-set_property PACKAGE_PIN H2 [get_ports {mled[1]}]
-set_property PACKAGE_PIN K5 [get_ports {mled[2]}]
-set_property DRIVE 4 [get_ports {mled[*]}]
-set_property IOSTANDARD LVCMOS18 [get_ports {mled[*]}]
+set_property PACKAGE_PIN P9 [get_ports {diag_x\.mled[0]}]
+set_property PACKAGE_PIN H2 [get_ports {diag_x\.mled[1]}]
+set_property PACKAGE_PIN K5 [get_ports {diag_x\.mled[2]}]
+set_property DRIVE 4 [get_ports {diag_x\.mled[*]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.mled[*]}]
 
 ################################################################################
 ## TIMING
