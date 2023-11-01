@@ -32,7 +32,7 @@ open:
 
 platform_constraints:
 	@printf "Generating constraints files for device $(DEVICE)\n"
-	python3 $(SCRIPTS)/assemble_constraints.py \
+	python $(SCRIPTS)/assemble_constraints.py \
 		-d $(DEVICE) \
 		-ap $(PLATFORM_PINOUT)/Aconn.csv \
 		-bp $(PLATFORM_PINOUT)/Bconn.csv \
