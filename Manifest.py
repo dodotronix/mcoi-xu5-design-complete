@@ -27,7 +27,7 @@ modules = {
         }
 
 fetchto = "libs"
-fetch_post_cmd = "source ../sw/scripts/compile_all_ips.sh"
+fetch_post_cmd = "sh ../sw/scripts/compile_all_ips.sh"
 
 # NOTE hdlmake might print some warnings
 # while checking the missing dependencies  
