@@ -3,7 +3,7 @@ modules = {
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/mko.git@@6d8e08f73f2f16875505ce08fc7f98587c3fbace",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/get_edge.git@@fef48c44f551f92b46cb42f914a5feea0cd7c46f",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/manyff.git@@256e16feaa17edce335b1a0305cd520dd511f96b",
-                "ssh://git@gitlab.cern.ch:7999/vfc_components/gbt-fpga.git@@213b35b8441a4646a2fcff050f75e0669f5de974",
+                "ssh://git@gitlab.cern.ch:7999/vfc_components/gbt-fpga.git@@d88cb5616bfdfa01721b448cc118707cf3fd8323",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/serdes.git::master",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/codec_8b10b.git::master",
                 "ssh://git@gitlab.cern.ch:7999/vfc_components/generic_dpram.git::master",
