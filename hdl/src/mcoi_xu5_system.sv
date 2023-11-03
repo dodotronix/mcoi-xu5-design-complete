@@ -50,7 +50,7 @@ module mcoi_xu5_system (
     input logic clk100m_pl_n );
 
    logic Clk120MHz_fromgte4;
-   logic gbt_los_reset, reset;
+   logic reset;
 
    // clock generation
    // 100MHz oscillator and associated reset
@@ -90,8 +90,7 @@ module mcoi_xu5_system (
     // TODO add reset from the onboard button
     // needs to be implemented first on the pcb
     always_comb begin
-        gbt_los_reset = gbt_data_x.los;
-        reset = gbt_los_reset;
+        reset = gbt_data_x.los;
         clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
     end
 
