@@ -53,6 +53,8 @@ logic [31:0] build_number_b32;           // From i_build_number of build_number.
 
 // module namespace for of the signals
 logic clock, reset, supply_ok, vfc_data_arrived;
+logic tick_120;
+logic [31:0] cnt_120mhz;
 logic [31:0] page_selector_b32, serial_feedback_b32,
     mux_b32, loopback_b32, serial_feedback_cc_b32;
 logic [3:0] sc_idata, sc_odata;
@@ -74,13 +76,11 @@ end
 // STATUS INDICATION (LEDs)
 assign diag_x.mled[0] = tick_120;
 assign diag_x.mled[1] = (serial_feedback_b32 == GEFE_INTERLOCK
-                         && !page_selector_b32[31])? '1 : '0;
-assign diag_x.mled[2] = 1'b0;
+                         && !page_selector_b32[31])? '0 : '1;
+assign diag_x.mled[2] = 1'b1;
 assign diag_x.led = '0;
 
 // indication that the 120M clock is running
-logic [31:0] cnt_120mhz;
-logic tick_120;
 always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk) begin
     cnt_120mhz <= cnt_120mhz + $size(cnt_120mhz)'(1);
     if(cnt_120mhz == 32'd120000000) begin
@@ -89,13 +89,11 @@ always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk) begin
     end
 end
 
-
 assign diag_x.test[0] = clk_tree_x.ClkRs40MHz_ix.clk;
 assign diag_x.test[1] = clk_tree_x.ClkRs120MHz_ix.clk;
 assign diag_x.test[2] = 1'b1;
 assign diag_x.test[3] = 1'b1;
 assign diag_x.test[4] = 1'b1;
-
 
 always_ff @(posedge gbt_rx_clkrs.clk)
     if (gbt_rx_clkrs.reset) loopback_b32 <= 1;
