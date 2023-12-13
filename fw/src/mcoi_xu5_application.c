@@ -12,7 +12,8 @@
 #include "sleep.h"
 #include "xiicps.h"
 // #include "config_200khz.h"
-#include "mcoi_xu5_devkit_ch0_ch2_120mhz_low_jitter.h"
+// #include "mcoi_xu5_devkit_ch0_ch2_120mhz_low_jitter.h"
+#include "mcoi_xu5_devkit_ch1_ch2_120mhz_low_jitter_source1_in5_in6_reference_25mhz.h"
 // #include "config_400khz.h"
 // #include "config_120mhz.h"
 
