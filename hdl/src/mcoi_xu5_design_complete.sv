@@ -50,9 +50,12 @@ module mcoi_xu5_design_complete (//motors
                                  //display
                                  t_display.producer display_x,
 
-                                 output logic mreset_vadj,
+                                 input logic mreset_vadj,
 
-                                 // clocks - MGT 120MHz
+                                 // clocks - MGT 120MHz (TX/RX)
+                                 input logic mgt_fdbk_p,
+                                 input logic mgt_fdbk_n,
+
                                  input logic mgt_clk_p,
                                  input logic mgt_clk_n,
 
@@ -61,23 +64,25 @@ module mcoi_xu5_design_complete (//motors
                                  // clocks - MGT derived 50MHz
                                  input logic clk100m_pl_p,
                                  input logic clk100m_pl_n,
-                                 input logic pl_varclk,
+
+                                 output logic pl_varclk_p,
+                                 output logic pl_varclk_n,
 
                                  // serial interface
                                  input logic rs485_pl_di,
                                  output logic rs485_pl_ro
                                 );
 
-    logic ready;
-
-   assign mreset_vadj = 1'b0;
+   logic ready, ExternalPll120MHzMGT, recovered_clk;
 
    always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk)
        if(clk_tree_x.ClkRs120MHz_ix.reset) rs485_pl_ro <= 1'b0;
        else rs485_pl_ro <= (rs485_pl_di) ? rs485_pl_di : rs485_pl_ro;
 
    t_clocks clk_tree_x();
-   t_gbt_data gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHz_ix));
+   t_gbt_data #(.CLOCKING_SCHEME(0))
+   gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHz_ix),
+              .ClkRsRef_ix(clk_tree_x.ClkRs120MHz_ix));
 
     // in the system you find just buffers plls
     // and sync of resets with clock domains
@@ -87,11 +92,21 @@ module mcoi_xu5_design_complete (//motors
     mcoi_xu5_application app_i (.*);
 
     // GBT instance
-    gbt_zynq_usplus #(.DEBUG(1)) gbt_zynq_usplus_inst(
-        .external_pll_source_120mhz(ExternalPll120MHzMGT),
+    gbt_zynq_usplus #(.DEBUG(1), .GEFE_MODE(1)) gbt_zynq_usplus_inst(
+        .external_pll_source0_120mhz(recovered_clk),
+        .external_pll_source1_120mhz(ExternalPll120MHzMGT),
         .*);
 
    // ps part just for storing data to qspi
    zynq_ultrasp_ps_system i_ps_system();
+
+   OBUFDS rx_clk_out_buffer (
+       .O(pl_varclk_p),
+       .OB(pl_varclk_n),
+       .I(gbt_data_x.rx_wordclk));
+
+   // assign mreset_vadj = 1'b0 ;
+   /* assign pl_varclk_p = gbt_data_x.rx_frameclk;
+   assign pl_varclk_n = gbt_data_x.tx_frameclk; */
 
 endmodule // mcoi_xu5_design_complete

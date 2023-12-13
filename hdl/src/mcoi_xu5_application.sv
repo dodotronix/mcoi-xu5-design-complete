@@ -52,7 +52,7 @@ logic [31:0] build_number_b32;           // From i_build_number of build_number.
 /*AUTOREGINPUT*/
 
 // module namespace for of the signals
-logic clock, reset, supply_ok, vfc_data_arrived;
+logic clock, reset, supply_ok, vfc_data_arrived, data_arrived;
 logic tick_120;
 logic [31:0] cnt_120mhz;
 logic [31:0] page_selector_b32, serial_feedback_b32,
@@ -67,6 +67,7 @@ always_comb begin
 
     // TODO use the whole width of 4bits in the communication
     sc_idata = gbt_data_x.data_received.sc_data_b4;
+    // gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
     gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
 
     gbt_rx_clkrs.clk = gbt_data_x.rx_frameclk;
@@ -77,7 +78,7 @@ end
 assign diag_x.mled[0] = tick_120;
 assign diag_x.mled[1] = (serial_feedback_b32 == GEFE_INTERLOCK
                          && !page_selector_b32[31])? '0 : '1;
-assign diag_x.mled[2] = 1'b1;
+assign diag_x.mled[2] = !clk_tree_x.ClkRs120MHz_ix.reset;
 assign diag_x.led = '0;
 
 // indication that the 120M clock is running
@@ -91,9 +92,9 @@ end
 
 assign diag_x.test[0] = clk_tree_x.ClkRs40MHz_ix.clk;
 assign diag_x.test[1] = clk_tree_x.ClkRs120MHz_ix.clk;
-assign diag_x.test[2] = 1'b1;
-assign diag_x.test[3] = 1'b1;
-assign diag_x.test[4] = 1'b1;
+assign diag_x.test[2] = gbt_data_x.rx_frameclk;
+assign diag_x.test[3] = gbt_data_x.tx_frameclk;
+assign diag_x.test[4] = '1;
 
 always_ff @(posedge gbt_rx_clkrs.clk)
     if (gbt_rx_clkrs.reset) loopback_b32 <= 1;
@@ -103,7 +104,7 @@ always_ff @(posedge gbt_rx_clkrs.clk)
    serial_register i_serial_register (
        .Rx_i(sc_idata[0]),
        .Tx_o(sc_odata[0]),
-       .data_ib32(mux_b32),
+       .data_ib32(loopback_b32),
        .data_ob32(page_selector_b32),
        .newdata_o(vfc_data_arrived),
        .resetflags_i(1'b0),
@@ -117,6 +118,18 @@ always_ff @(posedge gbt_rx_clkrs.clk)
        .RxLocked_o()
    );
 
+   // TODO create test PLL
+   /* logic rxsync_40mhz;
+   ckrs_t rxsync_clkrs;
+   test_rxsync_clock i_test_rxsync_clk (
+       .clk_in1(gbt_data_x.rx_frameclk),
+       .clk_out1(rxsync_40mhz));
+
+    always_comb begin
+        rxsync_clkrs.clk = rxsync_40mhz;
+        rxsync_clkrs.reset = !gbt_data_x.rx_ready;
+    end */
+
    always_ff @(posedge gbt_rx_clkrs.clk)
        serial_feedback_cc_b32 <= serial_feedback_b32;
 
@@ -129,7 +142,7 @@ always_ff @(posedge gbt_rx_clkrs.clk)
        .ClkRs_ix(gbt_rx_clkrs),
        .ClkRxGBT_ix(gbt_rx_clkrs),
        .ClkTxGBT_ix(gbt_rx_clkrs),
-       .newdata_o(),
+       .newdata_o(data_arrived),
        .TxBusy_o(),
        .TxEmptyFifo_o(),
        .txerror_o(),
@@ -140,36 +153,38 @@ always_ff @(posedge gbt_rx_clkrs.clk)
    build_number i_build_number (.*);
 
    // mux
-   always_ff @(posedge gbt_rx_clkrs.clk) begin
-       case (page_selector_b32[7:0])
-           0: mux_b32 <= loopback_b32;
-           1: mux_b32 <= build_number_b32;
-           2: mux_b32 <= {28'b0, diag_x.pcbrev};
-           3: mux_b32 <= 32'd1;
-           4: mux_b32 <= 32'd1;
-           5: mux_b32 <= 32'd1;
-           6: mux_b32 <= 32'd1;
-           7: mux_b32 <= 32'd1;
-           16: mux_b32 <= 32'd1;
-           17: mux_b32 <= 32'd1;
-           18: mux_b32 <= 32'd1;
-           19: mux_b32 <= 32'd1;
-           20: mux_b32 <= 32'd1;
-           21: mux_b32 <= 32'd1;
-           22: mux_b32 <= 32'd1;
-           23: mux_b32 <= 32'd1;
-           24: mux_b32 <= 32'd1;
-           25: mux_b32 <= 32'd1;
-           26: mux_b32 <= 32'd1;
-           27: mux_b32 <= 32'd1;
-           28: mux_b32 <= 32'd1;
-           29: mux_b32 <= 32'd1;
-           30: mux_b32 <= 32'd1;
-           31: mux_b32 <= 32'd1;
-           default: mux_b32 <= 32'hdeadbeef;
+   /* always_ff @(posedge gbt_tx_clkrs.clk) begin
+       if (gbt_data_x.tx_valid) begin
+           case (page_selector_b32[7:0])
+               0: mux_b32 <= loopback_b32;
+               1: mux_b32 <= build_number_b32;
+               2: mux_b32 <= {28'b0, diag_x.pcbrev};
+               3: mux_b32 <= 32'd1;
+               4: mux_b32 <= 32'd1;
+               5: mux_b32 <= 32'd1;
+               6: mux_b32 <= 32'd1;
+               7: mux_b32 <= 32'd1;
+               16: mux_b32 <= 32'd1;
+               17: mux_b32 <= 32'd1;
+               18: mux_b32 <= 32'd1;
+               19: mux_b32 <= 32'd1;
+               20: mux_b32 <= 32'd1;
+               21: mux_b32 <= 32'd1;
+               22: mux_b32 <= 32'd1;
+               23: mux_b32 <= 32'd1;
+               24: mux_b32 <= 32'd1;
+               25: mux_b32 <= 32'd1;
+               26: mux_b32 <= 32'd1;
+               27: mux_b32 <= 32'd1;
+               28: mux_b32 <= 32'd1;
+               29: mux_b32 <= 32'd1;
+               30: mux_b32 <= 32'd1;
+               31: mux_b32 <= 32'd1;
+               default: mux_b32 <= 32'hdeadbeef;
 
-       endcase
-   end
+           endcase
+       end
+   end */
 
    // inactive display
    tlc5920 #(.g_divider (4)) tlc_5920_i (
@@ -179,16 +194,19 @@ always_ff @(posedge gbt_rx_clkrs.clk)
 
     // send dummy data for the motors
     logic [31:0] dynamic_data;
-    always_ff @(posedge gbt_rx_clkrs.clk) begin
-        if(gbt_rx_clkrs.reset) begin
+    /* always_ff @(posedge gbt_tx_clkrs.clk) begin
+        if(gbt_tx_clkrs.reset) begin
             dynamic_data <= '0;
             gbt_data_x.bitslip_reset <= 1'b0;
         end else begin
-            dynamic_data <= dynamic_data + $size(dynamic_data)'(1);
-            gbt_data_x.bitslip_reset <= (!gbt_data_x.link_ready) ? 1'b0 : 1'b1;
+            if(gbt_data_x.tx_valid) begin
+                dynamic_data <= dynamic_data + $size(dynamic_data)'(1);
+                gbt_data_x.bitslip_reset <= (!gbt_data_x.link_ready) ? 1'b0 : 1'b1;
+            end
         end
-    end
+    end */
 
+    assign dynamic_data = 32'hdeadbeef;
     assign gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
     assign gbt_data_x.data_sent.mem_data_b16 = '0;
 

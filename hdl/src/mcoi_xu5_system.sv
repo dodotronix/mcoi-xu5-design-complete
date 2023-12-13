@@ -42,15 +42,21 @@ module mcoi_xu5_system (
     t_clocks.producer clk_tree_x,
     t_gbt_data.control gbt_data_x,
     output logic ExternalPll120MHzMGT, // 120MHz coming from MGT oscillator
+    output logic recovered_clk,
     output logic ready,
-    input logic pl_varclk,
+
+    input logic mgt_fdbk_p,
+    input logic mgt_fdbk_n,
+    input logic mreset_vadj,
+
+    // input logic pl_varclk,
     input logic mgt_clk_p,
     input logic mgt_clk_n,
     input logic clk100m_pl_p,
     input logic clk100m_pl_n );
 
    logic Clk120MHz_fromgte4;
-   logic reset;
+   logic reset, tx_reset;
 
    // clock generation
    // 100MHz oscillator and associated reset
@@ -59,16 +65,40 @@ module mcoi_xu5_system (
        .I(clk100m_pl_p),
        .IB(clk100m_pl_n));
 
+   /* OBUFDS_GTE4 #(
+       .REFCLK_EN_TX_PATH(1'b1),
+       .REFCLK_ICNTL_TX(5'b00111))
+   recclk_output_buffer (
+       .O(mgt_fdbk_p),
+       .OB(mgt_fdbk_n),
+       .CEB(1'b0),
+       .I(gbt_data_x.rx_recclk)); */
+
+   // MGT_REFCLK0
    IBUFDS_GTE4 #(
        .REFCLK_EN_TX_PATH(1'b0),
        .REFCLK_HROW_CK_SEL(2'b00),
        .REFCLK_ICNTL_RX(2'b00))
-   ibufds_gte4_i (
+   ibufds_gte4_i0 (
+        .O(recovered_clk),
+        .ODIV2(),
+        .CEB(1'b0),
+        .I(mgt_fdbk_p),
+        .IB(mgt_fdbk_n));
+
+
+   // MGT_REFCLK1
+   IBUFDS_GTE4 #(
+       .REFCLK_EN_TX_PATH(1'b0),
+       .REFCLK_HROW_CK_SEL(2'b00),
+       .REFCLK_ICNTL_RX(2'b00))
+   ibufds_gte4_i1 (
         .O(ExternalPll120MHzMGT),
         .ODIV2(Clk120MHz_fromgte4),
         .CEB(1'b0),
         .I(mgt_clk_p),
         .IB(mgt_clk_n));
+
 
     // 120MHz PLL buffer clock copier
     BUFG_GT ibuf_txpll_i (
@@ -82,7 +112,8 @@ module mcoi_xu5_system (
 
     // 40MHz PLL derived from MGT clock
     gbt_pll_clk40m gbt_pll40m_i (
-        .clk120m_i(clk_tree_x.ClkRs120MHz_ix.clk),
+        .clk120m_i(gbt_data_x.rx_recclk),
+        // .clk120m_i(clk_tree_x.ClkRs120MHz_ix.clk),
         .clk40m_o(clk_tree_x.ClkRs40MHz_ix.clk),
         .reset(0),
         .locked(ready));
@@ -90,8 +121,9 @@ module mcoi_xu5_system (
     // TODO add reset from the onboard button
     // needs to be implemented first on the pcb
     always_comb begin
-        reset = gbt_data_x.los;
-        clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
+        reset = 1'b0 | gbt_data_x.los;
+        tx_reset = mreset_vadj;
+        // clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
     end
 
     // reset synchronization into the respective clock domains
@@ -116,12 +148,12 @@ module mcoi_xu5_system (
        .data_i (reset),
        .data_o (clk_tree_x.ClkRs120MHz_ix.reset));
 
-    vme_reset_sync_and_filter u_Var_reset_sync
+    /* vme_reset_sync_and_filter u_Var_reset_sync
     (.rst_ir (1'b0),
         .clk_ik (clk_tree_x.ClkRsVar_ix.clk),
         .cen_ie (1'b1),
         .data_i (reset),
-        .data_o (clk_tree_x.ClkRsVar_ix.reset));
+        .data_o (clk_tree_x.ClkRsVar_ix.reset)); */
 
     assign gbt_data_x.rate_select = 1'b0;
     assign gbt_data_x.tx_disable = 1'b0;
