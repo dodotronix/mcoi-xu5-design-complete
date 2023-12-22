@@ -36,18 +36,6 @@ interface t_clocks;
 
 endinterface // clocks
 
-interface t_motors_structured;
-   motorsStatuses_t motorsStatuses;
-   motorsControls_t motorsControls;
-
-   modport producer(output motorsStatuses,
-       input motorsControls);
-
-   modport consumer(input motorsStatuses,
-       output motorsControls);
-endinterface // t_motors_structured
-
-
 interface t_motors;
    logic [1:16] pl_boost;
    logic [1:16] pl_dir;

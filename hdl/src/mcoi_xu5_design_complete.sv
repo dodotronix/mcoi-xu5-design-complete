@@ -50,7 +50,7 @@ module mcoi_xu5_design_complete (//motors
                                  //display
                                  t_display.producer display_x,
 
-                                 input logic mreset_vadj,
+                                 output logic mreset_vadj,
 
                                  // clocks - MGT 120MHz (TX/RX)
                                  input logic mgt_fdbk_p,
@@ -104,9 +104,5 @@ module mcoi_xu5_design_complete (//motors
        .O(pl_varclk_p),
        .OB(pl_varclk_n),
        .I(gbt_data_x.rx_wordclk));
-
-   // assign mreset_vadj = 1'b0 ;
-   /* assign pl_varclk_p = gbt_data_x.rx_frameclk;
-   assign pl_varclk_n = gbt_data_x.tx_frameclk; */
 
 endmodule // mcoi_xu5_design_complete

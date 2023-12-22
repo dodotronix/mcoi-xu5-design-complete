@@ -47,7 +47,6 @@ module mcoi_xu5_system (
 
     input logic mgt_fdbk_p,
     input logic mgt_fdbk_n,
-    input logic mreset_vadj,
 
     // input logic pl_varclk,
     input logic mgt_clk_p,
@@ -56,7 +55,7 @@ module mcoi_xu5_system (
     input logic clk100m_pl_n );
 
    logic Clk120MHz_fromgte4;
-   logic reset, tx_reset;
+   logic reset;
 
    // clock generation
    // 100MHz oscillator and associated reset
@@ -122,7 +121,6 @@ module mcoi_xu5_system (
     // needs to be implemented first on the pcb
     always_comb begin
         reset = 1'b0 | gbt_data_x.los;
-        tx_reset = mreset_vadj;
         // clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
     end
 
