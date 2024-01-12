@@ -11,11 +11,7 @@
 #include "xparameters.h"
 #include "sleep.h"
 #include "xiicps.h"
-// #include "config_200khz.h"
-// #include "mcoi_xu5_devkit_ch0_ch2_120mhz_low_jitter.h"
-#include "mcoi_xu5_devkit_ch1_ch2_120mhz_low_jitter_source1_in5_in6_reference_25mhz.h"
-// #include "config_400khz.h"
-// #include "config_120mhz.h"
+#include "mcoi_xu5_devkit_ch1_ch2_120mhz_low_jitter_on_1ch_25mhz_ref_lvds_clk_source1_in5_in6_from_pcb_rev1.h"
 
 void show_iic_setup(XIicPs *InstancePtr) {
     printf("Device ID: %x\n", InstancePtr->Config.DeviceId);
