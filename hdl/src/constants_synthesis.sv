@@ -8,9 +8,9 @@ package constants;
    // the same params for GEFE, but this time roughly 4 times slower
    // as gefe oscillator runs 25MHz (we cannot use engineering format
    // as microsemi synplify does not like it)
-   parameter GEFE_LED_BLINKER_PERIOD = 100e6;
-   parameter GEFE_LED_BLINKER_ON_TIME = 4000000;
-   parameter GEFE_LED_BLINKER_OFF_TIME = 4000000;
+   parameter GEFE_LED_BLINKER_PERIOD = 400e6;
+   parameter GEFE_LED_BLINKER_ON_TIME = 16000000;
+   parameter GEFE_LED_BLINKER_OFF_TIME = 16000000;
 
    // definition of IRQ mco runner - how fast led diode blinks when
    // IRQ comes. 40MHz will generate 100ms blink signal:
