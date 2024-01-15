@@ -95,10 +95,9 @@ void copy_bits(XIicPs *iic_dev, u8 reg0, u8 reg1, u8 mask) {
     printf("[DEBUG]: combine %x | (%x & %x) ---> written %x\n", current_reg1, current_reg0, mask, tmp);
 }
 
-void validate_value(XIicPs *iic_dev, u8 reg, u8 mask, u8 val) {
-    printf("[DEBUG]: validating value in register %x (desired value %x)\n", reg, val);
-    while(!((read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg) & mask) == val));
-    printf("ok\n");
+u8 get_alarms(XIicPs *iic_dev) {
+    //printf("[DEBUG]: validating value in register %x (desired value %x)\n", reg, val);
+    return read_byte_data(iic_dev, IIC_SLAVE_ADDR, 218);
 }
 
 void write_config_map(XIicPs *iic_dev, t_reg_data const *map, u32 map_length) {
@@ -171,6 +170,7 @@ int initialize_iic(u16 DeviceId, XIicPs *Iic) {
 int initialize_clock(u16 DeviceId) {
     
     XIicPs Iic;
+    u8 alarms;
 
     if(initialize_iic(DeviceId, &Iic)) { 
         printf("I2C INITIALIZATION FAILED\n");
@@ -188,8 +188,13 @@ int initialize_clock(u16 DeviceId) {
     printf("writing config\n");
     write_config_map(&Iic, code_Reg_Store, NUM_REGS_MAX);
 
+    // TODO pll does not get locked
     printf("validating input clock ... \n");
-    validate_value(&Iic, 218, 0x04, 0x00);
+    alarms = get_alarms(&Iic);
+    if(alarms & 0x04)
+    	printf("[DEBUG] warning, the LOS_CLKIN is active.\n");
+    if(alarms & 0x08)
+    	printf("[DEBUG] warning, the LOS_FDBK is active.\n");
 
     clear_bits(&Iic, 49, 0x80); //configure pll for locking
     set_bits(&Iic, 246, 0x02); //initiate locking of ppl
@@ -200,7 +205,7 @@ int initialize_clock(u16 DeviceId) {
     set_bits(&Iic, 241, 0x65);
     
     printf("waiting for locking pll ... \n");
-    validate_value(&Iic, 218, 0x15, 0x00);
+    while((get_alarms(&Iic) & 0x11));
 
     printf("copying registers\n");
     copy_bits(&Iic, 237, 47, 0x03);
@@ -212,7 +217,7 @@ int initialize_clock(u16 DeviceId) {
 
     printf("enabling outputs\n");
     clear_bits(&Iic, 230, 0x10); //enable outputs
-    printf("done\n");
+    printf("done!\n");
 
     return XST_SUCCESS;
 }
