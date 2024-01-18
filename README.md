@@ -46,3 +46,35 @@ are going to be connected to the FMC XM105 Card as well.
   need to use just the capacitors c1606 and c1607 and unmount the c1604 and
   c1605
 
+## LINKS
+* [FMC XM105 Card](https://www.xilinx.com/products/boards-and-kits/hw-fmc-xm105-g.html) 
+* [Enclustra PE1 Schematics](https://download.enclustra.com/public_files/Base_Boards/Mercury+_PE1/Mercury_PE1-R4-6_User_Schematics_V4.pdf)
+* [Enclustra XU5 Schematics](https://download.enclustra.com/public_files/EOL_Products/Mercury_PE1/Mercury_PE1-R3_Schematics_Free_Version_R3-2.pdf)
+
+## DEVKIT PINOUT
+* connector j20 fmc xm105 card
+    * csel0 - LA20_P 
+    * csel1 - LA20_N
+    * csel2 - LA21_P
+    * sin   - LA21_N
+    * blank - LA22_P
+    * sclk  - LA22_N
+    * latch - LA23_P
+
+* connector j2 fmc xm105 card
+    * PL_CLK - LA00_CC_P
+    * PL_EN - LA00_CC_N
+    * PL_BOOST - LA01_CC_P 
+    * mreset - LA01_CC_N
+    * fpga_ok - LA02_P 
+    * PL_SW_OUT_A - LA02_N
+    * PL_SW_OUT_B - LA03_P
+    * PL_PFAIL - LA03_N
+    * PL_DIR - LA04_P
+    * LED_0 - LA10_P
+    * LED_1 - LA10_N
+    * LED_2 - LA11_P
+    * LED_3 - LA11_N
+    * LED_4 - LA12_P
+    * LED_5 - LA12_N
+    * LED_6 - LA13_P
