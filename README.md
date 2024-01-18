@@ -27,7 +27,7 @@ newly created debugging profile (follow the fw/README.md). The FPGA should be
 loaded and you should see the output in the serial consol, if you opened it on
 the Windows machine before running the app. 
 
-![GBT TEST SETUP](./doc/pictures/devkit_with_mcoi_xu5_pcb/complete_dev_setup_overview.jpg)
+![GBT TEST SETUP](./doc/pictures/devkit_with_mcoi_xu5_pcb/complete_dev_setup_overview_working_motors.jpg)
 
 The reset of the design is connected to the sfp los signal (notice the white
 cable in the picture connecting the devkit an the IOB header and the SFP los on
