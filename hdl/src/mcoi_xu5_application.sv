@@ -41,7 +41,7 @@ module mcoi_xu5_application #(parameter g_clock_divider = 40000)(
     t_gbt_data.consumer gbt_data_x,
     t_clocks.consumer clk_tree_x,
     t_display.producer display_x,
-    t_motors motors_x,
+    t_motors.producer motors_x,
     // TODO maybe add signals to check voltage on the board
     t_diag.producer diag_x
 );
@@ -73,7 +73,7 @@ logic [3:0][1:0][15:0] ledData_b;
 
 logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] stepout_diode;
 logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] led_lg, led_lr, led_rg, led_rr;
-logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] [31:0] SwitchesConfiguration_b32;
+logic [31:0] SwitchesConfiguration_b32 [NUMBER_OF_MOTORS_PER_FIBER-1:0];
 
 logic [63:0] UniqueID_oqb64 = 64'h1111_2222_3333_4444;
 logic [31:0] temperature32b_i = 32'hdeadbeef;
@@ -161,6 +161,15 @@ end
               .switchesconfig(SwitchesConfiguration_2b16[motor]),
               .blinker_i(blinker));
 
+          /* assign ledData_b[0][0][motor] = 1'b1;
+          assign ledData_b[0][1][motor] = blinker;
+          assign ledData_b[1][0][motor] = 1'b0;
+          assign ledData_b[1][1][motor] = 1'b1;
+          assign ledData_b[2][0][motor] = 1'b1;
+          assign ledData_b[2][1][motor] = 1'b0;
+          assign ledData_b[3][0][motor] = 1'b0;
+          assign ledData_b[3][1][motor] = 1'b0; */
+
           // 4th column: if RED present, FAIL signal is emitted by
           // driver. if GREEN present (i.e orange as well), BOOST is
           // engaged:
@@ -179,19 +188,43 @@ end
           assign ledData_b[1][0][motor] = !stepout_diode[motor];
           assign ledData_b[1][1][motor] = !motorControl_ib[motor+1].StepDeactivate_o;
 
-          // re-cast the data to the original switches structure (so that if
-          // it changes, the change propagates to both VFC and GEFE designs)
-          assign SwitchesConfiguration_2b16[motor] = SwitchesConfiguration_b32[motor];
     end
     endgenerate
 
+   // re-cast the data to the original switches structure (so that if
+   // it changes, the change propagates to both VFC and GEFE designs)
+   genvar gi;
+   for (gi = 0; gi < NUMBER_OF_MOTORS_PER_FIBER; gi++) begin : g_bit
+      assign SwitchesConfiguration_2b16[gi] = SwitchesConfiguration_b32[gi];
+
+   end
 
     // STATUS INDICATION (LEDs)
-    assign diag_x.mled[0] = tick_120;
-    assign diag_x.mled[1] = (serial_feedback_b32 == GEFE_INTERLOCK
+    assign diag_x.mled[0] = (serial_feedback_b32 == GEFE_INTERLOCK
                              && !page_selector_b32[31])? '0 : '1;
-    assign diag_x.mled[2] = !clk_tree_x.ClkRs120MHz_ix.reset;
-    assign diag_x.led = '0;
+    assign diag_x.mled[1] = motorStatus_ob[1].RawSwitches_b2[0];
+    assign diag_x.mled[2] = motorStatus_ob[1].RawSwitches_b2[1];
+
+
+    logic [8:0] snake;
+    logic [22:0] snake_div;
+    assign diag_x.led[0] = snake[0];
+    assign diag_x.led[2] = snake[1];
+    assign diag_x.led[4] = snake[2];
+    assign diag_x.led[6] = snake[3];
+    assign diag_x.led[5] = snake[4];
+    assign diag_x.led[3] = snake[5];
+    assign diag_x.led[1] = snake[6];
+
+    always_ff @(posedge clk_tree_x.ClkRs100MHz_ix.clk) begin
+        if(clk_tree_x.ClkRs100MHz_ix.reset) begin
+            snake <= 9'b111000000;
+            snake_div <= '0;
+        end else begin
+            if(!snake_div) snake <= {snake[7:0], snake[8]};
+            snake_div <= snake_div + $size(snake_div)'(1);
+        end
+    end
 
     // indication that the 120M clock is running
     always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk) begin
@@ -250,13 +283,18 @@ end
        .RxLocked_o()
    );
 
+   logic [$bits(motorStatus_ob)-1:0] metain, metaout;
+   assign metain = motorStatus_ob;
+   assign debounced_motorStatus_b = metaout;
+
    genvar ms;
    generate
-   for (ms = 0; ms < $bits(motorStatus_ob); ms++)
+   for (ms = 0; ms < $bits(metain); ms++) begin : g_data_reindexing
        manyff #(.g_Latency(3)) i_manyff (
            .ClkRs_ix(gbt_rx_clkrs),
-       .d_i(motorStatus_ob[ms]),
-       .d_o(debounced_motorStatus_b[ms]));
+           .d_i(metain[ms]),
+           .d_o(metaout[ms]));
+       end
     endgenerate
 
    build_number i_build_number (.*);
@@ -339,22 +377,22 @@ end
     assign gbt_data_x.data_sent.mem_data_b16 = '0; */
 
     // cast read motor stats back to the stream
-    assign gbt_data_x.data_sent.motor_data_b64 = debounced_motorStatus_b;
+    assign gbt_data_x.data_sent.motor_data_b64 = metaout;
     assign gbt_data_x.data_sent.mem_data_b16 = '0;
 
    // pin mapping
    genvar m_group;
    generate
-   for (m_group = 0; m_group < NUMBER_OF_MOTORS_PER_FIBER-1; m_group++) begin
+   for (m_group = 1; m_group < NUMBER_OF_MOTORS_PER_FIBER+1; m_group++) begin
        assign motors_x.pl_boost[m_group] = motorControl_ib[m_group].StepBOOST_o;
        assign motors_x.pl_dir[m_group] = motorControl_ib[m_group].StepDIR_o;
        assign motors_x.pl_en[m_group] = motorControl_ib[m_group].StepDeactivate_o;
        assign motors_x.pl_clk[m_group] = motorControl_ib[m_group].StepOutP_o;
 
-       assign motorStatus_ob[m_group].StepPFail_i = motors_x.pl_pfail[m_group];
-       assign motorStatus_ob[m_group].RawSwitches_b2[0] = motors_x.pl_sw_outa[m_group];
-       assign motorStatus_ob[m_group].RawSwitches_b2[1] = motors_x.pl_sw_outb[m_group];
-       assign motorStatus_ob[m_group].OH_i = '0; //overheat signal deactivated
+       assign motorStatus_ob[m_group].StepPFail_i = !motors_x.pl_pfail[m_group];
+       assign motorStatus_ob[m_group].RawSwitches_b2[0] = !motors_x.pl_sw_outa[m_group];
+       assign motorStatus_ob[m_group].RawSwitches_b2[1] = !motors_x.pl_sw_outb[m_group];
+       assign motorStatus_ob[m_group].OH_i = 1'b0; //overheat signal deactivated
    end
    endgenerate
 
