@@ -65,45 +65,50 @@ set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.mled[*]}]
 # to drive that it is better not to put any constraint on these. False
 # path is defined, but vivado indeed complains about missing input
 # delays, let's stick some dummy ones (taking into account 120MHz clocking)
-# set_false_path -from [get_ports *pcbrev*]
+#
+set_false_path -from [get_ports *pcbrev*]
 # set_input_delay -clock [get_clocks mgt_clk] -min 0.0 [get_ports "*pcbrev*"]
 # set_input_delay -clock [get_clocks mgt_clk] -max 5.0 [get_ports "*pcbrev*"]
 
-# set_false_path -from [get_ports *pl_pfail*]
+set_false_path -from [get_ports *pl_pfail*]
 # set_input_delay -clock [get_clocks mgt_clk] -min 0.0 [get_ports "*pl_pfail*"]
 # set_input_delay -clock [get_clocks mgt_clk] -max 5.0 [get_ports "*pl_pfail*"]
 
-# set_false_path -from [get_ports *pl_sw_out*]
+set_false_path -from [get_ports *pl_sw_out*]
 # set_input_delay -clock [get_clocks mgt_clk] -min 0.0 [get_ports "*pl_sw_out*"]
 # set_input_delay -clock [get_clocks mgt_clk] -max 5.0 [get_ports "*pl_sw_out*"]
 
-# set_false_path -from [get_ports *sfp1_los*]
+set_false_path -from [get_ports *sfp1_los*]
+set_false_path -from [get_ports *fpga_supply_ok*]
 # set_input_delay -clock [get_clocks mgt_clk] -min 0.0 [get_ports "*sfp1_los*"]
 # set_input_delay -clock [get_clocks mgt_clk] -max 5.0 [get_ports "*sfp1_los*"]
 
 # output diagnostics all false path
-# set_false_path -to [get_ports {diag_x*led[*]}]
+set_false_path -to [get_ports {diag_x*led[*]}]
+set_false_path -to [get_ports {display_x*[*]}]
+
+# false paths
+# motor signals are slow, so we can ignore them 
+set_false_path -from [get_pins {app_i/motorControl_ib_reg[*][*]/C}]
+
+# display does not a precise timing
+set_false_path -to [get_pins {app_i/tlc_5920_i/data_b_reg[*]/D}]
+set_false_path -to [get_pins {app_i/g_discast[*].i_extremity_switches_mapper/*/D}]
+
+# serial interface for display
 # set_output_delay -clock [get_clocks mgt_clk] -min 0.0 $diag
 # set_output_delay -clock [get_clocks mgt_clk] -max 5.0 $diag
 
 # serial interface for display
 # set_output_delay -clock [get_clocks clk100m_pl] -min 0.000 [get_ports -filter { NAME =~  "*display_x*" && DIRECTION == "OUT" }]
 # set_output_delay -clock [get_clocks clk100m_pl] -max 5.000 [get_ports -filter { NAME =~  "*display_x*" && DIRECTION == "OUT" }]
-
-
-#i2c:
-# first cc to 100MHz clock:
-# set_input_delay -clock [get_clocks clk100m_pl] 0.000 [get_ports *i2c_x*]
-# set_output_delay -clock [get_clocks clk100m_pl] 0.000 [get_ports *i2c_x*]
-# then create virt clock and relate sda to this clock
-# create_clock -period 1000.000 -name clki2c [get_ports *i2c_x*scl*]
-# set_input_delay -clock clki2c -min 0.000 [get_ports *i2c_x*sda*]
-# set_input_delay -clock clki2c -max 200.000 [get_ports *i2c_x*sda*]
-# i2c is by-design timing issues free, so we can falsepath here:
-# set_false_path -from [get_clocks clki2c] -to [get_clocks clk100m_pl]
-
+#
 # all things going into display are irrelevant - just slow observation
 # set_false_path -to [get_pins -hierarchical "*data_b_reg*/D*"]
 # reset
 # set_false_path -to [get_pins {u_40MHzMGMT_reset_sync/reset_msr_reg[0]/D}]
+#
+# Multicycle for the GBT recoverd clock clocking scheme
+# set_multicycle_path -setup -rise_from sync_shiftreg_reg[2] 3
+# set_multicycle_path -hold -rise_from sync_shiftreg_reg[2] 2
 
