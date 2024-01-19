@@ -73,7 +73,7 @@ logic [3:0][1:0][15:0] ledData_b;
 
 logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] stepout_diode;
 logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] led_lg, led_lr, led_rg, led_rr;
-logic [31:0] SwitchesConfiguration_b32 [NUMBER_OF_MOTORS_PER_FIBER-1:0];
+logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] [31:0] SwitchesConfiguration_b32;
 
 logic [63:0] UniqueID_oqb64 = 64'h1111_2222_3333_4444;
 logic [31:0] temperature32b_i = 32'hdeadbeef;
@@ -81,7 +81,7 @@ logic [31:0] power32b_i = 32'hcafebeef;
 
 motorsStatuses_t motorStatus_ob, debounced_motorStatus_b;
 motorsControls_t motorControl_ib;
-switchstate_t [1:0] SwitchesConfiguration_2b16 [NUMBER_OF_MOTORS_PER_FIBER-1:0];
+switchstate_t [NUMBER_OF_MOTORS_PER_FIBER-1:0] [1:0] SwitchesConfiguration_2b16;
 
 ckrs_t gbt_rx_clkrs;
 
