@@ -49,7 +49,7 @@ are going to be connected to the FMC XM105 Card as well.
 ## LINKS
 * [FMC XM105 Card](https://www.xilinx.com/products/boards-and-kits/hw-fmc-xm105-g.html) 
 * [Enclustra PE1 Schematics](https://download.enclustra.com/public_files/Base_Boards/Mercury+_PE1/Mercury_PE1-R4-6_User_Schematics_V4.pdf)
-* [Enclustra XU5 Schematics](https://download.enclustra.com/public_files/EOL_Products/Mercury_PE1/Mercury_PE1-R3_Schematics_Free_Version_R3-2.pdf)
+* [Enclustra XU5 Schematics](https://download.enclustra.com/public_files/SoC_Modules/Mercury_XU5/Mercury_XU5-R1-2_User_Schematics_V18.pdf)
 
 ## DEVKIT PINOUT
 * connector j20 fmc xm105 card
