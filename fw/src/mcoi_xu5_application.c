@@ -94,7 +94,7 @@ void set_bits(XIicPs *iic_dev, u8 reg, u8 val) {
     tmp = current_reg | val;
     write_byte_data(iic_dev, IIC_SLAVE_ADDR, reg, tmp);
     current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg);
-    printf("[DEBUG]: addr %i; written %x ---> read %x\n", reg, tmp, current_reg);
+    printf("\x1b[32m[DEBUG]\x1b[0m addr %i; written %x ---> read %x\n", reg, tmp, current_reg);
 }
 
 void clear_bits(XIicPs *iic_dev, u8 reg, u8 val) {
@@ -103,7 +103,7 @@ void clear_bits(XIicPs *iic_dev, u8 reg, u8 val) {
     tmp = current_reg & ~val;
     write_byte_data(iic_dev, IIC_SLAVE_ADDR, reg, tmp);
     current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg);
-    printf("[DEBUG]: addr %i; written %x ---> read %x\n", reg, tmp, current_reg);
+    printf("\x1b[32m[DEBUG]\x1b[0m addr %i; written %x ---> read %x\n", reg, tmp, current_reg);
 }
 
 void copy_bits(XIicPs *iic_dev, u8 reg0, u8 reg1, u8 mask) {
@@ -113,11 +113,11 @@ void copy_bits(XIicPs *iic_dev, u8 reg0, u8 reg1, u8 mask) {
     
     tmp = current_reg1 | (current_reg0 & mask);
     write_byte_data(iic_dev, IIC_SLAVE_ADDR, reg1, tmp);
-    printf("[DEBUG]: combine %x | (%x & %x) ---> written %x\n", current_reg1, current_reg0, mask, tmp);
+    printf("\x1b[32m[DEBUG]\x1b[0m combine %x | (%x & %x) ---> written %x\n", current_reg1, current_reg0, mask, tmp);
 }
 
 u8 get_alarms(XIicPs *iic_dev) {
-    //printf("[DEBUG]: validating value in register %x (desired value %x)\n", reg, val);
+    //printf("\x1b[32m[DEBUG]\x1b[0m validating value in register %x (desired value %x)\n", reg, val);
     return read_byte_data(iic_dev, IIC_SLAVE_ADDR, 218);
 }
 
@@ -131,7 +131,7 @@ void write_config_map(XIicPs *iic_dev, t_reg_data const *map, u32 map_length) {
         if(element->Reg_Mask == 0xff) {
             write_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr, element->Reg_Val);
             tmp = read_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr);
-            printf("[DEBUG]: addr %i; written %x ---> read %x\n", element->Reg_Addr, element->Reg_Val, tmp);
+            printf("\x1b[32m[DEBUG]\x1b[0m addr %i; written %x ---> read %x\n", element->Reg_Addr, element->Reg_Val, tmp);
         } else {
             current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr);
             clear_cur_val = (current_reg & ~element->Reg_Mask);
@@ -139,7 +139,7 @@ void write_config_map(XIicPs *iic_dev, t_reg_data const *map, u32 map_length) {
             combined = clear_cur_val | tmp;
             write_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr, combined);
             current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr);
-            printf("[DEBUG]: addr %i; written %x ---> read %x\n", element->Reg_Addr, combined, current_reg);
+            printf("\x1b[32m[DEBUG]\x1b[0m addr %i; written %x ---> read %x\n", element->Reg_Addr, combined, current_reg);
         }
     }
 }
@@ -194,7 +194,7 @@ int initialize_clock(u16 DeviceId) {
     u8 alarms;
 
     if(initialize_iic(DeviceId, &Iic)) { 
-        printf("I2C INITIALIZATION FAILED\n");
+        printf("\x1b[31mI2C INITIALIZATION FAILED\x1b[0m\n");
         return XST_FAILURE;
     }
 
@@ -203,19 +203,19 @@ int initialize_clock(u16 DeviceId) {
 
     set_bits(&Iic, 230, 0x10); //disable outputs
 
-    printf("lol pause\n");
+    printf("\x1b[36mlol pause\x1b[0m\n");
     set_bits(&Iic, 241, 0x80); //pause lol
 
-    printf("writing config\n");
+    printf("\x1b[35mwriting config\x1b[0m\n");
     write_config_map(&Iic, code_Reg_Store, NUM_REGS_MAX);
 
     // TODO pll does not get locked
-    printf("validating input clock ... \n");
+    printf("\x1b[35mvalidating input clock ... \x1b[0m\n");
     alarms = get_alarms(&Iic);
     if(alarms & 0x04)
-    	printf("[DEBUG] warning, the LOS_CLKIN is active.\n");
+    	printf("\x1b[33m[WARN]\x1b[0m LOS_CLKIN is active.\x1b[0m\n");
     if(alarms & 0x08)
-    	printf("[DEBUG] warning, the LOS_FDBK is active.\n");
+    	printf("\x1b[33m[WARN]\x1b[0m LOS_FDBK is active.\x1b[0m\n");
 
     clear_bits(&Iic, 49, 0x80); //configure pll for locking
     set_bits(&Iic, 246, 0x02); //initiate locking of ppl
@@ -225,10 +225,10 @@ int initialize_clock(u16 DeviceId) {
     clear_bits(&Iic, 241, 0x80); //restart lol
     set_bits(&Iic, 241, 0x65);
     
-    printf("waiting for locking pll ... \n");
+    printf("\x1b[35mwaiting for locking pll ... \x1b[0m\n");
     while((get_alarms(&Iic) & 0x11));
 
-    printf("copying registers\n");
+    printf("\x1b[35mcopying registers\x1b[0m\n");
     copy_bits(&Iic, 237, 47, 0x03);
     copy_bits(&Iic, 236, 46, 0xff);
     copy_bits(&Iic, 235, 45, 0xff);
@@ -236,9 +236,9 @@ int initialize_clock(u16 DeviceId) {
     set_bits(&Iic, 47, 0x14);
     set_bits(&Iic, 49, 0x80); //set pll to use fcal
 
-    printf("enabling outputs\n");
+    printf("\x1b[36menabling outputs\x1b[0m\n");
     clear_bits(&Iic, 230, 0x10); //enable outputs
-    printf("done!\n");
+    printf("\x1b[32mdone!\x1b[0m\n");
 
     return XST_SUCCESS;
 }
