@@ -38,6 +38,8 @@ import constants::*;
 
 module mcoi_xu5_application #(parameter g_clock_divider = 40000)(
     output logic mreset_vadj,
+    output logic  [31:0] ps_control,
+    input logic [31:0] ps_data,
     t_gbt_data.consumer gbt_data_x,
     t_clocks.consumer clk_tree_x,
     t_display.producer display_x,
@@ -202,9 +204,10 @@ end
     // STATUS INDICATION (LEDs)
     assign diag_x.mled[0] = (serial_feedback_b32 == GEFE_INTERLOCK
                              && !page_selector_b32[31])? '0 : '1;
-    assign diag_x.mled[1] = motorStatus_ob[1].RawSwitches_b2[0];
-    assign diag_x.mled[2] = motorStatus_ob[1].RawSwitches_b2[1];
+    assign diag_x.mled[2:1] = ps_data[1:0];
 
+    // easy feedback
+    assign ps_control = ps_data;
 
     logic [8:0] snake;
     logic [22:0] snake_div;
@@ -344,7 +347,6 @@ end
    // let's do 'alive mreset' it will slowly turn on/off using PWM we
    // can do it. Using 1ms clock should do the job. Nothing fancy,
    // implemented 'easiest' possible way, not restricting in period.
-
 
    get_edge i_get_edge (
        .rising_o(increaseAmplitude),
