@@ -8,6 +8,7 @@
 #include "platform.h"
 #include "xil_printf.h"
 #include "xgpiops.h"
+#include "xgpio.h"
 #include "xparameters.h"
 #include "sleep.h"
 #include "xiicps.h"
@@ -53,6 +54,16 @@ u8 RecvBuffer[1];
 int main(void)
 {
     char test[20];
+    XGpio io;
+    int status;
+    u32 a;
+
+    status = XGpio_Initialize(&io, XPAR_GPIO_0_DEVICE_ID);
+    printf("status of GPIO init: %x\n", status);
+
+    XGpio_SetDataDirection(&io, 1, 0xff00);
+    printf("initial value: %x\n", XGpio_DiscreteRead(&io, 1));
+
     printf("waiting for an input:");
     scanf("%20s", test);
     printf("\n");
@@ -63,6 +74,16 @@ int main(void)
 
     printf("Initialize External PLL\r\n");
     initialize_clock(IIC_DEVICE_ID);
+    XGpio_DiscreteWrite(&io, 1, 0x01);
+    printf("written value: %x\n", XGpio_DiscreteRead(&io, 1));
+
+    a = XGpio_DiscreteRead(&io, 1);
+    while(1) {
+        XGpio_DiscreteWrite(&io, 1, a | 0x02);
+        usleep(250000);
+        XGpio_DiscreteWrite(&io, 1, a | 0x00);
+        usleep(250000);
+    }
 
     return 0;
 }
@@ -199,7 +220,7 @@ int initialize_clock(u16 DeviceId) {
     clear_bits(&Iic, 49, 0x80); //configure pll for locking
     set_bits(&Iic, 246, 0x02); //initiate locking of ppl
     
-    usleep(0.025); //wait 25ms
+    usleep(25000); //wait 25ms
 
     clear_bits(&Iic, 241, 0x80); //restart lol
     set_bits(&Iic, 241, 0x65);
