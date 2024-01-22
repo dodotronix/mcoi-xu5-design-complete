@@ -59,12 +59,12 @@ module mcoi_xu5_design_complete (//motors
                                  input logic mgt_clk_p,
                                  input logic mgt_clk_n,
 
-                                 // output logic [2:0] mled,
-
                                  // clocks - MGT derived 50MHz
                                  input logic clk100m_pl_p,
                                  input logic clk100m_pl_n,
 
+                                 // NOTE this input is just
+                                 // for devkit design
                                  output logic pl_varclk_p,
                                  output logic pl_varclk_n,
 
@@ -73,7 +73,13 @@ module mcoi_xu5_design_complete (//motors
                                  output logic rs485_pl_ro
                                 );
 
-   logic ready, ExternalPll120MHzMGT, recovered_clk;
+   logic [31:0] ps_control, ps_data;
+   logic gbt_pll_locked,
+         ExternalPll120MHzMGT,
+         recovered_clk,
+         si5338_ready;
+
+   assign si5338_ready = ps_control[0];
 
    always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk)
        if(clk_tree_x.ClkRs120MHz_ix.reset) rs485_pl_ro <= 1'b0;
@@ -86,7 +92,9 @@ module mcoi_xu5_design_complete (//motors
 
     // in the system you find just buffers plls
     // and sync of resets with clock domains
-    mcoi_xu5_system sys_i (.*);
+    mcoi_xu5_system sys_i (
+        .ext_pll_ready(si5338_ready),
+        .*);
 
     // application serving the stepper motors
     mcoi_xu5_application app_i (.*);
@@ -97,12 +105,6 @@ module mcoi_xu5_design_complete (//motors
         .external_pll_source1_120mhz(ExternalPll120MHzMGT),
         .*);
 
-   // ps part just for storing data to qspi
-   zynq_ultrasp_ps_system i_ps_system();
-
-   OBUFDS rx_clk_out_buffer (
-       .O(pl_varclk_p),
-       .OB(pl_varclk_n),
-       .I(gbt_data_x.rx_wordclk));
+   zynq_ultrasp_ps_system i_ps_system(.*);
 
 endmodule // mcoi_xu5_design_complete

@@ -43,10 +43,14 @@ module mcoi_xu5_system (
     t_gbt_data.control gbt_data_x,
     output logic ExternalPll120MHzMGT, // 120MHz coming from MGT oscillator
     output logic recovered_clk,
-    output logic ready,
+    output logic gbt_pll_locked,
+    input logic ext_pll_ready,
 
     input logic mgt_fdbk_p,
     input logic mgt_fdbk_n,
+
+    output logic pl_varclk_p,
+    output logic pl_varclk_n,
 
     // input logic pl_varclk,
     input logic mgt_clk_p,
@@ -73,6 +77,13 @@ module mcoi_xu5_system (
        .CEB(1'b0),
        .I(gbt_data_x.rx_recclk)); */
 
+   // This passes the recovered clock from
+   // the optical link to the Tx part of MGT
+   OBUFDS rx_clk_out_buffer (
+       .O(pl_varclk_p),
+       .OB(pl_varclk_n),
+       .I(gbt_data_x.rx_recclk));
+
    // MGT_REFCLK0
    IBUFDS_GTE4 #(
        .REFCLK_EN_TX_PATH(1'b0),
@@ -98,7 +109,6 @@ module mcoi_xu5_system (
         .I(mgt_clk_p),
         .IB(mgt_clk_n));
 
-
     // 120MHz PLL buffer clock copier
     BUFG_GT ibuf_txpll_i (
         .O(clk_tree_x.ClkRs120MHz_ix.clk),
@@ -112,15 +122,14 @@ module mcoi_xu5_system (
     // 40MHz PLL derived from MGT clock
     gbt_pll_clk40m gbt_pll40m_i (
         .clk120m_i(gbt_data_x.rx_recclk),
-        // .clk120m_i(clk_tree_x.ClkRs120MHz_ix.clk),
         .clk40m_o(clk_tree_x.ClkRs40MHz_ix.clk),
         .reset(0),
-        .locked(ready));
+        .locked(gbt_pll_locked));
 
     // TODO add reset from the onboard button
     // needs to be implemented first on the pcb
     always_comb begin
-        reset = 1'b0 | gbt_data_x.los;
+        reset = gbt_data_x.los | !ext_pll_ready;
         // clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
     end
 
