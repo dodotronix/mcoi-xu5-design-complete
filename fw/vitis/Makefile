@@ -9,6 +9,15 @@ PMUFW := $(ROOT)/build/exported_hw/export/exported_hw/sw/exported_hw/boot/pmufw.
 EXPORTED_HW := $(ROOT)/build/mcoi_app/_ide/bitstream/exported_hw.bit
 MCOI_APP := $(ROOT)/build/mcoi_app/Debug/mcoi_app.elf
 
+
+# Please note that we expect here, that there is just one target connected at
+# a time, in case there are more devices, the command takes the first one
+JTAG_TARGET_REMOTE := -url tcp:pcsy169:3121
+JTAG_TARGET_LOCAL := -url tcp:localhost:3121
+JTAG_FREQ := 6000000
+
+JTAG_TARGET := $(JTAG_TARGET_REMOTE)
+
 all:
 	$(XS) mcoi_app.tcl
 
@@ -21,11 +30,17 @@ $(BIF): $(FSBL) $(PMUFW) $(EXPORTED_HW) $(MCOI_APP)
 	@printf '[destination_cpu = a53-0]$(MCOI_APP)\n' >> $@ 
 	@printf '}\n' >> $@ 
 
-boot_image: $(BIF)
-	@echo "Generating boot image BOOT.bin";
-	@bootgen -image mcoi_app.bif -arch zynqmp -o BOOT.bin -w on
+$(BOOT_IMAGE): $(BIF)
+	@echo "Generating boot image $@";
+	@bootgen -image $< -arch zynqmp -o $(BOOT_IMAGE) -w on
 
-.PHONY: clean all
+flash: $(BOOT_IMAGE) $(FSBL) 
+	@program_flash -f $(BOOT_IMAGE) -fsbl $(FSBL) \
+		-flash_type qspi-x4-single \
+		-frequency $(JTAG_FREQ) \
+		-verify $(JTAG_TARGET)
+
+.PHONY: clean all flash_remote
 
 clean:
 	rm -rf build 
