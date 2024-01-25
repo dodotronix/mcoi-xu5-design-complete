@@ -56,6 +56,16 @@ interface t_motors;
 
 endinterface // motors_x
 
+interface t_rs485;
+    logic rs485_pl_di;
+    logic rs485_pl_ro;
+
+   modport producer(
+       output rs485_pl_di,
+       input  rs485_pl_ro);
+
+endinterface // rs485_x
+
 interface t_diag;
     logic [6:0] led;
     logic [2:0] mled;

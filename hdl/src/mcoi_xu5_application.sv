@@ -1,4 +1,5 @@
 //-----------------------------------------------------------------------------
+
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -41,6 +42,7 @@ module mcoi_xu5_application #(parameter g_clock_divider = 40000)(
     output logic  [31:0] ps_control,
     input logic [31:0] ps_data,
     t_gbt_data.consumer gbt_data_x,
+    t_rs485.producer rs485_x,
     t_clocks.consumer clk_tree_x,
     t_display.producer display_x,
     t_motors.producer motors_x,
@@ -57,6 +59,7 @@ logic [31:0] build_number_b32;           // From i_build_number of build_number.
 
 // module namespace for of the signals
 logic clock, reset, supply_ok, vfc_data_arrived, data_arrived;
+logic to_rs485_drv, from_rs485_drv;
 logic [31:0] cnt_120mhz;
 logic [31:0] page_selector_b32,
              serial_feedback_b32,
@@ -91,6 +94,10 @@ always_comb begin
     reset = clk_tree_x.ClkRs40MHz_ix.reset;
     supply_ok = diag_x.fpga_supply_ok;
     mreset_vadj = supply_ok;
+
+    // serial interface for programming the drivers over GBTx
+    rs485_x.rs485_pl_di = to_rs485_drv;
+    from_rs485_drv = rs485_x.rs485_pl_ro;
 
     // TODO use the whole width of 4bits in the communication
     sc_idata = gbt_data_x.data_received.sc_data_b4;
@@ -277,6 +284,8 @@ end
        .RxLocked_o()
    );
 
+   assign to_rs485_drv = (page_selector_b32[8]) ? 1'b0 : 'z;
+
    logic [$bits(motorStatus_ob)-1:0] metain, metaout;
    assign metain = motorStatus_ob;
    assign debounced_motorStatus_b = metaout;
@@ -305,6 +314,7 @@ end
                5: mux_b32 <= temperature32b_i;
                6: mux_b32 <= power32b_i;
                7: mux_b32 <= 32'd1;
+               8: mux_b32 <= {30'b0, from_rs485_drv};
                16: mux_b32 <= {28'b0, debounced_motorStatus_b[1]};
                17: mux_b32 <= {28'b0, debounced_motorStatus_b[2]};
                18: mux_b32 <= {28'b0, debounced_motorStatus_b[3]};

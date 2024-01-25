@@ -50,6 +50,9 @@ module mcoi_xu5_design_complete (//motors
                                  //display
                                  t_display.producer display_x,
 
+                                 //rs485 programming interface
+                                 t_rs485.producer rs485_x,
+
                                  output logic mreset_vadj,
 
                                  // clocks - MGT 120MHz (TX/RX)
@@ -66,11 +69,7 @@ module mcoi_xu5_design_complete (//motors
                                  // NOTE this input is just
                                  // for devkit design
                                  output logic pl_varclk_p,
-                                 output logic pl_varclk_n,
-
-                                 // serial interface
-                                 input logic rs485_pl_di,
-                                 output logic rs485_pl_ro
+                                 output logic pl_varclk_n
                                 );
 
    logic [31:0] ps_control, ps_data;
@@ -81,9 +80,9 @@ module mcoi_xu5_design_complete (//motors
 
    assign si5338_ready = ps_control[0];
 
-   always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk)
+   /* always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk)
        if(clk_tree_x.ClkRs120MHz_ix.reset) rs485_pl_ro <= 1'b0;
-       else rs485_pl_ro <= (rs485_pl_di) ? rs485_pl_di : rs485_pl_ro;
+       else rs485_pl_ro <= (rs485_pl_di) ? rs485_pl_di : rs485_pl_ro; */
 
    t_clocks clk_tree_x();
    t_gbt_data #(.CLOCKING_SCHEME(0))

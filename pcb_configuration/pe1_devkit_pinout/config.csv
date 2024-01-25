@@ -18,6 +18,8 @@ sin,              x,          display,             LVCMOS18,           gpio,    
 sclk,             x,          display,             LVCMOS18,           gpio,          display_x
 latch,            x,          display,             LVCMOS18,           gpio,          display_x
 blank,            x,          display,             LVCMOS18,           gpio,          display_x
+rs485_pl_ro,      x,          rs485,               LVCMOS18,           gpio,          rs485_x
+rs485_pl_di,      x,          rs485,               LVCMOS18,           gpio,          rs485_x
 uart_rx_ps,       x,          uart,                LVCMOS18,           exclude,
 uart_tx_ps,       x,          uart,                LVCMOS18,           exclude,
 ps_srst#,         x,          control,             LVCMOS18,           exclude,
