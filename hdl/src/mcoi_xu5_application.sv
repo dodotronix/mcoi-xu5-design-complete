@@ -57,7 +57,6 @@ logic [31:0] build_number_b32;           // From i_build_number of build_number.
 
 // module namespace for of the signals
 logic clock, reset, supply_ok, vfc_data_arrived, data_arrived;
-logic tick_120;
 logic [31:0] cnt_120mhz;
 logic [31:0] page_selector_b32,
              serial_feedback_b32,
@@ -91,6 +90,7 @@ always_comb begin
     clock = clk_tree_x.ClkRs40MHz_ix.clk;
     reset = clk_tree_x.ClkRs40MHz_ix.reset;
     supply_ok = diag_x.fpga_supply_ok;
+    mreset_vadj = supply_ok;
 
     // TODO use the whole width of 4bits in the communication
     sc_idata = gbt_data_x.data_received.sc_data_b4;
@@ -229,15 +229,6 @@ end
         end
     end
 
-    // indication that the 120M clock is running
-    always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk) begin
-        cnt_120mhz <= cnt_120mhz + $size(cnt_120mhz)'(1);
-        if(cnt_120mhz == 32'd120000000) begin
-            cnt_120mhz <= '0;
-            tick_120 <= tick_120 ^ 1'b1;
-        end
-    end
-
     assign diag_x.test[0] = clk_tree_x.ClkRs40MHz_ix.clk;
     assign diag_x.test[1] = clk_tree_x.ClkRs120MHz_ix.clk;
     assign diag_x.test[2] = gbt_data_x.rx_frameclk;
@@ -364,14 +355,15 @@ end
    // cycles, if enable is 1ms, then 1 cycle takes 32milliseconds. If
    // with each cycle we increase amplitude by 1 bin, the total
    // overflow happens in 32 * 32ms = 1024ms, so 1second.
-   pwm #(.g_CounterBits(5)) i_pwm (
+
+   /* pwm #(.g_CounterBits(5)) i_pwm (
    .cycleStart_o(cycleStart_o),
    .pwm_o(),
    .pwm_on(mreset_vadj),
    .ClkRs_ix(clk_tree_x.ClkRs100MHz_ix),
    .amplitude_ib(amplitude_ib),
    .forceOne_i('0),
-   .enable_i(ClkRs1ms_e));
+   .enable_i(ClkRs1ms_e)); */
 
     /* assign dynamic_data = 32'hdeadbeef;
     logic [31:0] dynamic_data;
