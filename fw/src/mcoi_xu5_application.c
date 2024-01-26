@@ -56,7 +56,7 @@ u8 RecvBuffer[1];
 int main(void)
 {
     int status;
-    char test[20];
+    char test[64];
     XGpio io;
     XIicPs Iic;
     u32 a;
@@ -72,29 +72,28 @@ int main(void)
     XGpio_SetDataDirection(&io, 1, 0xff00);
     printf("initial value: %x\n", XGpio_DiscreteRead(&io, 1));
 
-    i2c_scan(&Iic);
-
-    printf("waiting for an input:");
-    scanf("%20s", test);
-    printf("\n");
-    for(int i=0; i<20; ++i) {
-        printf("%c", test[i]);
-    }
-    printf("\n");
-
-    printf("Initialize External PLL\r\n");
-    initialize_clock(&Iic);
-
-    XGpio_DiscreteWrite(&io, 1, 0x01);
-    printf("written value: %x\n", XGpio_DiscreteRead(&io, 1));
-
-
-    a = XGpio_DiscreteRead(&io, 1);
     while(1) {
-        XGpio_DiscreteWrite(&io, 1, a | 0x02);
-        usleep(250000);
-        XGpio_DiscreteWrite(&io, 1, a | 0x00);
-        usleep(250000);
+        printf("waiting for an input: ");
+        scanf("%64s", test);
+
+        if (!strcmp(test, "pll")){
+
+            printf("Initialize External PLL\r\n");
+            initialize_clock(&Iic);
+
+            XGpio_DiscreteWrite(&io, 1, 0x01);
+            printf("written value: %x\n", XGpio_DiscreteRead(&io, 1));
+        } else if (!strcmp(test, "blink")){
+            a = XGpio_DiscreteRead(&io, 1);
+            for(int i=0; i<10; ++i) {
+                XGpio_DiscreteWrite(&io, 1, a | 0x02);
+                usleep(250000);
+                XGpio_DiscreteWrite(&io, 1, a | 0x00);
+                usleep(250000);
+            }
+        } else if (!strcmp(test, "scan")) {
+            i2c_scan(&Iic);
+        }
     }
 
     return 0;
