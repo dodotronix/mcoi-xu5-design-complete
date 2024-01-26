@@ -284,7 +284,7 @@ end
        .RxLocked_o()
    );
 
-   assign to_rs485_drv = (page_selector_b32[8]) ? 1'b0 : 'z;
+   assign to_rs485_drv = page_selector_b32[8];
 
    logic [$bits(motorStatus_ob)-1:0] metain, metaout;
    assign metain = motorStatus_ob;
