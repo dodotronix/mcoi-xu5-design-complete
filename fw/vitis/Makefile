@@ -9,6 +9,8 @@ PMUFW := $(ROOT)/build/exported_hw/export/exported_hw/sw/exported_hw/boot/pmufw.
 EXPORTED_HW := $(ROOT)/build/mcoi_app/_ide/bitstream/exported_hw.bit
 MCOI_APP := $(ROOT)/build/mcoi_app/Debug/mcoi_app.elf
 
+# this path should be generated from by running the xsct tcl script
+XIL_LIB_PATHS := $(ROOT)/build/
 
 # Please note that we expect here, that there is just one target connected at
 # a time, in case there are more devices, the command takes the first one
@@ -20,6 +22,11 @@ JTAG_TARGET := $(JTAG_TARGET_REMOTE)
 
 all:
 	$(XS) mcoi_app.tcl
+
+compile_flags.txt:
+	@cd ../ && printf -- "-I$(ROOT)/../src\n" > $@ \
+		&& printf -- "-I$(ROOT)/../inc\n" >> $@ \
+		&& find $(XIL_LIB_PATHS) -type d -name "*" -printf '-I%h/%f\n' >> $@
 
 $(BIF): $(FSBL) $(PMUFW) $(EXPORTED_HW) $(MCOI_APP)
 	@printf 'the_ROM_image:\n' >> $@
