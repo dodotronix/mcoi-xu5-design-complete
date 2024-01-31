@@ -19,8 +19,10 @@ syn/**
 sim/**
 !sim/Manifest.py
 !sim/sim_run.py
-fw/.*
+fw/compile_flags.txt
 fw/vitis/**
+!fw/src
+!fw/inc
 !fw/vitis/Makefile
 !fw/vitis/*.tcl
 fw/build/*
