@@ -14,7 +14,7 @@ MCOI_APP := $(ROOT)/build/mcoi_app/Debug/mcoi_app.elf
 # a time, in case there are more devices, the command takes the first one
 JTAG_TARGET_REMOTE := -url tcp:pcsy169:3121
 JTAG_TARGET_LOCAL := -url tcp:localhost:3121
-JTAG_FREQ := 6000000
+JTAG_FREQ := 12000000
 
 JTAG_TARGET := $(JTAG_TARGET_REMOTE)
 
