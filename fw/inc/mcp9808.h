@@ -3,13 +3,36 @@
 
 /* datasheet: https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf */
 
-int mcp9808_init(u8 DeviceAddr);
-int mcp9808_read16(u8 reg);
-int mcp9808_write16(u8 reg, u16 val);
-int mcp9808_readTempRaw();
-int mcp9808_readTempC();
-int mcp9808_getResolution();
+#include "i2cbus.h"
+
+#define MCP9808_ADDR 0x18
+
+#define CONFIG_REG 0x01
+#define LOW_LIMIT_REG 0x02
+#define HIGH_LIMIT_REG 0x03
+#define CRIT_LIMIT_REG 0x04
+#define TEMP_REG 0x05 
+#define MANUFACTURER_ID_REG 0x06
+#define DEVICE_ID_REG 0x07
+
+// DECODING MACROS
+#define T_DECIMAL(h, l) ((h & 0x0f) << 4) | ((l & 0xf0))  
+#define T_FRACTAL(l) (l & 0x0f)  
+#define T_SIGN(h) ((h & 0x10) >> 4)
+
+typedef struct {
+   u8 decimal;
+   u8 fractal;
+   u8 sign;
+} temp_t;
+
+void mcp9808_init(i2c_t *i2c);
+
+void mcp9808_readTempRaw();
+float mcp9808_readTempC();
+
+/* int mcp9808_getResolution();
 int mcp9808_setResolution();
-void mcp9808_getAll();
+void mcp9808_getAll(); */
 
 #endif /* MCP9808_H_ */
