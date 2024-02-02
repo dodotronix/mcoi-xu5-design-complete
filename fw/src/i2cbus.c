@@ -78,3 +78,7 @@ int i2cbus_get_clock(i2c_t *i2c) {
 int i2cbus_get_id(i2c_t *i2c) {
     return i2c->port->Config.DeviceId;
 }
+
+void i2cbus_create_copy(i2c_t *i2c_new, i2c_t *i2c) {
+    i2c_new->port = i2c->port;
+}
