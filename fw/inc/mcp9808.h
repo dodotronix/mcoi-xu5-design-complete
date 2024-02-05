@@ -16,9 +16,9 @@
 #define DEVICE_ID_REG 0x07
 
 // DECODING MACROS
-#define T_DECIMAL(h, l) ((h & 0x0f) << 4) | ((l & 0xf0))  
-#define T_FRACTAL(l) (l & 0x0f)  
-#define T_SIGN(h) ((h & 0x10) >> 4)
+#define T_DECIMAL(t) ((t & 0x0ff0) >> 4)
+#define T_FRACTAL(l) (l & 0x000f)  
+#define T_SIGN(h) ((h & 0x1000) == 0x1000)
 
 typedef struct {
    u8 decimal;
@@ -26,9 +26,10 @@ typedef struct {
    u8 sign;
 } temp_t;
 
-void mcp9808_init(i2c_t *i2c);
+int mcp9808_init(i2c_t *i2c);
 
-void mcp9808_readTempRaw();
+u16 mcp9808_getID();
+u16 mcp9808_readTempRaw();
 float mcp9808_readTempC();
 
 /* int mcp9808_getResolution();
