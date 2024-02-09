@@ -52,5 +52,6 @@ flash: $(BOOT_IMAGE) $(FSBL)
 clean:
 	rm -rf build 
 	rm -rf .Xil
+	rm -rf *.bin
 	rm -rf $(BOOT_IMAGE)
 	rm -rf $(BIF)
