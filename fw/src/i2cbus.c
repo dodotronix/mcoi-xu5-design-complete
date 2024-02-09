@@ -61,11 +61,13 @@ int i2cbus_write_data(i2c_t *i2c) {
 
 int i2cbus_read_data(i2c_t *i2c) {
     int s;
+    u8 wr_num_store = i2c->writes;
     i2c->writes=1;
 
     if (i2cbus_write_data(i2c)) return XST_FAILURE;
 	while (XIicPs_BusIsBusy(i2c->port));
 	s = XIicPs_MasterRecvPolled(i2c->port, i2c->data, i2c->reads, i2c->addr);
+    i2c->writes = wr_num_store;
 
 	if (s) return XST_FAILURE;
     return XST_SUCCESS;
