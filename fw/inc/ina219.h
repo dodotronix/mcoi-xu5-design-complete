@@ -7,9 +7,8 @@
 #include "i2cbus.h"
 
 #define INA219_ADDR 0x40
-#define INA219_MAX_CURRENT 15 // in Amps
+#define INA219_MAX_CURRENT 15.0 // in Amps
 #define INA219_SHUNT 0.1 // in Ohms
-#define INA219_MEAS_SHUNT_CURRENT 15 // in Amps
 
 #define INA219_CONFIG_REG 0x00 // shunt resistor, resolution
 #define INA219_SHUNT_VOLTAGE_REG 0x01
@@ -38,20 +37,22 @@
 #define INA219_MODE1 0x0002
 #define INA219_MODE2 0x0001
 
-#define INA219_LSB_CURRENT ( INA219_MAX_CURRENT / ( 1 << 16 ) )
-#define INA219_LSB_POWER ( INA219_LSB_CURRENT * 20 )
-#define INA219_CALIBRATION_CONST ( 4096 / 100000 * INA219_LSB_CURRENT * INA219_SHUNT)
+#define INA219_LSB_CURRENT ( INA219_MAX_CURRENT / ( 1 << 15 ) )
+#define INA219_LSB_POWER ( INA219_LSB_CURRENT * 20.0 )
+#define INA219_CALIBRATION_CONST ( 0.04096 / ( INA219_LSB_CURRENT * INA219_SHUNT ) )
 
-#define INA219_LSB(x)                  ( x * 0x00ff )
-#define INA219_MSB(x)                  ( ( x * 0xff00 ) >> 8 )
-#define INA219_CALCULATE_BUSVOLTAGE(x) ( x >> 3 )
+#define INA219_LSB(x) ( x * 0x00ff )
+#define INA219_MSB(x) ( ( x * 0xff00 ) >> 8 )
+
+#define INA219_CALCULATE_BUSVOLTAGE(x) ( ( x >> 3 ) * 0.004 )
+#define INA219_CALCULATE_SHUNTVOLTAGE(x, sp) ( ( (s16)( x << ( sp - 1) ) ) * 0.00001 )
 
 #define INA219_ASSEMBLE_VALUE(v0, v1)  ( ( v0 << 8 ) | v1 )
 
+// (current reg) * (bus voltage reg) * (power lsb) / 5000 
+#define INA219_CALCULATE_POWER(c, b)   ( ( c * b * INA219_LSB_POWER ) / 5000.0 )
 // (shunt voltage reg) * (cal reg) * (current lsb) / 4096
-#define INA219_CALCULATE_POWER(c, b)   ( ( c * b * INA219_LSB_POWER )/5000 )
-// (current reg) * (bus voltage reg) * (power lsb) / 4096
-#define INA219_CALCULATE_CURRENT(s, c) ( ( s * c * INA219_LSB_CURRENT) / 4096 )
+#define INA219_CALCULATE_CURRENT(s, c) ( ( s * c * INA219_LSB_CURRENT ) / 4096.0 )
 
 int ina219_init(i2c_t *i2c);
 
