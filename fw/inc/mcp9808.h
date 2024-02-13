@@ -29,6 +29,7 @@ typedef struct {
 int mcp9808_init(i2c_t *i2c);
 
 u16 mcp9808_getID();
+u16 mcp9808_getManufacturer();
 u16 mcp9808_readTempRaw();
 float mcp9808_readTempC();
 
