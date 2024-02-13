@@ -5,263 +5,88 @@
  */
 
 #include <stdio.h>
-#include "platform.h"
-#include "xil_printf.h"
-#include "xgpiops.h"
 #include "xgpio.h"
 #include "xparameters.h"
 #include "sleep.h"
-#include "xiicps.h"
-#include "mcoi_xu5_devkit_ch1_ch2_120mhz_low_jitter_on_1ch_25mhz_ref_lvds_clk_source1_in5_in6_from_pcb_rev1.h"
 
-void show_iic_setup(XIicPs *InstancePtr) {
-    printf("Device ID: %x\n", InstancePtr->Config.DeviceId);
-    printf("Base Address: %lx\n", InstancePtr->Config.BaseAddress);
-    printf("Input Clock Hz: %u\n", InstancePtr->Config.InputClockHz);
+// #include "i2cbus.h"
+#include "si5338.h"
+#include "mcp9808.h"
+#include "at24mac402.h"
+#include "ina219.h"
 
-    printf("Is Ready: %x\n", InstancePtr->IsReady);
-    printf("Options: %x\n", InstancePtr->Options);
-
-    /* printf("Received buffer data: %i\n", *(InstancePtr->RecvBufferPtr));
-    printf("Send buffer data: %i\n", *(InstancePtr->SendBufferPtr)); */
-    printf("Send Byte Count: %x\n", InstancePtr->SendByteCount);
-
-    printf("Recv Byte Count: %x\n", InstancePtr->RecvByteCount);
-    printf("Current Byte Count: %x\n", InstancePtr->CurrByteCount);
-    printf("Update Tx size: %x\n", InstancePtr->UpdateTxSize);
-    printf("Is Send: %x\n", InstancePtr->IsSend);
-    printf("Is Repeated Start: %x\n", InstancePtr->IsRepeatedStart);
-    printf("Is 10Bit Addr: %x\n", InstancePtr->Is10BitAddr);
-}
-
-#define IIC_DEVICE_ID		XPAR_XIICPS_0_DEVICE_ID
-#define IIC_SLAVE_ADDR		0x70
-#define IIC_SCLK_RATE		100000
-
-int initialize_iic(u16 DeviceId, XIicPs *iic_dev);
-void i2c_scan(XIicPs *iic_dev);
-
-u8 read_byte_data(XIicPs *iic_dev, u16 addr, u8 reg);
-void write_byte_data(XIicPs *iic_dev, u16 addr, u8 reg, u8 val);
-void set_bits(XIicPs *iic_dev, u8 reg, u8 val);
-void clear_bits(XIicPs *iic_dev, u8 reg, u8 val);
-void copy_bits(XIicPs *iic_dev, u8 reg0, u8 reg1, u8 mask);
-void validate_value(XIicPs *iic_dev, u8 reg, u8 mask, u8 val);
-void write_config_map(XIicPs *iic_dev, t_reg_data const *map, u32 map_length);
-int initialize_clock(XIicPs *Iic);
-
-u8 SendBuffer[2];
-u8 RecvBuffer[1];
+// void mcoi_init() 
 
 int main(void)
 {
-    int status;
-    char test[64];
-    XGpio io;
-    XIicPs Iic;
-    u32 a;
+    i2c_t bus;
+    float temp;
+    u16 id;
 
-    status = XGpio_Initialize(&io, XPAR_GPIO_0_DEVICE_ID);
-    printf("status of GPIO init: %x\n", status);
+    i2cbus_init(&bus, I2C_DEV0_CLK, I2C_DEV0_ID);
 
-    if(initialize_iic(IIC_DEVICE_ID, &Iic)) { 
-        printf("\x1b[31mI2C INITIALIZATION FAILED\x1b[0m\n");
-        return XST_FAILURE;
+    //scan i2c bus
+    i2cbus_scan(&bus);
+
+    // initialization of devices 
+    if(si5338_init(&bus)) {
+        printf("si5338 init failed\n");
+        return 1; 
     }
 
-    XGpio_SetDataDirection(&io, 1, 0xff00);
-    printf("initial value: %x\n", XGpio_DiscreteRead(&io, 1));
+    if(mcp9808_init(&bus)) {
+        printf("mcp9808 init failed\n");
+        return 1; 
+    }
 
+    if(ina219_init(&bus)) {
+        printf("ina219 init failed\n");
+        return 1; 
+    }
+
+    if(at24mac402_init(&bus)) {
+        printf("at24mac402 init failed\n");
+        return 1; 
+    }
+
+    // TODO mcoi_init(); 
+    si5338_configure();
+
+    // event loop
     while(1) {
-        printf("waiting for an input: ");
-        scanf("%64s", test);
+        id = mcp9808_getID();
+        printf("id: %x\n", id);
+        // i2cbus_scan(&bus);
+        temp = mcp9808_readTempC();
+        printf("temp: %f\n", temp);
 
-        if (!strcmp(test, "pll")){
+        ina219_read_all();
+        at24mac402_get_mac();
+        at24mac402_get_uuid();
 
-            printf("Initialize External PLL\r\n");
-            initialize_clock(&Iic);
+        // TODO send_to_mcoi();
+        // send_to_mcoi();
 
-            XGpio_DiscreteWrite(&io, 1, 0x01);
-            printf("written value: %x\n", XGpio_DiscreteRead(&io, 1));
-        } else if (!strcmp(test, "blink")){
-            a = XGpio_DiscreteRead(&io, 1);
-            for(int i=0; i<10; ++i) {
-                XGpio_DiscreteWrite(&io, 1, a | 0x02);
-                usleep(250000);
-                XGpio_DiscreteWrite(&io, 1, a | 0x00);
-                usleep(250000);
-            }
-        } else if (!strcmp(test, "scan")) {
-            i2c_scan(&Iic);
-        }
+        sleep(1);
     }
 
     return 0;
 }
 
-void i2c_scan(XIicPs *iic_dev) {
-    int Status;
-    char line [64] = "";
 
-    printf("    0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
-    for(u8 i=0; i<128; ++i) {
-	    Status = XIicPs_MasterSendPolled(iic_dev, SendBuffer, 1, i);
-        if (!(i%16) || i == 127) {
-            printf("%s\n", line);
-            sprintf(line, "%02x", i);
-        }
+/* void mcoi_init() 
+{
+    int status;
+    status = XGpio_Initialize(&io, XPAR_GPIO_0_DEVICE_ID);
+    printf("status of GPIO init: %x\n", status);
+    XGpio_SetDataDirection(&io, 1, 0xff00);
+    printf("initial value: %x\n", XGpio_DiscreteRead(&io, 1));
 
-        if(!Status) sprintf(line, "%s %02x", line, i); 
-        else sprintf(line, "%s --", line);
+     for(int i=0; i<10; ++i) {
+        XGpio_DiscreteWrite(&io, 1, a | 0x02);
+        usleep(250000);
+        XGpio_DiscreteWrite(&io, 1, a | 0x00);
+        usleep(250000);
+
     }
-}
-
-
-void set_bits(XIicPs *iic_dev, u8 reg, u8 val) {
-    u8 tmp, current_reg;
-    current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg);
-    tmp = current_reg | val;
-    write_byte_data(iic_dev, IIC_SLAVE_ADDR, reg, tmp);
-    current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg);
-    printf("\x1b[32m[DEBUG]\x1b[0m addr %i; written %x ---> read %x\n", reg, tmp, current_reg);
-}
-
-void clear_bits(XIicPs *iic_dev, u8 reg, u8 val) {
-    u8 tmp, current_reg;
-    current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg);
-    tmp = current_reg & ~val;
-    write_byte_data(iic_dev, IIC_SLAVE_ADDR, reg, tmp);
-    current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg);
-    printf("\x1b[32m[DEBUG]\x1b[0m addr %i; written %x ---> read %x\n", reg, tmp, current_reg);
-}
-
-void copy_bits(XIicPs *iic_dev, u8 reg0, u8 reg1, u8 mask) {
-    u8 tmp, current_reg0, current_reg1;
-    current_reg0 = read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg0);
-    current_reg1 = read_byte_data(iic_dev, IIC_SLAVE_ADDR, reg1);
-    
-    tmp = current_reg1 | (current_reg0 & mask);
-    write_byte_data(iic_dev, IIC_SLAVE_ADDR, reg1, tmp);
-    printf("\x1b[32m[DEBUG]\x1b[0m combine %x | (%x & %x) ---> written %x\n", current_reg1, current_reg0, mask, tmp);
-}
-
-u8 get_alarms(XIicPs *iic_dev) {
-    //printf("\x1b[32m[DEBUG]\x1b[0m validating value in register %x (desired value %x)\n", reg, val);
-    return read_byte_data(iic_dev, IIC_SLAVE_ADDR, 218);
-}
-
-void write_config_map(XIicPs *iic_dev, t_reg_data const *map, u32 map_length) {
-    t_reg_data const *element; 
-    u8 current_reg, combined, clear_cur_val, tmp;
-
-    for(u32 i=1; i<map_length; ++i) {
-        element = map + i;
-        printf("addr: %i, value: %x, mask: %x\n", element->Reg_Addr, element->Reg_Val, element->Reg_Mask);
-        if(element->Reg_Mask == 0xff) {
-            write_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr, element->Reg_Val);
-            tmp = read_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr);
-            printf("\x1b[32m[DEBUG]\x1b[0m addr %i; written %x ---> read %x\n", element->Reg_Addr, element->Reg_Val, tmp);
-        } else {
-            current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr);
-            clear_cur_val = (current_reg & ~element->Reg_Mask);
-            tmp = element->Reg_Val & element->Reg_Mask;
-            combined = clear_cur_val | tmp;
-            write_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr, combined);
-            current_reg = read_byte_data(iic_dev, IIC_SLAVE_ADDR, element->Reg_Addr);
-            printf("\x1b[32m[DEBUG]\x1b[0m addr %i; written %x ---> read %x\n", element->Reg_Addr, combined, current_reg);
-        }
-    }
-}
-
-void write_byte_data(XIicPs *iic_dev, u16 addr, u8 reg, u8 val) {
-    SendBuffer[0] = reg;
-    SendBuffer[1] = val;
-    int Status;
-
-    // Wait for the line to be IDLE
-	while (XIicPs_BusIsBusy(iic_dev));
-	Status = XIicPs_MasterSendPolled(iic_dev, SendBuffer, 2, addr);
-	if (Status) printf("Failed Reading from the I2C\n");
-}
-
-u8 read_byte_data(XIicPs *iic_dev, u16 addr, u8 reg) {
-
-    int Status;
-    SendBuffer[0] = reg;
-    // wait until data line is idle again 
-	while (XIicPs_BusIsBusy(iic_dev));
-	Status = XIicPs_MasterSendPolled(iic_dev, SendBuffer, 1, addr);
-
-	while (XIicPs_BusIsBusy(iic_dev));
-	Status = XIicPs_MasterRecvPolled(iic_dev, RecvBuffer, 1, addr);
-	if (Status) printf("Failed Reading from the I2C\n");
-
-    return RecvBuffer[0];
-}
-
-int initialize_iic(u16 DeviceId, XIicPs *Iic) {
-
-	int Status;
-	XIicPs_Config *Config;
-
-	Config = XIicPs_LookupConfig(DeviceId);
-	if (NULL == Config) return XST_FAILURE;
-
-	Status = XIicPs_CfgInitialize(Iic, Config, Config->BaseAddress);
-	if (Status != XST_SUCCESS) return XST_FAILURE;
-
-	Status = XIicPs_SelfTest(Iic);
-	if (Status) return XST_FAILURE;
-
-	XIicPs_SetSClk(Iic, IIC_SCLK_RATE);
-    return XST_SUCCESS;
-}
-
-int initialize_clock(XIicPs *Iic) {
-    
-    u8 alarms;
-
-    /* write_byte_data(Iic, IIC_SLAVE_ADDR, 0x31, 0x10);
-    printf("Read vaule: %u",read_byte_data(Iic, IIC_SLAVE_ADDR,  0x31)); */
-
-    set_bits(Iic, 230, 0x10); //disable outputs
-
-    printf("\x1b[36mlol pause\x1b[0m\n");
-    set_bits(Iic, 241, 0x80); //pause lol
-
-    printf("\x1b[35mwriting config\x1b[0m\n");
-    write_config_map(Iic, code_Reg_Store, NUM_REGS_MAX);
-
-    // TODO pll does not get locked
-    printf("\x1b[35mvalidating input clock ... \x1b[0m\n");
-    alarms = get_alarms(Iic);
-    if(alarms & 0x04)
-    	printf("\x1b[33m[WARN]\x1b[0m LOS_CLKIN is active.\x1b[0m\n");
-    if(alarms & 0x08)
-    	printf("\x1b[33m[WARN]\x1b[0m LOS_FDBK is active.\x1b[0m\n");
-
-    clear_bits(Iic, 49, 0x80); //configure pll for locking
-    set_bits(Iic, 246, 0x02); //initiate locking of ppl
-    
-    usleep(25000); //wait 25ms
-
-    clear_bits(Iic, 241, 0x80); //restart lol
-    set_bits(Iic, 241, 0x65);
-    
-    printf("\x1b[35mwaiting for locking pll ... \x1b[0m\n");
-    while((get_alarms(Iic) & 0x11));
-
-    printf("\x1b[35mcopying registers\x1b[0m\n");
-    copy_bits(Iic, 237, 47, 0x03);
-    copy_bits(Iic, 236, 46, 0xff);
-    copy_bits(Iic, 235, 45, 0xff);
-
-    set_bits(Iic, 47, 0x14);
-    set_bits(Iic, 49, 0x80); //set pll to use fcal
-
-    printf("\x1b[36menabling outputs\x1b[0m\n");
-    clear_bits(Iic, 230, 0x10); //enable outputs
-    printf("\x1b[32mdone!\x1b[0m\n");
-
-    return XST_SUCCESS;
-}
+} */
