@@ -72,19 +72,32 @@ module mcoi_xu5_design_complete (//motors
                                  output logic pl_varclk_n
                                 );
 
-   logic [31:0] ps_control, ps_data;
    logic gbt_pll_locked,
          ExternalPll120MHzMGT,
          recovered_clk,
          si5338_ready;
 
-   assign si5338_ready = ps_control[0];
+   logic [31:0] shared_reg_tri_i;
+   logic [31:0] shared_reg_tri_o;
+   logic [31:0] shared_reg_tri_t;
+   logic [31:0] shared_memory_port_addr;
+   logic [31:0] shared_memory_port_din;
+   logic [31:0] shared_memory_port_dout;
+   logic [3:0] shared_memory_port_we;
+   logic shared_memory_port_en;
+   logic shared_memory_port_rst;
+   logic shared_memory_port_clk;
+
+   // assign si5338_ready = ps_control[0];
+   assign si5338_ready = 1'b1;
 
    /* always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk)
        if(clk_tree_x.ClkRs120MHz_ix.reset) rs485_pl_ro <= 1'b0;
        else rs485_pl_ro <= (rs485_pl_di) ? rs485_pl_di : rs485_pl_ro; */
 
+   t_buffer bram_porta_0();
    t_clocks clk_tree_x();
+   t_register ps_register_x();
    t_gbt_data #(.CLOCKING_SCHEME(0))
    gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHz_ix),
               .ClkRsRef_ix(clk_tree_x.ClkRs120MHz_ix));
@@ -104,6 +117,11 @@ module mcoi_xu5_design_complete (//motors
         .external_pll_source1_120mhz(ExternalPll120MHzMGT),
         .*);
 
+
    zynq_ultrasp_ps_system i_ps_system(.*);
+
+   assign shared_reg_tri_o = ps_register_x.status; 
+   assign ps_register_x.control = shared_reg_tri_i;
+   assign ps_register_x.bidir = shared_reg_tri_t;
 
 endmodule // mcoi_xu5_design_complete

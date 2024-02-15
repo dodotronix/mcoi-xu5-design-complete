@@ -39,8 +39,7 @@ import constants::*;
 
 module mcoi_xu5_application #(parameter g_clock_divider = 40000)(
     output logic mreset_vadj,
-    output logic  [31:0] ps_control,
-    input logic [31:0] ps_data,
+    t_register.consumer ps_register_x,
     t_gbt_data.consumer gbt_data_x,
     t_rs485.producer rs485_x,
     t_clocks.consumer clk_tree_x,
@@ -60,7 +59,6 @@ logic [31:0] build_number_b32;           // From i_build_number of build_number.
 // module namespace for of the signals
 logic clock, reset, supply_ok, vfc_data_arrived, data_arrived;
 logic to_rs485_drv, from_rs485_drv;
-logic [31:0] cnt_120mhz;
 logic [31:0] page_selector_b32,
              serial_feedback_b32,
              mux_b32, loopback_b32,
@@ -71,7 +69,6 @@ logic [15:0] ValidRXMemData_b16;
 logic [4:0] amplitude_ib;
 logic blinker, cycleStart_o, increaseAmplitude, ClkRs1ms_e;
 
-
 // when all at one, leds should be turned on
 logic [3:0][1:0][15:0] ledData_b;
 
@@ -79,9 +76,9 @@ logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] stepout_diode;
 logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] led_lg, led_lr, led_rg, led_rr;
 logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] [31:0] SwitchesConfiguration_b32;
 
-logic [63:0] UniqueID_oqb64 = 64'h1111_2222_3333_4444;
-logic [31:0] temperature32b_i = 32'hdeadbeef;
-logic [31:0] power32b_i = 32'hcafebeef;
+logic [128:0] UniqueID_oqb128, UniqueID_oqb128_cc; // 64'h1111_2222_3333_4444;
+logic [31:0] temperature32b, temperature32b_cc; // 32'hdeadbeef;
+logic [31:0] power32b, power32b_cc; // 32'hcafebeef;
 
 motorsStatuses_t motorStatus_ob, debounced_motorStatus_b;
 motorsControls_t motorControl_ib;
@@ -89,24 +86,25 @@ switchstate_t [NUMBER_OF_MOTORS_PER_FIBER-1:0] [1:0] SwitchesConfiguration_2b16;
 
 ckrs_t gbt_rx_clkrs;
 
-always_comb begin
-    clock = clk_tree_x.ClkRs40MHz_ix.clk;
-    reset = clk_tree_x.ClkRs40MHz_ix.reset;
-    supply_ok = diag_x.fpga_supply_ok;
-    mreset_vadj = supply_ok;
+    always_comb begin
+        clock = clk_tree_x.ClkRs40MHz_ix.clk;
+        reset = clk_tree_x.ClkRs40MHz_ix.reset;
+        supply_ok = diag_x.fpga_supply_ok;
+        mreset_vadj = supply_ok;
 
-    // serial interface for programming the drivers over GBTx
-    rs485_x.rs485_pl_di = to_rs485_drv;
-    from_rs485_drv = rs485_x.rs485_pl_ro;
+        // serial interface for programming the drivers over GBTx
+        rs485_x.rs485_pl_di = to_rs485_drv;
+        from_rs485_drv = rs485_x.rs485_pl_ro;
 
-    // TODO use the whole width of 4bits in the communication
-    sc_idata = gbt_data_x.data_received.sc_data_b4;
-    // gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
-    gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
+        // TODO use the whole width of 4bits in the communication
+        sc_idata = gbt_data_x.data_received.sc_data_b4;
+        // gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
+        gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
 
-    gbt_rx_clkrs.clk = gbt_data_x.rx_frameclk;
-    gbt_rx_clkrs.reset = !gbt_data_x.rx_ready;
-end
+        gbt_rx_clkrs.clk = gbt_data_x.tx_frameclk;
+        gbt_rx_clkrs.reset = !gbt_data_x.tx_ready;
+        ps_register_x.control = 32'hff;
+    end
 
     // assign through interlocking - control data are casted to the
     // motor _only_ if loop is closed _and_ data are valid. Then with
@@ -211,10 +209,7 @@ end
     // STATUS INDICATION (LEDs)
     assign diag_x.mled[0] = (serial_feedback_b32 == GEFE_INTERLOCK
                              && !page_selector_b32[31])? '0 : '1;
-    assign diag_x.mled[2:1] = ps_data[1:0];
-
-    // easy feedback
-    assign ps_control = ps_data;
+    assign diag_x.mled[2:1] = ps_register_x.status[1:0];
 
     logic [8:0] snake;
     logic [22:0] snake_div;
@@ -267,6 +262,8 @@ end
    always_ff @(posedge gbt_rx_clkrs.clk)
        serial_feedback_cc_b32 <= serial_feedback_b32;
 
+   logic tx_busy, tx_empty, tx_error, serial_up, rx_locked;
+
    serial_register i_serial_register_feedback (
        .Rx_i(sc_idata[1]),
        .Tx_o(sc_odata[1]),
@@ -277,12 +274,26 @@ end
        .ClkRxGBT_ix(gbt_rx_clkrs),
        .ClkTxGBT_ix(gbt_rx_clkrs),
        .newdata_o(data_arrived),
-       .TxBusy_o(),
-       .TxEmptyFifo_o(),
-       .txerror_o(),
-       .SerialLinkUp_o(),
-       .RxLocked_o()
+       .TxBusy_o(tx_busy),
+       .TxEmptyFifo_o(tx_empty),
+       .txerror_o(tx_error),
+       .SerialLinkUp_o(serial_up),
+       .RxLocked_o(rx_locked)
    );
+
+   serdes_ila i_serdes_ila (
+       .clk(gbt_rx_clkrs.clk),
+       .probe0(sc_idata[1]),
+       .probe1(sc_odata[1]),
+       .probe2(serial_feedback_cc_b32),
+       .probe3(serial_feedback_b32),
+       .probe4(data_arrived),
+       .probe5(tx_busy),
+       .probe6(tx_empty),
+       .probe7(tx_error),
+       .probe8(serial_up),
+       .probe9(rx_locked));
+
 
    assign to_rs485_drv = page_selector_b32[8];
 
@@ -309,10 +320,10 @@ end
                0: mux_b32 <= loopback_b32;
                1: mux_b32 <= build_number_b32;
                2: mux_b32 <= {28'b0, diag_x.pcbrev};
-               3: mux_b32 <= UniqueID_oqb64[63:32];
-               4: mux_b32 <= UniqueID_oqb64[31:0];
-               5: mux_b32 <= temperature32b_i;
-               6: mux_b32 <= power32b_i;
+               3: mux_b32 <= UniqueID_oqb128_cc[63:32];
+               4: mux_b32 <= UniqueID_oqb128_cc[31:0];
+               5: mux_b32 <= temperature32b_cc;
+               6: mux_b32 <= power32b_cc;
                7: mux_b32 <= 32'd1;
                8: mux_b32 <= {30'b0, from_rs485_drv};
                16: mux_b32 <= {28'b0, debounced_motorStatus_b[1]};
@@ -341,15 +352,15 @@ end
        .ClkRs_ix(clk_tree_x.ClkRs100MHz_ix), .*);
 
 
-   // get 1ms timing out of 25MHz (25000)
+   /* // get 1ms timing out of 25MHz (25000)
    clock_divider #( .g_divider(g_clock_divider)) i_clock_divider (
-       .enable_o(ClkRs1ms_e), .ClkRs_ix(clk_tree_x.ClkRs100MHz_ix));
+       .enable_o(ClkRs1ms_e), .ClkRs_ix(clk_tree_x.ClkRs100MHz_ix)); */
 
    // let's do 'alive mreset' it will slowly turn on/off using PWM we
    // can do it. Using 1ms clock should do the job. Nothing fancy,
    // implemented 'easiest' possible way, not restricting in period.
 
-   get_edge i_get_edge (
+   /* get_edge i_get_edge (
        .rising_o(increaseAmplitude),
        .falling_o(),
        .data_o(),
@@ -360,7 +371,7 @@ end
        if(clk_tree_x.ClkRs100MHz_ix.reset) amplitude_ib <= '0;
        if (increaseAmplitude) amplitude_ib <= amplitude_ib + 5'h1;
    end
-
+ */
    // pwm uses 5 bits, meaning that each pwm cycle takes 32 enable
    // cycles, if enable is 1ms, then 1 cycle takes 32milliseconds. If
    // with each cycle we increase amplitude by 1 bin, the total

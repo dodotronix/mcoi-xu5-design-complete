@@ -81,3 +81,51 @@ interface t_diag;
 
 endinterface // diag_x
 
+interface t_buffer(input ckrs_t ClkRs_ix);
+  logic en; 
+  logic [31:0] dout;
+  logic [31:0] din;
+  logic [31:0] addr;
+  logic [3:0] we;
+  logic clk;
+  logic rst;
+
+  modport consumer(
+      input  dout,
+      output din,
+      output we,
+      output addr,
+      output clk,
+      output rst
+      );
+
+  modport producer(
+      output dout,
+      input  din,
+      input  we,
+      input  addr,
+      input  clk,
+      input  rst
+      );
+
+endinterface // buffer
+
+interface t_register();
+  logic [31:0] status;
+  logic [31:0] control;
+  logic [31:0] bidir;
+
+  modport consumer(
+      input status,
+      output control,
+      inout bidir
+      );
+
+  modport producer(
+      output status,
+      input control,
+      inout bidir 
+      );
+
+endinterface
+
