@@ -22,7 +22,7 @@ set conn smart_connect
 set gpios axi_gpio
 set reset ps_reset
 set sysmanager system_management
-set status ps_status
+set ps_reg shared_reg
 set mem shared_memory 
 set ctrl shared_memory_control 
 set port shared_memory_port 
@@ -39,7 +39,7 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 $ctrl
 
 # connections going to PL
 create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:bram_rtl:1.0 ${port} 
-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 ${status} 
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 ${ps_reg} 
 
 endgroup
 
@@ -130,7 +130,7 @@ connect_bd_intf_net [get_bd_intf_pins ${gpios}/S_AXI] [get_bd_intf_pins ${conn}/
 connect_bd_intf_net [get_bd_intf_pins ${ctrl}/BRAM_PORTA] [get_bd_intf_pins ${mem}/BRAM_PORTA]
 connect_bd_intf_net [get_bd_intf_ports ${port}] [get_bd_intf_pins ${mem}/BRAM_PORTB]
 connect_bd_intf_net [get_bd_intf_pins ${conn}/M02_AXI] [get_bd_intf_pins ${ctrl}/S_AXI]
-connect_bd_intf_net [get_bd_intf_ports ${status}] [get_bd_intf_pins axi_gpio/GPIO]
+connect_bd_intf_net [get_bd_intf_ports ${ps_reg}] [get_bd_intf_pins axi_gpio/GPIO]
 
 connect_bd_net [get_bd_pins ${ps}/pl_resetn0] [get_bd_pins ${reset}/ext_reset_in]
 connect_bd_net [get_bd_pins ${reset}/peripheral_aresetn] [get_bd_pins ${sysmanager}/s_axi_aresetn]
