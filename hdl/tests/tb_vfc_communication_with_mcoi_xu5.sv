@@ -40,7 +40,7 @@ import clsclk::*;
 import MCPkg::*;
 
 
-module tb_gbt_zynq_usplus;
+module tb_vfc_communication_with_mcoi_xu5;
    timeunit 1ns;
    timeprecision 100ps;
 
