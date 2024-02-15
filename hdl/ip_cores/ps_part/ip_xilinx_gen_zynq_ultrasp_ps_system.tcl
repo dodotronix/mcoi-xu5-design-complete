@@ -19,8 +19,13 @@ create_bd_design $bd_name
 
 set ps ps_part
 set conn smart_connect
+set gpios axi_gpio
 set reset ps_reset
 set sysmanager system_management
+set status ps_status
+set mem shared_memory 
+set ctrl shared_memory_control 
+set port shared_memory_port 
 
 # Create an IP customization
 startgroup
@@ -28,9 +33,17 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:zynq_ultra_ps_e:3.4 $ps
 create_bd_cell -type ip -vlnv xilinx.com:ip:system_management_wiz $sysmanager
 create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect $conn 
 create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 $reset 
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 $gpios
+create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 $mem 
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.1 $ctrl
 
-set_property -dict [list CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {0} \
-                         CONFIG.PSU_BANK_0_IO_STANDARD {LVCMOS18} \
+# connections going to PL
+create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:bram_rtl:1.0 ${port} 
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 ${status} 
+
+endgroup
+
+set_property -dict [list CONFIG.PSU_BANK_0_IO_STANDARD {LVCMOS18} \
                          CONFIG.PSU_BANK_1_IO_STANDARD {LVCMOS18} \
                          CONFIG.PSU_BANK_2_IO_STANDARD {LVCMOS18} \
                          CONFIG.PSU_BANK_3_IO_STANDARD {LVCMOS18} \
@@ -66,6 +79,8 @@ set_property -dict [list CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {0} \
                          CONFIG.PSU__DDRC__T_RC {46.16} \
                          CONFIG.PSU__DDRC__T_RCD {17} \
                          CONFIG.PSU__DDRC__T_RP {17} \
+                         CONFIG.PSU__ENET0__GRP_MDIO__ENABLE {1} \
+                         CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {1} \
                          CONFIG.PSU_MIO_13_PULLUPDOWN {disable} \
                          CONFIG.PSU_MIO_14_PULLUPDOWN {disable} \
                          CONFIG.PSU_MIO_15_PULLUPDOWN {disable} \
@@ -79,27 +94,62 @@ set_property -dict [list CONFIG.PSU__ENET0__PERIPHERAL__ENABLE {0} \
                          [get_bd_cells $ps]
 
 set_property -dict [ list \
+  CONFIG.SINGLE_PORT_BRAM {1} \
+] [get_bd_cells $ctrl]
+
+set_property -dict [ list \
+  CONFIG.Memory_Type {True_Dual_Port_RAM} \
+  CONFIG.Enable_32bit_Address {false} \
+  CONFIG.Write_Depth_A {8192} \
+  CONFIG.Write_Width_A {32} \
+  CONFIG.Write_Width_B {32} \
+] [get_bd_cells $mem]
+
+set_property -dict [ list \
   CONFIG.TEMPERATURE_ALARM_OT_TRIGGER {85} \
   CONFIG.CHANNEL_ENABLE_VP_VN {false} \
 ] [get_bd_cells $sysmanager]
 
-set_property -dict [list \
-    CONFIG.NUM_MI {1} \
+set_property -dict [ list \
+    CONFIG.NUM_MI {3} \
     CONFIG.NUM_CLKS {1} \
     CONFIG.NUM_SI {1} \
 ] [get_bd_cells $conn]
 
+set_property -dict [ list \
+    CONFIG.READ_WRITE_MODE READ_WRITE \
+    CONFIG.MASTER_TYPE BRAM_CTRL \
+] [get_bd_intf_ports ${port}]
+
+
+startgroup
 # connec the blocks
 connect_bd_intf_net [get_bd_intf_pins ${conn}/S00_AXI] [get_bd_intf_pins ${ps}/M_AXI_HPM0_LPD]
 connect_bd_intf_net [get_bd_intf_pins ${conn}/M00_AXI] [get_bd_intf_pins ${sysmanager}/S_AXI_LITE]
+connect_bd_intf_net [get_bd_intf_pins ${gpios}/S_AXI] [get_bd_intf_pins ${conn}/M01_AXI]
+connect_bd_intf_net [get_bd_intf_pins ${ctrl}/BRAM_PORTA] [get_bd_intf_pins ${mem}/BRAM_PORTA]
+connect_bd_intf_net [get_bd_intf_ports ${port}] [get_bd_intf_pins ${mem}/BRAM_PORTB]
+connect_bd_intf_net [get_bd_intf_pins ${conn}/M02_AXI] [get_bd_intf_pins ${ctrl}/S_AXI]
+connect_bd_intf_net [get_bd_intf_ports ${status}] [get_bd_intf_pins axi_gpio/GPIO]
 
-connect_bd_net [get_bd_pins ${conn}/aresetn] [get_bd_pins ${reset}/interconnect_aresetn]
+connect_bd_net [get_bd_pins ${ps}/pl_resetn0] [get_bd_pins ${reset}/ext_reset_in]
+connect_bd_net [get_bd_pins ${reset}/peripheral_aresetn] [get_bd_pins ${sysmanager}/s_axi_aresetn]
+
+connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${ps}/pl_clk0]
 connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${reset}/slowest_sync_clk]
 connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${ps}/maxihpm0_lpd_aclk]
-connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${ps}/pl_clk0]
 connect_bd_net [get_bd_pins ${conn}/aclk] [get_bd_pins ${sysmanager}/s_axi_aclk]
-connect_bd_net [get_bd_pins ${reset}/peripheral_aresetn] [get_bd_pins ${sysmanager}/s_axi_aresetn]
-connect_bd_net [get_bd_pins ${ps}/pl_resetn0] [get_bd_pins ${reset}/ext_reset_in]
+connect_bd_net [get_bd_pins ${conn}/aresetn] [get_bd_pins ${reset}/interconnect_aresetn]
+
+connect_bd_net [get_bd_pins ${ctrl}/s_axi_aclk] [get_bd_pins ${ps}/pl_clk0]
+# connect_bd_net [get_bd_pins ${ctrl}/s_axi_aresetn] [get_bd_pins ${ps}/peripheral_aresetn]
+connect_bd_net [get_bd_pins ${ctrl}/s_axi_aresetn] [get_bd_pins ${gpios}/s_axi_aresetn]
+
+connect_bd_net [get_bd_pins ${gpios}/s_axi_aclk] [get_bd_pins ${ps}/pl_clk0]
+connect_bd_net [get_bd_pins ${gpios}/s_axi_aresetn] [get_bd_pins ${sysmanager}/s_axi_aresetn]
 
 endgroup
+
+assign_bd_address
 save_bd_design
+validate_bd_design
