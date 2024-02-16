@@ -82,7 +82,7 @@ module mcoi_xu5_system (
    OBUFDS rx_clk_out_buffer (
        .O(pl_varclk_p),
        .OB(pl_varclk_n),
-       .I(gbt_data_x.rx_recclk));
+       .I(gbt_data_x.rx_wordclk));
 
    // MGT_REFCLK0
    IBUFDS_GTE4 #(
@@ -90,7 +90,7 @@ module mcoi_xu5_system (
        .REFCLK_HROW_CK_SEL(2'b00),
        .REFCLK_ICNTL_RX(2'b00))
    ibufds_gte4_i0 (
-        .O(recovered_clk),
+        .O(gbt_data_x.rx_recclk),
         .ODIV2(),
         .CEB(1'b0),
         .I(mgt_fdbk_p),
@@ -121,7 +121,7 @@ module mcoi_xu5_system (
 
     // 40MHz PLL derived from MGT clock
     gbt_pll_clk40m gbt_pll40m_i (
-        .clk120m_i(gbt_data_x.rx_recclk),
+        .clk120m_i(gbt_data_x.rx_wordclk),
         .clk40m_o(clk_tree_x.ClkRs40MHz_ix.clk),
         .reset(0),
         .locked(gbt_pll_locked));

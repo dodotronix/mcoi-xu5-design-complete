@@ -392,7 +392,8 @@ ckrs_t gbt_rx_clkrs;
     assign gbt_data_x.data_sent.mem_data_b16 = '0; */
 
     // cast read motor stats back to the stream
-    assign gbt_data_x.data_sent.motor_data_b64 = metaout;
+    // assign gbt_data_x.data_sent.motor_data_b64 = metaout;
+    assign gbt_data_x.data_sent.motor_data_b64 = 64'hdeadbeefdeadbeef;
     assign gbt_data_x.data_sent.mem_data_b16 = '0;
 
    // pin mapping

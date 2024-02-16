@@ -100,7 +100,8 @@ module mcoi_xu5_design_complete (//motors
    t_register ps_register_x();
    t_gbt_data #(.CLOCKING_SCHEME(0))
    gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHz_ix),
-              .ClkRsRef_ix(clk_tree_x.ClkRs120MHz_ix));
+              .ClkRsUser_ix(clk_tree_x.ClkRs120MHz_ix),
+              .refclk(ExternalPll120MHzMGT));
 
     // in the system you find just buffers plls
     // and sync of resets with clock domains
@@ -113,10 +114,9 @@ module mcoi_xu5_design_complete (//motors
 
     // GBT instance
     gbt_zynq_usplus #(.DEBUG(1), .GEFE_MODE(1)) gbt_zynq_usplus_inst(
-        .external_pll_source0_120mhz(recovered_clk),
-        .external_pll_source1_120mhz(ExternalPll120MHzMGT),
+        /* .external_pll_source0_120mhz(recovered_clk),
+        .external_pll_source1_120mhz(ExternalPll120MHzMGT), */
         .*);
-
 
    zynq_ultrasp_ps_system i_ps_system(.*);
 
