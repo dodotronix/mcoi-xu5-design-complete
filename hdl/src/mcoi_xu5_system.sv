@@ -42,7 +42,6 @@ module mcoi_xu5_system (
     t_clocks.producer clk_tree_x,
     t_gbt_data.control gbt_data_x,
     output logic ExternalPll120MHzMGT, // 120MHz coming from MGT oscillator
-    output logic recovered_clk,
     output logic gbt_pll_locked,
     input logic ext_pll_ready,
 
