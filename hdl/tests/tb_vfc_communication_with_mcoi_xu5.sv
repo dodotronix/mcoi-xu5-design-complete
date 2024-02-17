@@ -67,18 +67,27 @@ module tb_vfc_communication_with_mcoi_xu5;
    ckrs_t alt_120mhz;
    ckrs_t gbt_rx_clkrs;
    ckrs_t gbt_rx_clkrs_vfc;
+
+   ckrs_t ref_clkrs;
+   assign ref_clkrs.clk = clk_tree_x.ClkRs120MHz_ix.clk;
+   assign ref_clkrs.reset = gbt_x.sfp1_los | 1'b0;
+
    assign alt_40mhz.clk = vfc_clk40mhz;
-   assign alt_120mhz.clk = vfc_clk120mhz;
    assign alt_40mhz.reset = '0;
-   assign alt_120mhz.reset = '0;
-   t_gbt_data  #(.CLOCKING_SCHEME(0))
-   gbt_data_vfc (.ClkRs_ix(alt_40mhz),
-                 .ClkRsRef_ix(alt_120mhz));
+
+   assign alt_120mhz.clk = vfc_clk120mhz;
+   assign alt_120mhz.reset = gbt_vfc.sfp1_los;
 
    // GBT data stream runs in frame clock
-   t_gbt_data  #(.CLOCKING_SCHEME(0))
+   t_gbt_data #(.CLOCKING_SCHEME(0))
    gbt_data_x (.ClkRs_ix(gbt_rx_clkrs),
-               .ClkRsRef_ix(clk_tree_x.ClkRs120MHz_ix));
+              .ClkRsUser_ix(ref_clkrs),
+              .refclk(clk_tree_x.ClkRs120MHz_ix.clk));
+
+   t_gbt_data #(.CLOCKING_SCHEME(0))
+   gbt_data_vfc (.ClkRs_ix(alt_40mhz),
+              .ClkRsUser_ix(alt_120mhz),
+              .refclk(vfc_clk120mhz));
 
    logic reset_from_design_reset;
    logic reset_bitslip;
@@ -178,19 +187,18 @@ module tb_vfc_communication_with_mcoi_xu5;
    .external_pll_source_120mhz(clk_tree_x.ClkRs120MHz_ix.clk));
    */
 
-
   `TEST_SUITE begin
       `TEST_SUITE_SETUP begin
-          gbt_data_x.data_sent.motor_data_b64 = 64'h0;
+          gbt_data_x.data_sent.motor_data_b64 = 64'hcafecafecafecafe;
           gbt_data_x.data_sent.mem_data_b16 = 16'h0;
 
-          gbt_data_vfc.data_sent.motor_data_b64 = 64'h000bebeac1dacdcf;
+          gbt_data_vfc.data_sent.motor_data_b64 = 64'hdeadbeefdeadbeef;
           gbt_data_vfc.data_sent.mem_data_b16 = 16'h0;
 
           gbt_data_x.bitslip_reset = 1'b0;
           gbt_data_vfc.bitslip_reset = 1'b0;
           // gbt_data_x.data_sent = 84'h000bebeac1dacdcfffff;
-          generator();
+          // generator();
           gbt_x.sfp1_los = 1'b1;
           gbt_vfc.sfp1_los = 1'b1;
 
@@ -207,10 +215,21 @@ module tb_vfc_communication_with_mcoi_xu5;
           #10us;
           gbt_x.sfp1_los = 1'b0;
           gbt_vfc.sfp1_los = 1'b0;
-
-          #10us;
-          if (!gbt_data_x.link_ready) gbt_data_x.bitslip_reset = 1'b1;
-          #1ms;
+          #120us;
+          gbt_x.sfp1_los = 1'b1;
+          #50us;
+          gbt_x.sfp1_los = 1'b0;
+          /* #150us;
+          gbt_x.sfp1_los = 1'b1;
+          #100us;
+          gbt_x.sfp1_los = 1'b0;
+          #50us;
+          gbt_x.sfp1_los = 1'b1;
+          #50us;
+          gbt_x.sfp1_los = 1'b0; */
+          // #10us;
+          // if (!gbt_data_x.link_ready) gbt_data_x.bitslip_reset = 1'b1;
+          #6ms;
           `CHECK_EQUAL (1,1);
       end
   end
@@ -219,17 +238,10 @@ module tb_vfc_communication_with_mcoi_xu5;
   // must not be placed inside any initial or always-block.
   `WATCHDOG(4ms);
 
-    gbt_zynq_usplus #(.DEBUG(0), .GEFE_MODE(1), .RESET_DELAY(40)) DUT(
-        .external_pll_source0_120mhz(gbt_data_x.rx_recclk),
-        .external_pll_source1_120mhz(clk_tree_x.ClkRs120MHz_ix.clk),
-        .*);
+    gbt_zynq_usplus #(.DEBUG(0), .GEFE_MODE(1), .RESET_DELAY(40)) DUT(.*);
 
     gbt_zynq_usplus #(.DEBUG(0), .GEFE_MODE(0), .RESET_DELAY(40)) VFC(
-        .gbt_x(gbt_vfc),
-        .gbt_data_x(gbt_data_vfc),
-        .external_pll_source0_120mhz(vfc_clk120mhz),
-        .external_pll_source1_120mhz(vfc_clk120mhz),
-        .*);
+        .gbt_x(gbt_vfc), .gbt_data_x(gbt_data_vfc));
 
     always_comb begin
         gbt_rx_clkrs.clk = newclk_40mhz;
@@ -329,5 +341,11 @@ module tb_vfc_communication_with_mcoi_xu5;
    assign vfc_rx_p = gbt_x.sfp1_gbitout_p;
    assign gbt_x.sfp1_gbitin_n = vfc_tx_n;
    assign gbt_x.sfp1_gbitin_p = vfc_tx_p;
+
+
+   // loopback of the recoverd clock
+   assign gbt_data_x.rx_recclk = gbt_data_x.rx_wordclk;
+   assign gbt_data_vfc.rx_recclk = vfc_clk120mhz;
+
 
 endmodule // tb_gbt_xu5
