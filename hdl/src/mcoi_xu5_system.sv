@@ -67,6 +67,7 @@ module mcoi_xu5_system (
        .I(clk100m_pl_p),
        .IB(clk100m_pl_n));
 
+   // test if the recovered clock works
    /* OBUFDS_GTE4 #(
        .REFCLK_EN_TX_PATH(1'b1),
        .REFCLK_ICNTL_TX(5'b00111))
@@ -83,6 +84,9 @@ module mcoi_xu5_system (
        .OB(pl_varclk_n),
        .I(gbt_data_x.rx_wordclk));
 
+   logic recovered_clock;
+   logic recovered_clock_buff;
+
    // MGT_REFCLK0
    IBUFDS_GTE4 #(
        .REFCLK_EN_TX_PATH(1'b0),
@@ -90,7 +94,7 @@ module mcoi_xu5_system (
        .REFCLK_ICNTL_RX(2'b00))
    ibufds_gte4_i0 (
         .O(gbt_data_x.rx_recclk),
-        .ODIV2(),
+        .ODIV2(recovered_clock_buff),
         .CEB(1'b0),
         .I(mgt_fdbk_p),
         .IB(mgt_fdbk_n));
@@ -109,7 +113,7 @@ module mcoi_xu5_system (
         .IB(mgt_clk_n));
 
     // 120MHz PLL buffer clock copier
-    BUFG_GT ibuf_txpll_i (
+    BUFG_GT ibuf_rxpll_i (
         .O(clk_tree_x.ClkRs120MHz_ix.clk),
         .CE(1'b1),
         .CEMASK(1'b0),
@@ -118,9 +122,18 @@ module mcoi_xu5_system (
         .DIV(3'b000),
         .I(Clk120MHz_fromgte4));
 
+    BUFG_GT ibuf_txpll_i (
+        .O(recovered_clock),
+        .CE(1'b1),
+        .CEMASK(1'b0),
+        .CLR(1'b0),
+        .CLRMASK(1'b0),
+        .DIV(3'b000),
+        .I(recovered_clock_buff));
+
     // 40MHz PLL derived from MGT clock
     gbt_pll_clk40m gbt_pll40m_i (
-        .clk120m_i(gbt_data_x.rx_wordclk),
+        .clk120m_i(recovered_clock),
         .clk40m_o(clk_tree_x.ClkRs40MHz_ix.clk),
         .reset(0),
         .locked(gbt_pll_locked));
