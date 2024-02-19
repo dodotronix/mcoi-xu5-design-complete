@@ -115,8 +115,6 @@ module mcoi_xu5_design_complete (//motors
 
     // GBT instance
     gbt_zynq_usplus #(.DEBUG(1), .GEFE_MODE(1)) gbt_zynq_usplus_inst(
-        /* .external_pll_source0_120mhz(recovered_clk),
-        .external_pll_source1_120mhz(ExternalPll120MHzMGT), */
         .*);
 
    zynq_ultrasp_ps_system i_ps_system(.*);
