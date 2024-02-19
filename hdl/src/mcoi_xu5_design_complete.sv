@@ -100,7 +100,8 @@ module mcoi_xu5_design_complete (//motors
    t_register ps_register_x();
    t_gbt_data #(.CLOCKING_SCHEME(0))
    gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHz_ix),
-              .ClkRsUser_ix(clk_tree_x.ClkRs120MHz_ix),
+              .ClkRsRx_ix(clk_tree_x.ClkRs120MHz_ix),
+              .ClkRsTx_ix(clk_tree_x.ClkRsVar_ix),
               .refclk(ExternalPll120MHzMGT));
 
     // in the system you find just buffers plls

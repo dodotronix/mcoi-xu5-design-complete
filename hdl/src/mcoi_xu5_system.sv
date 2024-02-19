@@ -135,14 +135,14 @@ module mcoi_xu5_system (
     gbt_pll_clk40m gbt_pll40m_i (
         .clk120m_i(recovered_clock),
         .clk40m_o(clk_tree_x.ClkRs40MHz_ix.clk),
-        .reset(0),
+        .reset(reset),
         .locked(gbt_pll_locked));
 
     // TODO add reset from the onboard button
     // needs to be implemented first on the pcb
     always_comb begin
         reset = gbt_data_x.los | !ext_pll_ready;
-        // clk_tree_x.ClkRsVar_ix.clk = pl_varclk;
+        clk_tree_x.ClkRsVar_ix.clk = recovered_clock;
     end
 
     // reset synchronization into the respective clock domains
@@ -167,12 +167,12 @@ module mcoi_xu5_system (
        .data_i (reset),
        .data_o (clk_tree_x.ClkRs120MHz_ix.reset));
 
-    /* vme_reset_sync_and_filter u_Var_reset_sync
+    vme_reset_sync_and_filter u_Var_reset_sync
     (.rst_ir (1'b0),
         .clk_ik (clk_tree_x.ClkRsVar_ix.clk),
         .cen_ie (1'b1),
         .data_i (reset),
-        .data_o (clk_tree_x.ClkRsVar_ix.reset)); */
+        .data_o (clk_tree_x.ClkRsVar_ix.reset));
 
     assign gbt_data_x.rate_select = 1'b0;
     assign gbt_data_x.tx_disable = 1'b0;
