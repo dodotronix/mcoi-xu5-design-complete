@@ -62,7 +62,6 @@ module tb_vfc_communication_with_mcoi_xu5;
    t_gbt gbt_x();
    t_gbt gbt_vfc();
 
-
    ckrs_t alt_40mhz;
    ckrs_t alt_120mhz;
    ckrs_t gbt_rx_clkrs;
@@ -81,13 +80,15 @@ module tb_vfc_communication_with_mcoi_xu5;
    // GBT data stream runs in frame clock
    t_gbt_data #(.CLOCKING_SCHEME(0))
    gbt_data_x (.ClkRs_ix(gbt_rx_clkrs),
-              .ClkRsUser_ix(ref_clkrs),
+              .ClkRsRx_ix(ref_clkrs),
+              .ClkRsTx_ix(ref_clkrs),
               .refclk(clk_tree_x.ClkRs120MHz_ix.clk));
 
    t_gbt_data #(.CLOCKING_SCHEME(0))
    gbt_data_vfc (.ClkRs_ix(alt_40mhz),
-              .ClkRsUser_ix(alt_120mhz),
-              .refclk(vfc_clk120mhz));
+              .ClkRsRx_ix(alt_120mhz),
+              .ClkRsTx_ix(alt_120mhz),
+              .refclk(alt_120mhz.clk));
 
    logic reset_from_design_reset;
    logic reset_bitslip;
@@ -135,12 +136,13 @@ module tb_vfc_communication_with_mcoi_xu5;
    // equivalent of pll
     task create_40mhz_from_rxclkout;
         newclk_40mhz = '0;
+        #1.5ns;
         fork begin
             forever begin : gbt_clocks
-                @(posedge gbt_data_x.rx_recclk);
-                repeat(2) @(gbt_data_x.rx_recclk);
+                @(posedge gbt_data_x.rx_wordclk);
+                repeat(2) @(gbt_data_x.rx_wordclk);
                 newclk_40mhz = '1;
-                repeat(3) @(gbt_data_x.rx_recclk);
+                repeat(3) @(gbt_data_x.rx_wordclk);
                 newclk_40mhz = '0;
             end
         end join_none
@@ -245,7 +247,7 @@ module tb_vfc_communication_with_mcoi_xu5;
 
     always_comb begin
         gbt_rx_clkrs.clk = newclk_40mhz;
-        gbt_rx_clkrs.reset = !gbt_data_x.rx_ready;
+        gbt_rx_clkrs.reset = gbt_x.sfp1_los;
 
         gbt_rx_clkrs_vfc.clk = gbt_data_vfc.rx_frameclk;
         gbt_rx_clkrs_vfc.reset = !gbt_data_vfc.rx_ready;
