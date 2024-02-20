@@ -87,16 +87,13 @@ interface t_buffer(input ckrs_t ClkRs_ix);
   logic [31:0] din;
   logic [31:0] addr;
   logic [3:0] we;
-  logic clk;
-  logic rst;
 
   modport consumer(
       input  dout,
       output din,
       output we,
       output addr,
-      output clk,
-      output rst
+      input ClkRs_ix
       );
 
   modport producer(
@@ -104,8 +101,7 @@ interface t_buffer(input ckrs_t ClkRs_ix);
       input  din,
       input  we,
       input  addr,
-      input  clk,
-      input  rst
+      input  ClkRs_ix
       );
 
 endinterface // buffer

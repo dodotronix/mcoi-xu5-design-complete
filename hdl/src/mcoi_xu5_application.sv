@@ -39,15 +39,20 @@ import constants::*;
 
 module mcoi_xu5_application #(parameter g_clock_divider = 40000)(
     output logic mreset_vadj,
-    t_register.consumer ps_register_x,
+    t_register.consumer ps_register_x, // ps register for data ready flag
+    t_buffer.consumer ps_buffer_x, // ps buffer sharing i2c data
     t_gbt_data.consumer gbt_data_x,
     t_rs485.producer rs485_x,
     t_clocks.consumer clk_tree_x,
     t_display.producer display_x,
     t_motors.producer motors_x,
-    // TODO maybe add signals to check voltage on the board
     t_diag.producer diag_x
 );
+
+typedef enum {
+    WAIT_FOR_START,
+    READ_ALL_DATA,
+    FINISHED} t_state;
 
 /*AUTOWIRE*/
 // Beginning of automatic wires outputs (for undeclared instantiated-module outputs)
@@ -76,9 +81,14 @@ logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] stepout_diode;
 logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] led_lg, led_lr, led_rg, led_rr;
 logic [NUMBER_OF_MOTORS_PER_FIBER-1:0] [31:0] SwitchesConfiguration_b32;
 
-logic [128:0] UniqueID_oqb128, UniqueID_oqb128_cc; // 64'h1111_2222_3333_4444;
-logic [31:0] temperature32b, temperature32b_cc; // 32'hdeadbeef;
-logic [31:0] power32b, power32b_cc; // 32'hcafebeef;
+logic [128:0] UniqueID_oqb128, UniqueID_oqb128_cc;
+logic [31:0] temperature32b, temperature32b_cc;
+logic [31:0] power32b, power32b_cc;
+
+logic [7:0] reg_id, reg_id_cc;
+logic [15:0] buffer_value, ps_status, buffer_value_cc;
+logic [63:0] addr;
+logic progress;
 
 motorsStatuses_t motorStatus_ob, debounced_motorStatus_b;
 motorsControls_t motorControl_ib;
@@ -101,10 +111,102 @@ ckrs_t gbt_rx_clkrs;
         // gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
         gbt_data_x.data_sent.sc_data_b4 = {{2{1'b0}}, sc_odata[1:0]};
 
-        gbt_rx_clkrs.clk = gbt_data_x.tx_frameclk;
-        gbt_rx_clkrs.reset = !gbt_data_x.tx_ready;
-        ps_register_x.control = 32'hff;
+        gbt_rx_clkrs.clk = gbt_data_x.rx_frameclk;
+        gbt_rx_clkrs.reset = !gbt_data_x.rx_ready;
+        ps_register_x.control = {progress, {30{1'b0}}};
+
+        ps_buffer_x.addr = addr;
+        ps_buffer_x.we = 1'b0; // permanently disable write
+        ps_buffer_x.din = '0; // clear data
+
+        reg_id = ps_buffer_x.dout[31:24];
+        buffer_value = ps_buffer_x.dout[15:0];
+        ps_status = ps_register_x.status[15:0]; // this is set in the c application
     end
+
+    // READ PS BUFFER
+    // data are saved in the following format: 
+    // [ID]  [reserved] [data]
+    // [7:0] [7:0]      [15:0]
+    // register format:
+    // status of pl  status of ps
+    // [15:0]        [15:0]
+
+    t_state state;
+   always_ff @(posedge gbt_rx_clkrs.clk) begin
+       if(gbt_rx_clkrs.reset) begin
+           addr   <= '0;
+           progress <= '0;
+           reg_id_cc <= '0;
+           buffer_value_cc <= '0;
+           state <= WAIT_FOR_START;
+       end else begin
+           case(state)
+               WAIT_FOR_START: begin
+                   // NOTE in the c code you 
+                   // have to wait until 
+                   // progress goes up
+                   if(ps_status[3]) begin
+                       progress = 1'b1;
+                       addr <= addr + $size(addr)'(1);
+                   end 
+                   state <= READ_ALL_DATA;
+               end READ_ALL_DATA: begin
+                   addr <= addr + $size(addr)'(1);
+                   reg_id_cc <= reg_id;
+                   buffer_value_cc <= buffer_value; 
+                   if(!addr) state <= FINISHED;
+
+               end FINISHED: begin
+                   progress <= 1'b0;
+                   state <= WAIT_FOR_START;
+               end default: begin
+                   state <= WAIT_FOR_START;
+               end
+           endcase
+       end
+   end
+
+   always_ff @(posedge gbt_rx_clkrs.clk) begin
+       if(gbt_rx_clkrs.reset) begin
+           UniqueID_oqb128 <= '0;
+           power32b <= '0;
+           temperature32b <= '0;
+       end else begin
+           // demux filling the appropriate registers
+           case (reg_id_cc)
+               1: UniqueID_oqb128[15:0] <= buffer_value_cc;
+               2: UniqueID_oqb128[31:16] <= buffer_value_cc;
+               4: UniqueID_oqb128[47:32] <= buffer_value_cc; 
+               5: UniqueID_oqb128[63:48] <= buffer_value_cc;
+               6: UniqueID_oqb128[79:64] <= buffer_value_cc;
+               7: UniqueID_oqb128[95:80] <= buffer_value_cc;
+               8: UniqueID_oqb128[111:96] <= buffer_value_cc;
+               9: UniqueID_oqb128[127:112] <= buffer_value_cc;
+               10: power32b[15:0] <= buffer_value_cc;
+               13: temperature32b[15:0] <= buffer_value_cc;
+               default: begin
+                   UniqueID_oqb128 = UniqueID_oqb128;
+                   temperature32b = temperature32b; 
+                   power32b = power32b;
+               end
+           endcase
+       end
+   end 
+
+   // shift the new data to the multiplexer 
+   // sharing data via GBT
+   always_ff @(posedge gbt_rx_clkrs.clk) begin
+       if(gbt_rx_clkrs.reset) begin
+           UniqueID_oqb128_cc <= '0;
+           power32b_cc <= '0;
+           temperature32b_cc <= '0;
+       end else if(!progress) begin
+           UniqueID_oqb128_cc <= UniqueID_oqb128;
+           temperature32b_cc <= temperature32b;
+           power32b_cc <= power32b;
+       end
+   end
 
     // assign through interlocking - control data are casted to the
     // motor _only_ if loop is closed _and_ data are valid. Then with
@@ -209,7 +311,7 @@ ckrs_t gbt_rx_clkrs;
     // STATUS INDICATION (LEDs)
     assign diag_x.mled[0] = (serial_feedback_b32 == GEFE_INTERLOCK
                              && !page_selector_b32[31])? '0 : '1;
-    assign diag_x.mled[2:1] = ps_register_x.status[1:0];
+    assign diag_x.mled[2:1] = ps_status[1:0];
 
     logic [8:0] snake;
     logic [22:0] snake_div;
@@ -391,6 +493,7 @@ ckrs_t gbt_rx_clkrs;
     assign gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
     assign gbt_data_x.data_sent.mem_data_b16 = '0; */
 
+   
     // cast read motor stats back to the stream
     assign gbt_data_x.data_sent.motor_data_b64 = metaout;
     // assign gbt_data_x.data_sent.motor_data_b64 = 64'hdeadbeefdeadbeef;

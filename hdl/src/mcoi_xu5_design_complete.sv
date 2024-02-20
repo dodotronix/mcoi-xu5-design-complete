@@ -80,6 +80,7 @@ module mcoi_xu5_design_complete (//motors
    logic [31:0] shared_reg_tri_i;
    logic [31:0] shared_reg_tri_o;
    logic [31:0] shared_reg_tri_t;
+
    logic [31:0] shared_memory_port_addr;
    logic [31:0] shared_memory_port_din;
    logic [31:0] shared_memory_port_dout;
@@ -95,9 +96,9 @@ module mcoi_xu5_design_complete (//motors
        if(clk_tree_x.ClkRs120MHz_ix.reset) rs485_pl_ro <= 1'b0;
        else rs485_pl_ro <= (rs485_pl_di) ? rs485_pl_di : rs485_pl_ro; */
 
-   t_buffer bram_porta_0();
    t_clocks clk_tree_x();
    t_register ps_register_x();
+   t_buffer ps_buffer_x(clk_tree_x.ClkRs40MHz_ix);
    t_gbt_data #(.CLOCKING_SCHEME(0))
    gbt_data_x(.ClkRs_ix(clk_tree_x.ClkRs40MHz_ix),
               .ClkRsRx_ix(clk_tree_x.ClkRs120MHz_ix),
@@ -119,8 +120,18 @@ module mcoi_xu5_design_complete (//motors
 
    zynq_ultrasp_ps_system i_ps_system(.*);
 
+   // PS control register interface assignments
    assign shared_reg_tri_o = ps_register_x.status; 
    assign ps_register_x.control = shared_reg_tri_i;
    assign ps_register_x.bidir = shared_reg_tri_t;
+
+   // PS buffer interface assignments
+   assign shared_memory_port_en = ps_buffer_x.en;
+   assign ps_buffer_x.dout = shared_memory_port_dout;
+   assign shared_memory_port_we = ps_buffer_x.we;
+   assign shared_memory_port_addr = ps_buffer_x.addr;
+   assign shared_memory_port_clk = ps_buffer_x.ClkRs_ix.clk;
+   assign shared_memory_port_rst = ps_buffer_x.ClkRs_ix.reset; 
+   assign shared_memory_port_din = ps_buffer_x.din;
 
 endmodule // mcoi_xu5_design_complete
