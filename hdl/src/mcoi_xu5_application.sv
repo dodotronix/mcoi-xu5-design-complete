@@ -397,7 +397,7 @@ ckrs_t gbt_rx_clkrs;
        .probe9(rx_locked));
 
 
-   assign to_rs485_drv = page_selector_b32[8];
+   assign to_rs485_drv = page_selector_b32[30];
 
    logic [$bits(motorStatus_ob)-1:0] metain, metaout;
    assign metain = motorStatus_ob;
