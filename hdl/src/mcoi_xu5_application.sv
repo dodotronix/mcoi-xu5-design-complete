@@ -125,7 +125,7 @@ ckrs_t gbt_rx_clkrs;
     end
 
     // READ PS BUFFER
-    // data are saved in the following format: 
+    // data are saved in the following format:
     // [ID]  [reserved] [data]
     // [7:0] [7:0]      [15:0]
     // register format:
@@ -143,18 +143,18 @@ ckrs_t gbt_rx_clkrs;
        end else begin
            case(state)
                WAIT_FOR_START: begin
-                   // NOTE in the c code you 
-                   // have to wait until 
+                   // NOTE in the c code you
+                   // have to wait until
                    // progress goes up
                    if(ps_status[3]) begin
-                       progress = 1'b1;
+                       progress <= 1'b1;
                        addr <= addr + $size(addr)'(1);
-                   end 
+                   end
                    state <= READ_ALL_DATA;
                end READ_ALL_DATA: begin
                    addr <= addr + $size(addr)'(1);
                    reg_id_cc <= reg_id;
-                   buffer_value_cc <= buffer_value; 
+                   buffer_value_cc <= buffer_value;
                    if(!addr) state <= FINISHED;
 
                end FINISHED: begin
@@ -177,7 +177,7 @@ ckrs_t gbt_rx_clkrs;
            case (reg_id_cc)
                1: UniqueID_oqb128[15:0] <= buffer_value_cc;
                2: UniqueID_oqb128[31:16] <= buffer_value_cc;
-               4: UniqueID_oqb128[47:32] <= buffer_value_cc; 
+               4: UniqueID_oqb128[47:32] <= buffer_value_cc;
                5: UniqueID_oqb128[63:48] <= buffer_value_cc;
                6: UniqueID_oqb128[79:64] <= buffer_value_cc;
                7: UniqueID_oqb128[95:80] <= buffer_value_cc;
@@ -186,15 +186,15 @@ ckrs_t gbt_rx_clkrs;
                10: power32b[15:0] <= buffer_value_cc;
                13: temperature32b[15:0] <= buffer_value_cc;
                default: begin
-                   UniqueID_oqb128 = UniqueID_oqb128;
-                   temperature32b = temperature32b; 
-                   power32b = power32b;
+                   UniqueID_oqb128 <= UniqueID_oqb128;
+                   temperature32b <= temperature32b;
+                   power32b <= power32b;
                end
            endcase
        end
-   end 
+   end
 
-   // shift the new data to the multiplexer 
+   // shift the new data to the multiplexer
    // sharing data via GBT
    always_ff @(posedge gbt_rx_clkrs.clk) begin
        if(gbt_rx_clkrs.reset) begin
@@ -493,7 +493,6 @@ ckrs_t gbt_rx_clkrs;
     assign gbt_data_x.data_sent.motor_data_b64 = {dynamic_data, dynamic_data};
     assign gbt_data_x.data_sent.mem_data_b16 = '0; */
 
-   
     // cast read motor stats back to the stream
     assign gbt_data_x.data_sent.motor_data_b64 = metaout;
     // assign gbt_data_x.data_sent.motor_data_b64 = 64'hdeadbeefdeadbeef;
@@ -502,7 +501,7 @@ ckrs_t gbt_rx_clkrs;
    // pin mapping
    genvar m_group;
    generate
-   for (m_group = 1; m_group < NUMBER_OF_MOTORS_PER_FIBER+1; m_group++) begin
+   for (m_group = 1; m_group < NUMBER_OF_MOTORS_PER_FIBER+1; m_group++) begin : g_motor_group
        assign motors_x.pl_boost[m_group] = motorControl_ib[m_group].StepBOOST_o;
        assign motors_x.pl_dir[m_group] = motorControl_ib[m_group].StepDIR_o;
        assign motors_x.pl_en[m_group] = motorControl_ib[m_group].StepDeactivate_o;
