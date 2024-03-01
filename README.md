@@ -78,5 +78,5 @@ are going to be connected to the FMC XM105 Card as well.
     * LED_4 - LA12_P
     * LED_5 - LA12_N
     * LED_6 - LA13_P
-    * RS485_PL_RO - LA04_N
-    * RS485_PL_DI - LA05_P
+    * RS485_PL_RO - LA09_N
+    * RS485_PL_DI - LA09_P
