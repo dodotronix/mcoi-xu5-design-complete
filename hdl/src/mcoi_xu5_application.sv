@@ -37,7 +37,7 @@ import MCPkg::*;
 import CKRSPkg::*;
 import constants::*;
 
-module mcoi_xu5_application #(parameter g_clock_divider = 40000)(
+module mcoi_xu5_application #(parameter int CLOCK_DIVIDER = 40000)(
     output logic mreset_vadj,
     t_register.consumer ps_register_x, // ps register for data ready flag
     t_buffer.consumer ps_buffer_x, // ps buffer sharing i2c data
@@ -310,8 +310,8 @@ ckrs_t gbt_rx_clkrs;
 
     // STATUS INDICATION (LEDs)
     assign diag_x.mled[0] = (serial_feedback_b32 == GEFE_INTERLOCK
-                             && !page_selector_b32[31])? '0 : '1;
-    assign diag_x.mled[2:1] = ps_status[1:0];
+                             && !page_selector_b32[31])? 1'b0 : 1'b1;
+    assign diag_x.mled[2:1] = !ps_status[2:1];
 
     logic [8:0] snake;
     logic [22:0] snake_div;
@@ -394,7 +394,10 @@ ckrs_t gbt_rx_clkrs;
        .probe6(tx_empty),
        .probe7(tx_error),
        .probe8(serial_up),
-       .probe9(rx_locked));
+       .probe9(rx_locked),
+       .probe10(page_selector_b32),
+       .probe11(page_selector_b32[30]),
+       .probe12(from_rs485_drv));
 
 
    assign to_rs485_drv = page_selector_b32[30];
@@ -427,7 +430,6 @@ ckrs_t gbt_rx_clkrs;
                5: mux_b32 <= temperature32b_cc;
                6: mux_b32 <= power32b_cc;
                7: mux_b32 <= 32'd1;
-               8: mux_b32 <= {30'b0, from_rs485_drv};
                16: mux_b32 <= {28'b0, debounced_motorStatus_b[1]};
                17: mux_b32 <= {28'b0, debounced_motorStatus_b[2]};
                18: mux_b32 <= {28'b0, debounced_motorStatus_b[3]};
@@ -444,6 +446,7 @@ ckrs_t gbt_rx_clkrs;
                29: mux_b32 <= {28'b0, debounced_motorStatus_b[14]};
                30: mux_b32 <= {28'b0, debounced_motorStatus_b[15]};
                31: mux_b32 <= {28'b0, debounced_motorStatus_b[16]};
+               32: mux_b32 <= {30'b0, from_rs485_drv};
                default: mux_b32 <= 32'hdeadbeef;
            endcase
        end
@@ -455,7 +458,7 @@ ckrs_t gbt_rx_clkrs;
 
 
    /* // get 1ms timing out of 25MHz (25000)
-   clock_divider #( .g_divider(g_clock_divider)) i_clock_divider (
+   clock_divider #( .g_divider(CLOCK_DIVIDER)) i_clock_divider (
        .enable_o(ClkRs1ms_e), .ClkRs_ix(clk_tree_x.ClkRs100MHz_ix)); */
 
    // let's do 'alive mreset' it will slowly turn on/off using PWM we
