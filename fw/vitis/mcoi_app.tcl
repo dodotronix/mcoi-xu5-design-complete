@@ -11,9 +11,10 @@ puts $HWDIR
 set XSA [glob $HWDIR*.xsa]
 set PROC psu_cortexa53_0
 set ARCH 64-bit
-set OS standalone
+set OS freertos10_xilinx
 set NAME mcoi_app
 set PLATFORM mcoi_platform
+set DOMAIN mcoi_domain 
 
 # check if Vivado exported hardware description (xsa) exists
 if ![file exists $XSA] {
@@ -25,35 +26,48 @@ if ![file exists $XSA] {
 file delete -force build 
 setws build 
 
-# platform create -name $PLATFORM \
-#     -hw $XSA \
-#     -arch $ARCH \
-#     -fsbl-target $PROC
+repo -set $SCRIPT_FOLDER/embeddedsw
+# puts [repo -get]
 
-# domain create -name {standalone_psu_cortexa53_0} \
-#     -display-name {standalone_psu_cortexa53_0} \
-#     -os {standalone} \
-#     -proc $PROC \
-#     -runtime {cpp} \
-#     -arch $ARCH \
-#     -support-app {empty_application}
+platform create -name $PLATFORM \
+    -hw $XSA \
+    -proc $PROC \
+    -arch $ARCH \
+    -os $OS \
+    -fsbl-target $PROC
+platform active $PLATFORM
 
-# platform active $PLATFORM
-# domain active {standalone_psu_cortexa53_0}
+domain create -name $DOMAIN \
+    -display-name $DOMAIN \
+    -proc $PROC \
+    -arch $ARCH \
+    -os $OS
+domain active $DOMAIN
 
-# app create -name $NAME \
-#     -platform $PLATFORM \
-#     -domain {standalone_psu_cortexa53_0} \
-#     -template "Empty Application(C)"
+bsp setlib -name lwip213
+
+bsp config api_mode SOCKET_API 
+bsp config dhcp_does_arp_check true
+bsp config lwip_dhcp true
+bsp write
+
+platform generate 
 
 app create -name $NAME \
-    -hw $XSA \
+    -platform $PLATFORM \
+    -domain $DOMAIN \
     -proc $PROC \
     -os $OS \
     -template "Empty Application(C)"
+    # -template "FreeRTOS lwIP Echo Server" 
+    # -template "FreeRTOS Hello World"
 
 app config -name $NAME -add include-path $INCLUDE_PATH
 importsources -name $NAME -path $SOURCE_PATH -soft-link 
-
-platform generate 
 app build -name mcoi_app
+
+puts [platform report]
+puts [bsp getlibs]
+puts [bsp getos]
+puts [bsp getdrivers]
+# puts [bsp listparams -lib lwip213]
