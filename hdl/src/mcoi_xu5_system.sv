@@ -41,9 +41,9 @@ import types::*;
 module mcoi_xu5_system (
     t_clocks.producer clk_tree_x,
     t_gbt_data.control gbt_data_x,
+    t_register.consumer ps_register_x,
     output logic ExternalPll120MHzMGT, // 120MHz coming from MGT oscillator
     output logic gbt_pll_locked,
-    input logic ext_pll_ready,
 
     input logic mgt_fdbk_p,
     input logic mgt_fdbk_n,
@@ -57,8 +57,8 @@ module mcoi_xu5_system (
     input logic clk100m_pl_p,
     input logic clk100m_pl_n );
 
-   logic Clk120MHz_fromgte4;
-   logic reset;
+   logic Clk120MHz_fromgte4, clk_en;
+   logic global_reset;
 
    // clock generation
    // 100MHz oscillator and associated reset
@@ -135,13 +135,40 @@ module mcoi_xu5_system (
     gbt_pll_clk40m gbt_pll40m_i (
         .clk120m_i(recovered_clock),
         .clk40m_o(clk_tree_x.ClkRs40MHz_ix.clk),
-        .reset(reset),
+        .reset(global_reset),
         .locked(gbt_pll_locked));
+
+   // get 1ms timing out of 120MHz
+   clock_divider #( .g_divider(120000)) i_clock_divider (
+       .enable_o(clk_en), .ClkRs_ix(clk_tree_x.ClkRs120MHz_ix));
+    // gbt timeout before next reset when GTH LOL
+    logic [10:0] timeout; // this timeout is aprox. 2.4s
+    logic rst_pulse, finished;
+
+    logic gbt_ready;
+    always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk) begin
+        gbt_ready <= gbt_data_x.rx_ready || gbt_data_x.tx_ready;
+    end
+
+    always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk) begin
+        if(gbt_ready) begin
+            timeout <= '0;
+            rst_pulse <= '0;
+            finished <= 0;
+        end else begin
+            if(clk_en) begin
+                timeout <= timeout + $size(timeout)'(1);
+                finished <= !timeout;
+                rst_pulse <= (finished) ? 1'b1 : 1'b0;
+            end
+        end
+    end
 
     // TODO add reset from the onboard button
     // needs to be implemented first on the pcb
     always_comb begin
         reset = gbt_data_x.los | !ext_pll_ready;
+        global_reset = rst_pulse | gbt_data_x.los;
         clk_tree_x.ClkRsVar_ix.clk = recovered_clock;
     end
 
@@ -150,28 +177,28 @@ module mcoi_xu5_system (
     (.rst_ir (1'b0),
         .clk_ik (clk_tree_x.ClkRs100MHz_ix.clk),
         .cen_ie (1'b1),
-        .data_i (reset),
+        .data_i (global_reset),
         .data_o (clk_tree_x.ClkRs100MHz_ix.reset));
 
     vme_reset_sync_and_filter u_40MHzMGMT_reset_sync
       (.rst_ir (1'b0),
        .clk_ik (clk_tree_x.ClkRs40MHz_ix.clk),
        .cen_ie (1'b1),
-       .data_i (reset),
+       .data_i (global_reset),
        .data_o (clk_tree_x.ClkRs40MHz_ix.reset));
 
     vme_reset_sync_and_filter u_120MHz_reset_sync
       (.rst_ir (1'b0),
        .clk_ik (clk_tree_x.ClkRs120MHz_ix.clk),
        .cen_ie (1'b1),
-       .data_i (reset),
+       .data_i (global_reset),
        .data_o (clk_tree_x.ClkRs120MHz_ix.reset));
 
     vme_reset_sync_and_filter u_Var_reset_sync
     (.rst_ir (1'b0),
         .clk_ik (clk_tree_x.ClkRsVar_ix.clk),
         .cen_ie (1'b1),
-        .data_i (reset),
+        .data_i (global_reset),
         .data_o (clk_tree_x.ClkRsVar_ix.reset));
 
     assign gbt_data_x.rate_select = 1'b0;
