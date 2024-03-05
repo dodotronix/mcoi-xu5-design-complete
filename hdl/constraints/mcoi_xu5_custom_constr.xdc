@@ -49,8 +49,8 @@ create_clock -period 10.000 -name clk100m_pl [get_ports clk100m_pl_p]
 # set_property IOSTANDARD LVCMOS18 [get_ports {i2c_x\.scl}]
 
 # PIN GROUPPING: MODULE LEDS
-set_property PACKAGE_PIN P9 [get_ports {diag_x\.mled[0]}]
-set_property PACKAGE_PIN H2 [get_ports {diag_x\.mled[1]}]
+set_property PACKAGE_PIN H2 [get_ports {diag_x\.mled[0]}]
+set_property PACKAGE_PIN P9 [get_ports {diag_x\.mled[1]}]
 set_property PACKAGE_PIN K5 [get_ports {diag_x\.mled[2]}]
 set_property DRIVE 4 [get_ports {diag_x\.mled[*]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {diag_x\.mled[*]}]
@@ -88,7 +88,7 @@ set_false_path -to [get_ports {diag_x*led[*]}]
 set_false_path -to [get_ports {display_x*[*]}]
 
 # false paths
-# motor signals are slow, so we can ignore them 
+# motor signals are slow, so we can ignore them
 set_false_path -from [get_pins {app_i/motorControl_ib_reg[*][*]/C}]
 
 # display does not a precise timing
@@ -112,3 +112,5 @@ set_false_path -to [get_pins {app_i/g_discast[*].i_extremity_switches_mapper/*/D
 # set_multicycle_path -setup -rise_from sync_shiftreg_reg[2] 3
 # set_multicycle_path -hold -rise_from sync_shiftreg_reg[2] 2
 
+set_false_path -from [get_clocks clk100m_pl] -to [get_clocks clk40m_o_gbt_pll_clk40m]
+set_false_path -to [get_pins sys_i/gbt_ready_reg/D]
