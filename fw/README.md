@@ -17,17 +17,19 @@ $> cd vitis
 ```
 $> make
 ```
+3. add xilinx repository (embeddedsw) to the local repositories in Vitis
+   (Xilinx -> Software Repositories -> Local Repositories)
 
-3. import the project in vitis (click on File -> Import -> Eclipse workspace or
+4. import the project in vitis (click on File -> Import -> Eclipse workspace or
    zip file) by navigating to path/to/build (open all the projects available in
    build folder)
-4. set the RUN and DEBUG configuration as it is described in the official guide
+5. set the RUN and DEBUG configuration as it is described in the official guide
    for [reference design from enclustra](https://github.com/enclustra/Mercury_XU5_PE1_Reference_Design/tree/master/reference_design/doc)
    The tutorial advises to use Single Application Debug (GDB), but this could
    be buggy. Therefore it's more convenient to use just the Single Application
    Debug, which runs the Xilinx debugger. 
-5. If you need to recompile platform project the platform.spr file has to be
+6. If you need to recompile platform project the platform.spr file has to be
    opened, when we want to compile it for the first time
 
 # NOTES 
-* if we want to use Vitis, we cannot have the Makefile in the root directory
+* Manual build - if we want to use Vitis, we cannot have the Makefile in the root directory
