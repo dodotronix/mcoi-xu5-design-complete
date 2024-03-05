@@ -74,8 +74,7 @@ module mcoi_xu5_design_complete (//motors
 
    logic gbt_pll_locked,
          ExternalPll120MHzMGT,
-         recovered_clk,
-         si5338_ready;
+         recovered_clk;
 
    logic [31:0] shared_reg_tri_i;
    logic [31:0] shared_reg_tri_o;
@@ -88,9 +87,6 @@ module mcoi_xu5_design_complete (//motors
    logic shared_memory_port_en;
    logic shared_memory_port_rst;
    logic shared_memory_port_clk;
-
-   // assign si5338_ready = ps_control[0];
-   assign si5338_ready = 1'b1;
 
    /* always_ff @(posedge clk_tree_x.ClkRs120MHz_ix.clk)
        if(clk_tree_x.ClkRs120MHz_ix.reset) rs485_pl_ro <= 1'b0;
@@ -107,9 +103,7 @@ module mcoi_xu5_design_complete (//motors
 
     // in the system you find just buffers plls
     // and sync of resets with clock domains
-    mcoi_xu5_system sys_i (
-        .ext_pll_ready(si5338_ready),
-        .*);
+    mcoi_xu5_system sys_i (.*);
 
     // application serving the stepper motors
     mcoi_xu5_application app_i (.*);
@@ -121,7 +115,7 @@ module mcoi_xu5_design_complete (//motors
    zynq_ultrasp_ps_system i_ps_system(.*);
 
    // PS control register interface assignments
-   assign shared_reg_tri_o = ps_register_x.status; 
+   assign shared_reg_tri_o = ps_register_x.status;
    assign ps_register_x.control = shared_reg_tri_i;
    assign ps_register_x.bidir = shared_reg_tri_t;
 
@@ -131,7 +125,7 @@ module mcoi_xu5_design_complete (//motors
    assign shared_memory_port_we = ps_buffer_x.we;
    assign shared_memory_port_addr = ps_buffer_x.addr;
    assign shared_memory_port_clk = ps_buffer_x.ClkRs_ix.clk;
-   assign shared_memory_port_rst = ps_buffer_x.ClkRs_ix.reset; 
+   assign shared_memory_port_rst = ps_buffer_x.ClkRs_ix.reset;
    assign shared_memory_port_din = ps_buffer_x.din;
 
 endmodule // mcoi_xu5_design_complete
