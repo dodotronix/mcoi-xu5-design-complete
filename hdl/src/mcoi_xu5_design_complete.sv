@@ -115,9 +115,8 @@ module mcoi_xu5_design_complete (//motors
    zynq_ultrasp_ps_system i_ps_system(.*);
 
    // PS control register interface assignments
-   assign shared_reg_tri_o = ps_register_x.status;
-   assign ps_register_x.control = shared_reg_tri_i;
-   assign ps_register_x.bidir = shared_reg_tri_t;
+   assign ps_register_x.status = shared_reg_tri_o;
+   assign shared_reg_tri_i = ps_register_x.control;
 
    // PS buffer interface assignments
    assign shared_memory_port_en = ps_buffer_x.en;
