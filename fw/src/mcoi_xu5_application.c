@@ -9,19 +9,26 @@
 #include "xparameters.h"
 #include "sleep.h"
 
-// #include "i2cbus.h"
+#include "i2cbus.h"
 #include "si5338.h"
 #include "mcp9808.h"
 #include "at24mac402.h"
 #include "ina219.h"
 
-// void mcoi_init() 
-
 int main(void)
 {
+    XGpio io;
     i2c_t bus;
     float temp;
     u16 id;
+    u32 a;
+    int status;
+
+    status = XGpio_Initialize(&io, XPAR_GPIO_0_DEVICE_ID);
+    printf("status of GPIO init: %x\n", status);
+    XGpio_SetDataDirection(&io, 1, 0xffff0000);
+    printf("Status: %x\n", XGpio_DiscreteRead(&io, 1));
+    usleep(250000);
 
     i2cbus_init(&bus, I2C_DEV0_CLK, I2C_DEV0_ID);
 
@@ -52,27 +59,26 @@ int main(void)
     // TODO mcoi_init(); 
     si5338_configure();
 
+    // enable mcoi PL
+    XGpio_DiscreteWrite(&io, 1, 0x06);
+    printf("Status: %x\n", XGpio_DiscreteRead(&io, 1));
+
+    id = mcp9808_getID();
+    printf("id: %x\n", id);
+
+    // i2cbus_scan(&bus);
+    temp = mcp9808_readTempC();
+    printf("temp: %f\n", temp);
+
+    ina219_read_all();
+    at24mac402_get_mac();
+    at24mac402_get_uuid();
+
     // event loop
-    while(1) {
-        id = mcp9808_getID();
-        printf("id: %x\n", id);
-        // i2cbus_scan(&bus);
-        temp = mcp9808_readTempC();
-        printf("temp: %f\n", temp);
-
-        ina219_read_all();
-        at24mac402_get_mac();
-        at24mac402_get_uuid();
-
-        // TODO send_to_mcoi();
-        // send_to_mcoi();
-
-        sleep(1);
-    }
+    while(1);
 
     return 0;
 }
-
 
 /* void mcoi_init() 
 {
