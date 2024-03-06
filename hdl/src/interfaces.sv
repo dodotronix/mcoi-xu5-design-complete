@@ -109,18 +109,15 @@ endinterface // buffer
 interface t_register();
   logic [31:0] status;
   logic [31:0] control;
-  logic [31:0] bidir;
 
   modport consumer(
       input status,
-      output control,
-      inout bidir
+      output control
       );
 
   modport producer(
       output status,
-      input control,
-      inout bidir 
+      input control
       );
 
 endinterface
