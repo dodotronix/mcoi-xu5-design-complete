@@ -37,7 +37,8 @@ import MCPkg::*;
 import CKRSPkg::*;
 import constants::*;
 
-module mcoi_xu5_application #(parameter int CLOCK_DIVIDER = 40000)(
+module mcoi_xu5_application #(parameter int CLOCK_DIVIDER = 40000,
+                              parameter int MEM_DEPTH = 32)(
     output logic mreset_vadj,
     t_register.consumer ps_register_x, // ps register for data ready flag
     t_buffer.consumer ps_buffer_x, // ps buffer sharing i2c data
@@ -87,7 +88,7 @@ logic [31:0] power32b, power32b_cc;
 
 logic [7:0] reg_id, reg_id_cc;
 logic [15:0] buffer_value, ps_status, buffer_value_cc;
-logic [63:0] addr;
+logic [31:0] addr;
 logic progress;
 
 motorsStatuses_t motorStatus_ob, debounced_motorStatus_b;
@@ -140,7 +141,7 @@ ckrs_t gbt_rx_clkrs;
    always_ff @(posedge gbt_rx_clkrs.clk) begin
        if(gbt_rx_clkrs.reset) begin
            addr   <= '0;
-           progress <= '0;
+           progress <= 1'b0;
            reg_id_cc <= '0;
            buffer_value_cc <= '0;
            state <= WAIT_FOR_START;
@@ -150,25 +151,25 @@ ckrs_t gbt_rx_clkrs;
                    // NOTE in the c code you
                    // have to wait until
                    // progress goes up
-                   if(ps_status[2]) begin
+                   addr <= '0;
+                   progress <= 1'b0;
+                   if(ps_status[1]) begin
                        progress <= 1'b1;
                        addr <= addr + $size(addr)'(1);
+                       state <= READ_ALL_DATA;
                    end
-                   state <= READ_ALL_DATA;
                end READ_ALL_DATA: begin
                    addr <= addr + $size(addr)'(1);
                    reg_id_cc <= reg_id;
                    buffer_value_cc <= buffer_value;
-                   if(!addr) state <= FINISHED;
-
+                   if(addr == MEM_DEPTH-1) state <= FINISHED;
                end FINISHED: begin
-                   if(!ps_status[2]) begin
+                   if(!ps_status[1]) begin
                        progress <= 1'b0;
                        state <= WAIT_FOR_START;
                    end
                end default: begin
                    state <= WAIT_FOR_START;
-                   progress <= 1'b0;
                end
            endcase
        end
@@ -176,9 +177,9 @@ ckrs_t gbt_rx_clkrs;
 
    always_ff @(posedge gbt_rx_clkrs.clk) begin
        if(gbt_rx_clkrs.reset) begin
-           UniqueID_oqb128 <= '0;
-           power32b <= '0;
-           temperature32b <= '0;
+           UniqueID_oqb128 <= {4{32'hdeadbeef}};
+           power32b <= 32'hdeadbeef;
+           temperature32b <= 32'hdeadbeef;
        end else begin
            // demux filling the appropriate registers
            case (reg_id_cc)
@@ -190,8 +191,8 @@ ckrs_t gbt_rx_clkrs;
                7: UniqueID_oqb128[95:80] <= buffer_value_cc;
                8: UniqueID_oqb128[111:96] <= buffer_value_cc;
                9: UniqueID_oqb128[127:112] <= buffer_value_cc;
-               10: power32b[15:0] <= buffer_value_cc;
-               13: temperature32b[15:0] <= buffer_value_cc;
+               10: power32b <= {{16{1'b0}}, buffer_value_cc};
+               11: temperature32b <= {{16{1'b0}}, buffer_value_cc};
                default: begin
                    UniqueID_oqb128 <= UniqueID_oqb128;
                    temperature32b <= temperature32b;
