@@ -169,7 +169,6 @@ module mcoi_xu5_system (
     always_comb begin
         global_reset = rst_pulse | gbt_data_x.los | !ps_register_x.status[2];
         clk_tree_x.ClkRsVar_ix.clk = recovered_clock;
-        ps_register_x.control = 32'hcafebabe;
     end
 
     // reset synchronization into the respective clock domains

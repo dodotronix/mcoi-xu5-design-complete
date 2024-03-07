@@ -113,7 +113,8 @@ ckrs_t gbt_rx_clkrs;
 
         gbt_rx_clkrs.clk = gbt_data_x.rx_frameclk;
         gbt_rx_clkrs.reset = !gbt_data_x.rx_ready;
-        ps_register_x.control = {progress, {30{1'b0}}};
+        // ps_register_x.control = {progress, {30{1'b0}}};
+        ps_register_x.control = {progress, {3{1'b0}}, 28'habc0000};
 
         ps_buffer_x.addr = addr;
         ps_buffer_x.we = 1'b0; // permanently disable write
@@ -131,6 +132,9 @@ ckrs_t gbt_rx_clkrs;
     // register format:
     // status of pl  status of ps
     // [15:0]        [15:0]
+    // PS writes data to memory then if they should be updated in the PL
+    // then we have to set progress to 1 -> if we want to finish the cycle
+    // don't forget to set status[3] to 0
 
     t_state state;
    always_ff @(posedge gbt_rx_clkrs.clk) begin
@@ -146,7 +150,7 @@ ckrs_t gbt_rx_clkrs;
                    // NOTE in the c code you
                    // have to wait until
                    // progress goes up
-                   if(ps_status[3]) begin
+                   if(ps_status[2]) begin
                        progress <= 1'b1;
                        addr <= addr + $size(addr)'(1);
                    end
@@ -158,10 +162,13 @@ ckrs_t gbt_rx_clkrs;
                    if(!addr) state <= FINISHED;
 
                end FINISHED: begin
-                   progress <= 1'b0;
-                   state <= WAIT_FOR_START;
+                   if(!ps_status[2]) begin
+                       progress <= 1'b0;
+                       state <= WAIT_FOR_START;
+                   end
                end default: begin
                    state <= WAIT_FOR_START;
+                   progress <= 1'b0;
                end
            endcase
        end
