@@ -112,5 +112,9 @@ set_false_path -to [get_pins {app_i/g_discast[*].i_extremity_switches_mapper/*/D
 # set_multicycle_path -setup -rise_from sync_shiftreg_reg[2] 3
 # set_multicycle_path -hold -rise_from sync_shiftreg_reg[2] 2
 
-set_false_path -from [get_clocks clk100m_pl] -to [get_clocks clk40m_o_gbt_pll_clk40m]
 set_false_path -to [get_pins sys_i/gbt_ready_reg/D]
+set_false_path -to [get_pins {*/*/reset_msr_reg[*]/D}]
+
+#asynchronous clocks
+set_false_path -from [get_clocks clk100m_pl] -to [get_clocks clk40m_o_gbt_pll_clk40m]
+
