@@ -99,10 +99,6 @@ set_property -dict [ list \
 
 set_property -dict [ list \
   CONFIG.Memory_Type {True_Dual_Port_RAM} \
-  CONFIG.Enable_32bit_Address {false} \
-  CONFIG.Write_Depth_A {64} \
-  CONFIG.Write_Width_A {32} \
-  CONFIG.Write_Width_B {32} \
 ] [get_bd_cells $mem]
 
 set_property -dict [ list \
