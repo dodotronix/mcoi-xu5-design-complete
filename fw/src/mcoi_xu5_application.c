@@ -15,6 +15,7 @@
 #include "mcp9808.h"
 #include "at24mac402.h"
 #include "ina219.h"
+#include "xil_io.h"
 
 /* #include "FreeRTOS.h"
 #include "task.h" */
@@ -26,16 +27,11 @@ int main(void)
     i2c_t bus;
     float temp;
     u16 id;
-    u32 a;
+    u32 a, b;
     int status;
 
     XBram xmem;
     XBram_Config *cfgmem;
-
-    cfgmem = XBram_LookupConfig(XPAR_SHARED_MEMORY_CONTROL_DEVICE_ID);
-    if(XBram_CfgInitialize(&xmem, cfgmem, cfgmem->MemBaseAddress)){
-        printf("Bram initialization failed\n");
-    }
 
     status = XGpio_Initialize(&io, XPAR_GPIO_0_DEVICE_ID);
     printf("status of GPIO init: %x\n", status);
@@ -89,19 +85,33 @@ int main(void)
     at24mac402_get_mac();
     at24mac402_get_uuid();
 
-    // write value to bram
-    //a = (0xb<<16) | (0xdead);
-    //printf("Bram data: %x\n", a);
-    //XBram_WriteReg(cfgmem->MemBaseAddress, 1, a);
+    cfgmem = XBram_LookupConfig(XPAR_BRAM_0_DEVICE_ID);
+    if(XBram_CfgInitialize(&xmem, cfgmem, cfgmem->MemHighAddress)){
+        printf("Bram initialization failed\n");
+    }
+
+    if (XBram_SelfTest(&xmem, 0)) {
+    	printf("Bram selftest failed\n");
+    }
+
+	a = (0x0b<<24) | (0xdead);
+    for(u32 addr=cfgmem->MemBaseAddress; addr<cfgmem->MemBaseAddress+40;){
+    	printf("address: %x\n", addr);
+    	XBram_Out32(addr, a);
+    	printf("Bram data written: %x\n", a);
+
+    	b = XBram_In32(addr);
+    	printf("Bram data read: %x\n", b);
+    	addr = addr + 4;
+    }
 
     // Update values passed to the optical link
     XGpio_DiscreteWrite(&io, 1, 0x06);
-    printf("register status: %x\n", XGpio_DiscreteRead(&io, 1));
 
     //wait for status to be up
     while(!(XGpio_DiscreteRead(&io, 1) & 0x80000000));
-    usleep(1000000);
     printf("register status: %x\n", XGpio_DiscreteRead(&io, 1));
+
     usleep(1000000);
     printf("Status is up, let's reset FSM\n");
     XGpio_DiscreteWrite(&io, 1, 0x4);
