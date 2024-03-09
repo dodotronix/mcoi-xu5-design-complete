@@ -82,7 +82,7 @@ interface t_diag;
 endinterface // diag_x
 
 interface t_buffer(input ckrs_t ClkRs_ix);
-  logic en; 
+  logic en;
   logic [31:0] dout;
   logic [31:0] din;
   logic [31:0] addr;
@@ -90,6 +90,7 @@ interface t_buffer(input ckrs_t ClkRs_ix);
 
   modport consumer(
       input  dout,
+      output en,
       output din,
       output we,
       output addr,
@@ -98,6 +99,7 @@ interface t_buffer(input ckrs_t ClkRs_ix);
 
   modport producer(
       output dout,
+      input en,
       input  din,
       input  we,
       input  addr,
