@@ -88,7 +88,7 @@ logic [31:0] power32b, power32b_cc;
 
 logic [7:0] reg_id, reg_id_cc;
 logic [15:0] buffer_value, ps_status, buffer_value_cc;
-logic [31:0] addr;
+logic [12:0] addr;
 logic progress;
 
 motorsStatuses_t motorStatus_ob, debounced_motorStatus_b;
@@ -117,8 +117,9 @@ ckrs_t gbt_rx_clkrs;
         // ps_register_x.control = {progress, {30{1'b0}}};
         ps_register_x.control = {progress, {3{1'b0}}, 28'habc0000};
 
-        ps_buffer_x.addr = addr;
-        ps_buffer_x.we = 1'b0; // permanently disable write
+        ps_buffer_x.addr = {17'd0, addr, 2'd0};
+        ps_buffer_x.en = 1'b1;
+        ps_buffer_x.we = '0; // permanently disable write
         ps_buffer_x.din = '0; // clear data
 
         reg_id = ps_buffer_x.dout[31:24];
@@ -140,7 +141,7 @@ ckrs_t gbt_rx_clkrs;
     t_state state;
    always_ff @(posedge gbt_rx_clkrs.clk) begin
        if(gbt_rx_clkrs.reset) begin
-           addr   <= '0;
+           addr <= '0;
            progress <= 1'b0;
            reg_id_cc <= '0;
            buffer_value_cc <= '0;
@@ -151,8 +152,6 @@ ckrs_t gbt_rx_clkrs;
                    // NOTE in the c code you
                    // have to wait until
                    // progress goes up
-                   addr <= '0;
-                   progress <= 1'b0;
                    if(ps_status[1]) begin
                        progress <= 1'b1;
                        addr <= addr + $size(addr)'(1);
@@ -164,11 +163,16 @@ ckrs_t gbt_rx_clkrs;
                    buffer_value_cc <= buffer_value;
                    if(addr == MEM_DEPTH-1) state <= FINISHED;
                end FINISHED: begin
+                   addr <= '0;
                    if(!ps_status[1]) begin
                        progress <= 1'b0;
                        state <= WAIT_FOR_START;
                    end
                end default: begin
+                   addr <= '0;
+                   progress <= 1'b0;
+                   reg_id_cc <= '0;
+                   buffer_value_cc <= '0;
                    state <= WAIT_FOR_START;
                end
            endcase
@@ -395,15 +399,15 @@ ckrs_t gbt_rx_clkrs;
        .clk(gbt_rx_clkrs.clk),
        .probe0(sc_idata[1]),
        .probe1(sc_odata[1]),
-       .probe2(serial_feedback_cc_b32),
-       .probe3(serial_feedback_b32),
+       .probe2(ps_buffer_x.addr),
+       .probe3(temperature32b),
        .probe4(data_arrived),
        .probe5(tx_busy),
        .probe6(tx_empty),
        .probe7(tx_error),
        .probe8(serial_up),
        .probe9(rx_locked),
-       .probe10(page_selector_b32),
+       .probe10({reg_id_cc, 8'h00, buffer_value_cc}),
        .probe11(page_selector_b32[30]),
        .probe12(from_rs485_drv));
 
