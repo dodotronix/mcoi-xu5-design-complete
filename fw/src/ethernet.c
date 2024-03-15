@@ -164,8 +164,7 @@ int main_thread()
 
     /* any thread using lwIP should be created using sys_thread_new */
     sys_thread_new("NW_THRD", network_thread, NULL,
-		THREAD_STACKSIZE,
-            DEFAULT_THREAD_PRIO);
+		THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 
 #if LWIP_IPV6==0
 #if LWIP_DHCP==1
