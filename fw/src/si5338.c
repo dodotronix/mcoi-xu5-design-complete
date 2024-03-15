@@ -99,7 +99,7 @@ void si5338_configure(){
     clear_bits(49, 0x80); //configure pll for locking
     set_bits(246, 0x02); //initiate locking of ppl
     
-    usleep(25000); //wait 25ms
+    DELAY_MS(25); //wait 25ms
 
     clear_bits(241, 0x80); //restart lol
     set_bits(241, 0x65);

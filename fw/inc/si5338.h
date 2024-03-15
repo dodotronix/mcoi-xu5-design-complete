@@ -3,8 +3,12 @@
 
 /* datasheet: https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/data-sheets/Si5338.pdf */
 
-#include "sleep.h"
+// USER API
 #include "i2cbus.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
+#define DELAY_MS(x) vTaskDelay( ( x / portTICK_PERIOD_MS ) )
 
 #define SI5338_DEVICE_ADDR 0x70
 
@@ -14,6 +18,7 @@
 # define SET_BIT(x, mask) ((x) | (mask))
 # define CLEAR_BIT(x, mask) ((x) & ~(mask))
 # define COMBINE_BIT(x, y, mask) ((x) | ((y) & (mask)))
+
 
 int si5338_init(i2c_t *i2c);
 void si5338_configure();

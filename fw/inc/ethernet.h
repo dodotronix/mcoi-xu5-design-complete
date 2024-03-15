@@ -11,8 +11,6 @@
 #include "lwipopts.h"
 #include "lwip/init.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
 
 #if LWIP_IPV6==1
 #include "lwip/ip.h"

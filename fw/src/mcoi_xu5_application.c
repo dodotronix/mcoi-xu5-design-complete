@@ -5,33 +5,58 @@
  */
 
 #include <stdio.h>
-#include "xgpio.h"
 #include "xparameters.h"
+#include "ethernet.h"
+#include "i2cbus.h"
+#include "xgpio.h"
+#include "si5338.h"
+
+/* 
 #include "sleep.h"
 #include "xbram.h"
-
-#include "i2cbus.h"
-#include "si5338.h"
 #include "mcp9808.h"
 #include "at24mac402.h"
 #include "ina219.h"
-#include "xil_io.h"
+#include "xil_io.h" */
 
-/* #include "FreeRTOS.h"
-#include "task.h" */
+void blink_led(void *io)
+{
+    u32 a = 0;
+    const TickType_t blink_delay = 500 / portTICK_PERIOD_MS;
+    XGpio *ptr = (XGpio *)io;
 
-int main(void)
+    // enable mcoi PL
+    a = XGpio_DiscreteRead(ptr, 1);
+    XGpio_DiscreteWrite(ptr, 1, a | 0x04);
+
+    a = XGpio_DiscreteRead(ptr, 1);
+    printf("Status: %x\n", a);
+    XGpio_DiscreteWrite(ptr, 1, a | 0x02);
+
+    while(1) {
+        a = XGpio_DiscreteRead(ptr, 1);
+        printf("Status: %x\n", a);
+
+        // if(a & 0x80000000){
+            XGpio_DiscreteWrite(ptr, 1, (a & ~0x00000002));
+            vTaskDelay(blink_delay);
+            a = XGpio_DiscreteRead(ptr, 1);
+            printf("Status: %x\n", a);
+            XGpio_DiscreteWrite(ptr, 1, a | 0x00000002);
+            vTaskDelay(blink_delay);
+        // }
+    }
+}
+
+void mcoi_init_thread()
 {
     XGpio io;
-
     i2c_t bus;
-    float temp;
-    u16 id;
-    u32 a, b;
-    int status;
 
-    XBram xmem;
-    XBram_Config *cfgmem;
+    TaskHandle_t blink_handle = NULL;
+
+    const TickType_t wait_delay = 500 / portTICK_PERIOD_MS;
+    int status;
 
     status = XGpio_Initialize(&io, XPAR_GPIO_0_DEVICE_ID);
     printf("status of GPIO init: %x\n", status);
@@ -39,18 +64,42 @@ int main(void)
     XGpio_SetDataDirection(&io, 1, 0xffff0000);
     printf("Status: %x\n", XGpio_DiscreteRead(&io, 1));
 
-    usleep(250000);
-
+    // initialization of the i2c
     i2cbus_init(&bus, I2C_DEV0_CLK, I2C_DEV0_ID);
+
+    // TODO wait for 500ms
+    vTaskDelay(wait_delay);
 
     //scan i2c bus
     i2cbus_scan(&bus);
 
-    // initialization of devices 
-    if(si5338_init(&bus)) {
-        printf("si5338 init failed\n");
-        return 1; 
-    }
+    if(si5338_init(&bus)) printf("si5338 init failed\n");
+
+    si5338_configure();
+
+    xTaskCreate(blink_led, "blink_led", THREAD_STACKSIZE, 
+                (void*)&io, DEFAULT_THREAD_PRIO, &blink_handle);
+
+    sys_thread_new("main_thrd", (void(*)(void*))main_thread, 0,
+                    THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
+
+    while(1);
+}
+
+
+int main(void)
+{
+    TaskHandle_t mcoi_handle = NULL;
+
+    /* 
+
+    i2c_t bus;
+    float temp;
+    u16 id;
+    u32 a, b;
+
+    XBram xmem;
+    XBram_Config *cfgmem;
 
     if(mcp9808_init(&bus)) {
         printf("mcp9808 init failed\n");
@@ -68,11 +117,7 @@ int main(void)
     }
 
     // TODO mcoi_init(); 
-    si5338_configure();
 
-    // enable mcoi PL
-    XGpio_DiscreteWrite(&io, 1, 0x04);
-    printf("Status: %x\n", XGpio_DiscreteRead(&io, 1));
 
     id = mcp9808_getID();
     printf("id: %x\n", id);
@@ -115,27 +160,17 @@ int main(void)
     usleep(1000000);
     printf("Status is up, let's reset FSM\n");
     XGpio_DiscreteWrite(&io, 1, 0x4);
-    printf("register status: %x\n", XGpio_DiscreteRead(&io, 1));
+    printf("register status: %x\n", XGpio_DiscreteRead(&io, 1)); */
+
+    xTaskCreate(mcoi_init_thread,
+                "mcoi_init_thread",
+                THREAD_STACKSIZE,
+                NULL,
+                DEFAULT_THREAD_PRIO,
+                &mcoi_handle);
 
     // event loop
-    while(1);
-
+    vTaskStartScheduler();
+   
     return 0;
 }
-
-/* void mcoi_init() 
-{
-    int status;
-    status = XGpio_Initialize(&io, XPAR_GPIO_0_DEVICE_ID);
-    printf("status of GPIO init: %x\n", status);
-    XGpio_SetDataDirection(&io, 1, 0xff00);
-    printf("initial value: %x\n", XGpio_DiscreteRead(&io, 1));
-
-     for(int i=0; i<10; ++i) {
-        XGpio_DiscreteWrite(&io, 1, a | 0x02);
-        usleep(250000);
-        XGpio_DiscreteWrite(&io, 1, a | 0x00);
-        usleep(250000);
-
-    }
-} */
