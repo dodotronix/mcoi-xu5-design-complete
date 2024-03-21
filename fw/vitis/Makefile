@@ -5,8 +5,8 @@ GIT := git
 BIF := mcoi_app.bif
 BOOT_IMAGE := BOOT.bin
 
-FSBL := $(ROOT)/build/exported_hw/export/exported_hw/sw/exported_hw/boot/fsbl.elf
-PMUFW := $(ROOT)/build/exported_hw/export/exported_hw/sw/exported_hw/boot/pmufw.elf
+FSBL := $(ROOT)/build/mcoi_platform/export/mcoi_platform/sw/mcoi_platform/boot/fsbl.elf
+PMUFW := $(ROOT)/build/mcoi_platform/export/mcoi_platform/sw/mcoi_platform/boot/pmufw.elf
 EXPORTED_HW := $(ROOT)/build/mcoi_app/_ide/bitstream/exported_hw.bit
 MCOI_APP := $(ROOT)/build/mcoi_app/Debug/mcoi_app.elf
 
