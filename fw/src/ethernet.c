@@ -1,6 +1,7 @@
 
 #include "ethernet.h"
 
+
 u16_t echo_port = 7;
 int new_sd[MAX_CONNECTIONS];
 int connection_index;
@@ -11,6 +12,7 @@ extern volatile int dhcp_timoutcntr;
 err_t dhcp_start(struct netif *netif);
 #endif
 #endif
+
 
 static struct netif server_netif;
 struct netif *echo_netif;
@@ -164,7 +166,8 @@ int main_thread()
 
     /* any thread using lwIP should be created using sys_thread_new */
     sys_thread_new("NW_THRD", network_thread, NULL,
-		THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
+		THREAD_STACKSIZE,
+            DEFAULT_THREAD_PRIO);
 
 #if LWIP_IPV6==0
 #if LWIP_DHCP==1

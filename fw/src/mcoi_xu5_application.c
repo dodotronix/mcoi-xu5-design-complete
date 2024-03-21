@@ -35,15 +35,17 @@ void blink_led(void *io)
 
     while(1) {
         a = XGpio_DiscreteRead(ptr, 1);
-        printf("Status: %x\n", a);
-
+        // printf("Status: %x\n", a);
+        
         // if(a & 0x80000000){
-            XGpio_DiscreteWrite(ptr, 1, (a & ~0x00000002));
-            vTaskDelay(blink_delay);
-            a = XGpio_DiscreteRead(ptr, 1);
-            printf("Status: %x\n", a);
-            XGpio_DiscreteWrite(ptr, 1, a | 0x00000002);
-            vTaskDelay(blink_delay);
+        XGpio_DiscreteWrite(ptr, 1, (a & ~0x00000001));
+        vTaskDelay(blink_delay);
+
+        a = XGpio_DiscreteRead(ptr, 1);
+        // printf("Status: %x\n", a);
+
+        XGpio_DiscreteWrite(ptr, 1, a | 0x00000001);
+        vTaskDelay(blink_delay);
         // }
     }
 }
@@ -59,10 +61,10 @@ void mcoi_init_thread()
     int status;
 
     status = XGpio_Initialize(&io, XPAR_GPIO_0_DEVICE_ID);
-    printf("status of GPIO init: %x\n", status);
+    // printf("status of GPIO init: %x\n", status);
 
     XGpio_SetDataDirection(&io, 1, 0xffff0000);
-    printf("Status: %x\n", XGpio_DiscreteRead(&io, 1));
+    // printf("Status: %x\n", XGpio_DiscreteRead(&io, 1));
 
     // initialization of the i2c
     i2cbus_init(&bus, I2C_DEV0_CLK, I2C_DEV0_ID);
@@ -77,13 +79,14 @@ void mcoi_init_thread()
 
     si5338_configure();
 
-    xTaskCreate(blink_led, "blink_led", THREAD_STACKSIZE, 
+    xTaskCreate(blink_led, "blink_led", 128, 
                 (void*)&io, DEFAULT_THREAD_PRIO, &blink_handle);
 
     sys_thread_new("main_thrd", (void(*)(void*))main_thread, 0,
                     THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 
-    while(1);
+    vTaskDelete(NULL);
+    return;
 }
 
 
@@ -92,7 +95,6 @@ int main(void)
     TaskHandle_t mcoi_handle = NULL;
 
     /* 
-
     i2c_t bus;
     float temp;
     u16 id;
@@ -164,9 +166,8 @@ int main(void)
 
     xTaskCreate(mcoi_init_thread,
                 "mcoi_init_thread",
-                THREAD_STACKSIZE,
-                NULL,
-                DEFAULT_THREAD_PRIO,
+                2048,
+                NULL, DEFAULT_THREAD_PRIO,
                 &mcoi_handle);
 
     // event loop

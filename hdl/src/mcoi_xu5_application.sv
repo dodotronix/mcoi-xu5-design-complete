@@ -323,7 +323,8 @@ ckrs_t gbt_rx_clkrs;
     // STATUS INDICATION (LEDs)
     assign diag_x.mled[0] = (serial_feedback_b32 == GEFE_INTERLOCK
                              && !page_selector_b32[31])? 1'b0 : 1'b1;
-    assign diag_x.mled[2:1] = !ps_status[2:1];
+    assign diag_x.mled[1] = !ps_status[0];
+    assign diag_x.mled[2] = !ps_status[1];
 
     logic [8:0] snake;
     logic [22:0] snake_div;
