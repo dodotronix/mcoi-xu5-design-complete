@@ -1,6 +1,18 @@
 # Commands to run the compilation in interactive mode
 # docker run --rm -it -e 'TERM=xterm-256color' -v .:/home/petalinux/build petalinux_tools
-
+#
+# Petalinux commands:
+# petalinux-create -t <target> -s <script>
+# petalinux-build
+#
+# Petalinux Qemu simulations:
+# petalinux-boot --qemu --prebuilt 3
+#
+# Enclustra BSP for our XU5 module are here:
+# https://github.com/enclustra/Mercury_XU5_PE1_Reference_Design/releases/tag/2022.1_v1.2.1
+#
+# IMPORTANT: to build the docker image you need to have petalinux-*-installer.run
+# in the current directory
 
 IMAGE_NAME:=petalinux_tools
 DOCKER_BUILD_PATH:=/home/petalinux/build
