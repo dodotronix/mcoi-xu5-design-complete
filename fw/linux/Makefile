@@ -1,3 +1,7 @@
+# Commands to run the compilation in interactive mode
+# docker run --rm -it -e 'TERM=xterm-256color' -v .:/home/petalinux/build petalinux_tools
+
+
 IMAGE_NAME:=petalinux_tools
 DOCKER_BUILD_PATH:=/home/petalinux/build
 SCRIPT:=compile.sh
