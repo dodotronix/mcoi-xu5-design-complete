@@ -1,6 +1,7 @@
 FROM ubuntu:20.04 
 LABEL version="0.1" description="PetaLinux image"
 
+
 RUN dpkg --add-architecture i386 && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   autoconf \
   bc \
@@ -55,6 +56,9 @@ RUN dpkg --add-architecture i386 && apt-get update && DEBIAN_FRONTEND=noninterac
   && apt-get autoremove --purge \
   && apt-get autoclean
 
+WORKDIR /tmp
+COPY plnx-env-setup.sh .
+RUN chmod +x plnx-env-setup.sh && ./plnx-env-setup.sh
 
 # Set locale
 RUN locale-gen en_US.UTF-8

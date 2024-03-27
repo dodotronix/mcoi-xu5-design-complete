@@ -29,8 +29,9 @@ IMAGE_NAME:=petalinux_tools
 DOCKER_BUILD_PATH:=/home/petalinux/build
 SCRIPT:=compile.sh
 PETALINUX_INSTALLER:=$(wildcard ./petalinux-*-installer.run)
+PETALINUX_ENV_SETUP_SH:=plnx-env-setup.sh
 
-build: $(PETALINUX_INSTALLER)
+build: $(PETALINUX_INSTALLER) $(PETALINUX_ENV_SETUP_SH)
 	@if [ -z "$(shell docker images -q $(IMAGE_NAME):latest 2> /dev/null)" ]; then \
 		echo "Generating $(IMAGE_NAME)"; \
 		docker build --tag $(IMAGE_NAME) .; \
