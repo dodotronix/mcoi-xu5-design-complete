@@ -5,14 +5,25 @@
 # petalinux-create -t <target> -s <script>
 # petalinux-build
 #
+# This opens a configuration menu
+# petalinux-config
+# NOTE: If you want test your build in QEMU use the initramfs filesystem
+#
 # Petalinux Qemu simulations:
 # petalinux-boot --qemu --prebuilt 3
+#
+# For SD card we have to create BOOT.BIN file and then wic file
+# petalinux-package --boot --format BIN --fsbl images/linux/zynqmp_fsbl.elf \
+  --u-boot images/linux/u-boot.elf --pmufw images/linux/pmu_rom_qemu_sha3.elf --force
+#
+# petalinux-package --wic
 #
 # Enclustra BSP for our XU5 module are here:
 # https://github.com/enclustra/Mercury_XU5_PE1_Reference_Design/releases/tag/2022.1_v1.2.1
 #
 # IMPORTANT: to build the docker image you need to have petalinux-*-installer.run
 # in the current directory
+#
 
 IMAGE_NAME:=petalinux_tools
 DOCKER_BUILD_PATH:=/home/petalinux/build
