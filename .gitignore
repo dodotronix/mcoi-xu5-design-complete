@@ -29,5 +29,7 @@ fw/build/*
 fw/build/Makefile
 !fw/.cproject
 !fw/.project
+fw/linux/*.run
+fw/linux/plnx-env-setup.sh
 hdl/tests/gbt_rx_frameclk_phalgnr/
 !hdl/tests/gbt_rx_frameclk_phalgnr/rx_frmclk_pll.xci
