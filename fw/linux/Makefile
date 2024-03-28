@@ -9,6 +9,9 @@
 # petalinux-config
 # NOTE: If you want test your build in QEMU use the initramfs filesystem
 #
+# copies binaries to the pre-built folder
+# petalinux-package --prebuilt
+#
 # Petalinux Qemu simulations:
 # petalinux-boot --qemu --prebuilt 3
 #
@@ -16,6 +19,8 @@
 # petalinux-package --boot --format BIN --fsbl images/linux/zynqmp_fsbl.elf \
   --u-boot images/linux/u-boot.elf --pmufw images/linux/pmu_rom_qemu_sha3.elf --force
 #
+# If you want to simulate sd card you need to define the structure of the
+# memory using the wic file
 # petalinux-package --wic
 #
 # Creating an app which is automatically enabled
