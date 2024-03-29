@@ -3,6 +3,10 @@
 #
 # Petalinux commands:
 # petalinux-create -t <target> -s <script>
+# or
+# petalinux-create -t project --template zynqmp --name McoiCore
+# petalinux-config -get-hw-description=<path_to_xsa>
+#
 # petalinux-build
 #
 # This opens a configuration menu
