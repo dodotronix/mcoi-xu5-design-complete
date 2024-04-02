@@ -10,12 +10,37 @@
 # LINKS:
 # https://support.xilinx.com/s/article/1141772?language=en_US
 
+# Please note that we expect here, that there is just one target connected at
+# a time, in case there are more devices, the command takes the first one
+JTAG_TARGET_REMOTE := -url tcp:pcsy169:3121
+JTAG_TARGET_LOCAL := -url tcp:localhost:3121
+JTAG_FREQ := 12000000
+
+###############################################################################
+# DO NOT CHANGE FOLLOWING LINES UNLESS YOU KNOW WHAT YOU ARE DOING            #
+###############################################################################
+
+XS := xsct
+
+#COLORS
+ERROR = \e[1;31m[ERR]\e[0m
+WARNING = \e[1;33m[WRN]\e[0m
+INFO = \e[1;34m[INF]\e[0m
+
+JTAG_TARGET := $(JTAG_TARGET_REMOTE)
+
 IMAGE_NAME:=petalinux_tools
 DOCKER_BUILD_PATH:=/home/petalinux/build
 SCRIPT:=compile.sh
 PETALINUX_INSTALLER:=$(wildcard ./petalinux-*-installer.run)
 PETALINUX_ENV_SETUP_SH:=plnx-env-setup.sh
 XSA_FILE:=../../syn/exported_hw.xsa
+
+# FIXME generate boot.bin and test it on HW
+PETALINUX_BUILD_FOLDER:=McoiXu5BSP
+COMPILED_LINUX:=$(PETALINUX_BUILD_FOLDER)/images/linux
+BOOT_IMAGE := $(COMPILED_LINUX)/BOOT.bin 
+FSBL := $(COMPILED_LINUX)/zynqmp_fsbl.elf
 
 all: build
 	@cp $(XSA_FILE) .
@@ -35,5 +60,9 @@ build: $(PETALINUX_INSTALLER) $(PETALINUX_ENV_SETUP_SH)
 flash:
 	@echo "flashing procedure"
 	@echo "flash qspi"
+	@program_flash -f $(BOOT_IMAGE) -fsbl $(FSBL) \
+		-flash_type qspi-x4-single \
+		-frequency $(JTAG_FREQ) \
+		-verify $(JTAG_TARGET)
 	@echo "connect to u-boot"
 	@echo "flash emmc"
