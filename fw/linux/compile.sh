@@ -33,9 +33,13 @@ source /opt/petalinux/settings.sh
 
 petalinux-create -t project --template zynqMP --name McoiXu5BSP  
 cd McoiXu5BSP
-petalinux-config --get-hw-description=../exported_hw.xsa
+petalinux-config --get-hw-description=../exported_hw.xsa --silentconfig
 
-cp -R ../petalinux_spec/ .
+echo ""
+echo "Copying petalinux_spec folder -> McoiXu5BSP"
+echo ""
+
+cp -R ../petalinux_spec/* .
 petalinux-config --silentconfig
 
 #petalinux-build
