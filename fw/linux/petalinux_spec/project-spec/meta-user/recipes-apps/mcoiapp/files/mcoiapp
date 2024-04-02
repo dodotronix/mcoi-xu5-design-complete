@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "Launching MCOI XU5 Application"
+
+sleep 10
+
+./usr/bin/mcoicore
