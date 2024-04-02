@@ -31,5 +31,6 @@ fw/build/Makefile
 !fw/.project
 fw/linux/*.run
 fw/linux/plnx-env-setup.sh
+**.old
 hdl/tests/gbt_rx_frameclk_phalgnr/
 !hdl/tests/gbt_rx_frameclk_phalgnr/rx_frmclk_pll.xci
