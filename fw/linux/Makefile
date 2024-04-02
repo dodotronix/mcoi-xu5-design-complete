@@ -32,3 +32,8 @@ build: $(PETALINUX_INSTALLER) $(PETALINUX_ENV_SETUP_SH)
 		echo "Image already exists"; \
 		fi
 
+flash:
+	@echo "flashing procedure"
+	@echo "flash qspi"
+	@echo "connect to u-boot"
+	@echo "flash emmc"
