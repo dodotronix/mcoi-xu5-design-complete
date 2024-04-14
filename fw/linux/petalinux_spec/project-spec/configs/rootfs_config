@@ -37,7 +37,7 @@ CONFIG_system-zynqmp=y
 #
 # base-files 
 #
-# CONFIG_base-files is not set
+CONFIG_base-files=y
 # CONFIG_base-files-dbg is not set
 # CONFIG_base-files-dev is not set
 
@@ -491,7 +491,7 @@ CONFIG_mtd-utils=y
 #
 # can-utils 
 #
-CONFIG_can-utils=y
+# CONFIG_can-utils is not set
 # CONFIG_can-utils-dbg is not set
 # CONFIG_can-utils-dev is not set
 
@@ -553,7 +553,7 @@ CONFIG_can-utils=y
 # CONFIG_openssh is not set
 # CONFIG_openssh-ssh is not set
 # CONFIG_openssh-sftp is not set
-CONFIG_openssh-sftp-server=y
+# CONFIG_openssh-sftp-server is not set
 # CONFIG_openssh-keygen is not set
 # CONFIG_openssh-dbg is not set
 # CONFIG_openssh-dev is not set
@@ -739,7 +739,7 @@ CONFIG_openssh-sftp-server=y
 #
 # hdparm 
 #
-CONFIG_hdparm=y
+# CONFIG_hdparm is not set
 # CONFIG_hdparm-dev is not set
 # CONFIG_wiper is not set
 # CONFIG_hdparm-dbg is not set
@@ -1377,7 +1377,7 @@ CONFIG_run-postinsts=y
 #
 # libdfx 
 #
-# CONFIG_libdfx is not set
+CONFIG_libdfx=y
 # CONFIG_libdfx-dbg is not set
 # CONFIG_libdfx-dev is not set
 
@@ -4096,8 +4096,8 @@ CONFIG_imagefeature-hwcodecs=y
 # CONFIG_imagefeature-package-management is not set
 CONFIG_imagefeature-debug-tweaks=y
 # CONFIG_auto-login is not set
-CONFIG_Init-manager-systemd=y
-# CONFIG_Init-manager-sysvinit is not set
+# CONFIG_Init-manager-systemd is not set
+CONFIG_Init-manager-sysvinit=y
 
 #
 # apps 
