@@ -52,6 +52,13 @@ set_property -dict [list CONFIG.PSU_BANK_0_IO_STANDARD {LVCMOS18} \
                          CONFIG.PSU__GPIO2_MIO__PERIPHERAL__ENABLE {1}\
                          CONFIG.PSU__I2C0__PERIPHERAL__ENABLE {1} \
                          CONFIG.PSU__I2C0__PERIPHERAL__IO {MIO 10 .. 11} \
+                         CONFIG.PSU__I2C1__PERIPHERAL__ENABLE {1} \
+                         CONFIG.PSU__I2C1__PERIPHERAL__IO {EMIO} \
+                         CONFIG.PSU__SD0__SLOT_TYPE {eMMC} \
+                         CONFIG.PSU__SD1__GRP_CD__ENABLE {1} \
+                         CONFIG.PSU__SD1__PERIPHERAL__ENABLE {1} \
+                         CONFIG.PSU__SD1__PERIPHERAL__IO {MIO 46 .. 51} \
+                         CONFIG.PSU__SD1__SLOT_TYPE {SD 2.0} \
                          CONFIG.PSU__UART0__PERIPHERAL__ENABLE {1} \
                          CONFIG.PSU__UART0__PERIPHERAL__IO {MIO 38 .. 39} \
                          CONFIG.PSU__TTC0__PERIPHERAL__ENABLE {1} \
