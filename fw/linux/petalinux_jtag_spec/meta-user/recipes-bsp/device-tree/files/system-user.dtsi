@@ -1,0 +1,6 @@
+/include/ "system-conf.dtsi"
+/ {
+	model = "Enclustra ME-XU5-4EV-1I-D11E-G1 SOM";
+};
+#include "mcox_common.dtsi"
+#include "mcox_ethernet.dtsi"
