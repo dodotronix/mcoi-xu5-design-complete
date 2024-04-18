@@ -13,6 +13,7 @@
 # NOTE: If you want test your build in QEMU use the initramfs filesystem
 #
 # copies binaries to the pre-built folder
+# petalinux-package --prebuilt --clean
 # petalinux-package --prebuilt
 #
 # Petalinux Qemu simulations:
@@ -40,10 +41,10 @@ if [ ! -d McoiXu5BSP ]; then
     echo "Copying petalinux_spec folder -> McoiXu5BSP"
     echo ""
 
-    cp -R ../petalinux_spec/* .
+    cp -R ../petalinux_jtag_spec/* project-spec/
     petalinux-config --silentconfig
 else
     cd McoiXu5BSP
 fi
 
-petalinux-build
+# petalinux-build
