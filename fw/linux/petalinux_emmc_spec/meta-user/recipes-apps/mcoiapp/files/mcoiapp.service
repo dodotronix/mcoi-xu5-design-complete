@@ -1,0 +1,10 @@
+[Unit]
+Description=mcoiapp
+
+[Service]
+ExecStart=/usr/bin/mcoiapp
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target
+
