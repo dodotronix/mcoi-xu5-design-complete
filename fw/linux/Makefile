@@ -15,6 +15,7 @@
 JTAG_TARGET_REMOTE := -url tcp:pcsy169:3121
 JTAG_TARGET_LOCAL := -url tcp:localhost:3121
 JTAG_FREQ := 12000000
+TFTP_SERVER_DIR := /srv/tftp
 
 ###############################################################################
 # DO NOT CHANGE FOLLOWING LINES UNLESS YOU KNOW WHAT YOU ARE DOING            #
@@ -37,7 +38,7 @@ PETALINUX_ENV_SETUP_SH:=plnx-env-setup.sh
 XSA_FILE:=../../syn/exported_hw.xsa
 
 # FIXME generate boot.bin and test it on HW
-PETALINUX_BUILD_FOLDER:=McoiXu5BSP
+PETALINUX_BUILD_FOLDER:=McoiXu5BSP_emmc
 COMPILED_LINUX:=$(PETALINUX_BUILD_FOLDER)/images/linux
 BOOT_IMAGE := $(COMPILED_LINUX)/BOOT.bin 
 FSBL := $(COMPILED_LINUX)/zynqmp_fsbl.elf
@@ -56,6 +57,17 @@ build: $(PETALINUX_INSTALLER) $(PETALINUX_ENV_SETUP_SH)
 		else \
 		echo "Image already exists"; \
 		fi
+
+emmc: build
+	@docker run --rm -e 'TERM=xterm-256color' \
+		-v .:$(DOCKER_BUILD_PATH) \
+		petalinux_tools:latest \
+		$(SCRIPT) $@
+	@sudo cp -r $(COMPILED_LINUX)/BOOT.BIN $(TFTP_SERVER_DIR) 
+	@sudo cp -r $(COMPILED_LINUX)/system.dtb $(TFTP_SERVER_DIR) 
+	@sudo cp -r $(COMPILED_LINUX)/Image $(TFTP_SERVER_DIR) 
+	@sudo cp -r $(COMPILED_LINUX)/boot.scr $(TFTP_SERVER_DIR) 
+	@sudo cp -r $(COMPILED_LINUX)/rootfs.tar.gz $(TFTP_SERVER_DIR) 
 
 flash:
 	@echo "flashing procedure"
