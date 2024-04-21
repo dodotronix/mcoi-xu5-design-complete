@@ -30,21 +30,38 @@
 # Creating an app which is automatically enabled
 # petalinux-create -t apps --template install --name McoiCore --enable
 
+SUFFIX=$1 # can be jtag or emmc
+
+shift # shift removes the $1 that the next source does not see the value
 source /opt/petalinux/settings.sh
 
-if [ ! -d McoiXu5BSP ]; then
-    petalinux-create -t project --template zynqMP --name McoiXu5BSP  
-    cd McoiXu5BSP
+if [ -z $SUFFIX ]; then
+    suffix=jtag
+fi
+
+PROJ_NAME=McoiXu5BSP_${SUFFIX}
+
+if [ ! -d $PROJ_NAME ]; then
+    petalinux-create -t project --template zynqMP --name $PROJ_NAME  
+    cd $PROJ_NAME
     petalinux-config --get-hw-description=../exported_hw.xsa --silentconfig
 
     echo ""
-    echo "Copying petalinux_spec folder -> McoiXu5BSP"
+    echo "Copying petalinux_spec folder -> ${PROJ_NAME}"
     echo ""
 
-    cp -R ../petalinux_jtag_spec/* project-spec/
+    cp -R ../petalinux_${SUFFIX}_spec/* project-spec/
     petalinux-config --silentconfig
 else
-    cd McoiXu5BSP
+    cd $PROJ_NAME
 fi
 
-# petalinux-build
+petalinux-build
+petalinux-package --boot \
+    --fsbl images/linux/zynqmp_fsbl.elf \
+    --u-boot images/linux/u-boot.elf \
+    --pmufw images/linux/pmufw.elf \
+    --fpga images/linux/system.bit \
+    --force
+petalinux-package --prebuilt --clean
+petalinux-package --prebuilt
