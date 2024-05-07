@@ -15,6 +15,7 @@ SRC_URI = "file://Makefile \
     file://mcoipycore \
     file://mcoiapp \
     file://mcoi_xu5_devkit_ch1_ch2_120mhz_low_jitter_on_1ch_25mhz_ref_lvds_clk_source1_in5_in6_from_pcb_rev1.h \
+    file://mcoi_xu5_mcox_ch1_120mhz_low_jitter_on_1ch_25mhz_ref_xaxb_clk_source1_in1_in2_from_crystal.h \
     file://mcoiapp.service \
 "
 
@@ -53,6 +54,7 @@ do_install() {
     install -m 0755 ${S}/42023150/1021254989334855 ${D}${sysconfdir}/42023150/
     install -d ${D}${sysconfdir}/mcoi_config
     install -m 0755 ${S}/mcoi_xu5_devkit_ch1_ch2_120mhz_low_jitter_on_1ch_25mhz_ref_lvds_clk_source1_in5_in6_from_pcb_rev1.h ${D}${sysconfdir}/mcoi_config/
+    install -m 0755 ${S}/mcoi_xu5_mcox_ch1_120mhz_low_jitter_on_1ch_25mhz_ref_xaxb_clk_source1_in1_in2_from_crystal.h ${D}${sysconfdir}/mcoi_config/
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${S}/mcoiapp.service ${D}${systemd_system_unitdir}
 
