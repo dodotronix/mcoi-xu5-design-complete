@@ -13,8 +13,8 @@ SCRIPTS := $(PROJECT_PATH)/sw/scripts
 HW_TCL := hardware.tcl
 XSA := exported_hw.xsa
 
-PLATFORM_PINOUT := $(DEVKIT_PINOUT)
-# PLATFORM_PINOUT := $(XU5_MCOI_PINOUT)
+# PLATFORM_PINOUT := $(DEVKIT_PINOUT)
+PLATFORM_PINOUT := $(XU5_MCOI_PINOUT)
 
 all_derived: platform_constraints all $(XSA)
 

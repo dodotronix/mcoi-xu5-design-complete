@@ -1,6 +1,6 @@
 pin,              freq[Mhz],  group,               iostandard,         type,          interface
-mgt_clk_fb,        120,        clk,                 LVDS,               differential,
-mgt_clk,          120,        clk,                 ,                   differential,
+mgt_clk_fb,       120,        clk,                 LVDS,               ,
+mgt_clk_ref,      120,        clk,                 ,                   differential,
 mgt_clk_fb_clean, 120,        clk,                 ,                   differential,
 pl_pfail,         x,          motor-pl_pfail,      LVCMOS18,           gpio,          motors_x
 pl_clk,           x,          motor-pl_clk,        LVCMOS18,           gpio,          motors_x
@@ -23,8 +23,8 @@ rs485_pl_di,      x,          rs485,               LVCMOS18,           gpio,    
 uart_rx_ps,       x,          uart,                LVCMOS18,           exclude,
 uart_tx_ps,       x,          uart,                LVCMOS18,           exclude,
 ps_srst#,         x,          control,             LVCMOS18,           exclude,
+ps_por#,          x,          control,             LVCMOS18,           exclude,
 ps_done,          x,          control,             LVCMOS18,           exclude,
-ftdi_reset,       x,          control,             LVCMOS18,           exclude,
 sfp1_los,         x,          gbtcore,             LVCMOS18,           gpio,          gbt_x
 sfp1_txdisable,   x,          gbtcore,             LVCMOS18,           gpio,          gbt_x
 sfp1_rateselect,  x,          gbtcore,             LVCMOS18,           gpio,          gbt_x
@@ -36,3 +36,4 @@ jtag_tck,         x,          jtag,                LVCMOS18,           exclude,
 jtag_tdi,         x,          jtag,                LVCMOS18,           exclude,
 jtag_tdo,         x,          jtag,                LVCMOS18,           exclude,
 jtag_tms,         x,          jtag,                LVCMOS18,           exclude,
+pl_varclk,        x,          clk,                 LVCMOS18,           exclude,
