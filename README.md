@@ -80,3 +80,5 @@ are going to be connected to the FMC XM105 Card as well.
     * LED_6 - LA13_P
     * RS485_PL_RO - LA09_N
     * RS485_PL_DI - LA09_P
+
+## NEW MCOX PCB (test notes)
