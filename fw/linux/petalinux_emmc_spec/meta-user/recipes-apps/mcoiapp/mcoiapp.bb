@@ -9,8 +9,8 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 SRC_URI = "file://Makefile \
-    42023150://42843949 \
-    42023150://1021254989334855 \
+    file://42023150/42843949 \
+    file://42023150/1021254989334855 \
     file://mcoicore.c \
     file://mcoipycore \
     file://mcoiapp \
@@ -47,9 +47,10 @@ do_install() {
     install -m 0755 ${S}/mcoiapp ${D}${bindir}/
     install -m 0755 ${S}/mcoicore ${D}${bindir}/
     install -m 0755 ${S}/mcoipycore ${D}${bindir}/
-    install -m 0755 ${S}/42843949 ${D}${bindir}/
+    install -m 0755 ${S}/42023150/42843949 ${D}${bindir}/
+
     install -d ${D}${sysconfdir}/42023150
-    install -m 0755 ${S}/1021254989334855 ${D}${sysconfdir}/42023150/
+    install -m 0755 ${S}/42023150/1021254989334855 ${D}${sysconfdir}/42023150/
     install -d ${D}${sysconfdir}/mcoi_config
     install -m 0755 ${S}/mcoi_xu5_devkit_ch1_ch2_120mhz_low_jitter_on_1ch_25mhz_ref_lvds_clk_source1_in5_in6_from_pcb_rev1.h ${D}${sysconfdir}/mcoi_config/
     install -d ${D}${systemd_system_unitdir}
