@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+
+with open("1021254989334855") as f:
+	a = f.read()
+bpc = bytes.fromhex(a)
+decoded = bpc.decode("utf-8")
+print(decoded)
