@@ -45,11 +45,11 @@ module mcoi_xu5_system (
     output logic ExternalPll120MHzMGT, // 120MHz coming from MGT oscillator
     output logic gbt_pll_locked,
 
-    input logic mgt_fdbk_p,
-    input logic mgt_fdbk_n,
+    input logic mgt_clk_fb_clean_p,
+    input logic mgt_clk_fb_clean_n,
 
-    output logic pl_varclk_p,
-    output logic pl_varclk_n,
+    output logic mgt_clk_fb_p,
+    output logic mgt_clk_fb_n,
 
     // input logic pl_varclk,
     input logic mgt_clk_p,
@@ -72,16 +72,16 @@ module mcoi_xu5_system (
        .REFCLK_EN_TX_PATH(1'b1),
        .REFCLK_ICNTL_TX(5'b00111))
    recclk_output_buffer (
-       .O(mgt_fdbk_p),
-       .OB(mgt_fdbk_n),
+       .O(mgt_clk_fb_clean_p),
+       .OB(mgt_clk_fb_clean_n),
        .CEB(1'b0),
        .I(gbt_data_x.rx_recclk)); */
 
    // This passes the recovered clock from
    // the optical link to the Tx part of MGT
    OBUFDS rx_clk_out_buffer (
-       .O(pl_varclk_p),
-       .OB(pl_varclk_n),
+       .O(mgt_clk_fb_p),
+       .OB(mgt_clk_fb_n),
        .I(gbt_data_x.rx_wordclk));
 
    logic recovered_clock;
@@ -96,8 +96,8 @@ module mcoi_xu5_system (
         .O(gbt_data_x.rx_recclk),
         .ODIV2(recovered_clock_buff),
         .CEB(1'b0),
-        .I(mgt_fdbk_p),
-        .IB(mgt_fdbk_n));
+        .I(mgt_clk_fb_clean_p),
+        .IB(mgt_clk_fb_clean_n));
 
 
    // MGT_REFCLK1

@@ -56,8 +56,8 @@ module mcoi_xu5_design_complete (//motors
                                  output logic mreset_vadj,
 
                                  // clocks - MGT 120MHz (TX/RX)
-                                 input logic mgt_fdbk_p,
-                                 input logic mgt_fdbk_n,
+                                 input logic mgt_clk_fb_clean_p,
+                                 input logic mgt_clk_fb_clean_n,
 
                                  input logic mgt_clk_p,
                                  input logic mgt_clk_n,
@@ -68,8 +68,8 @@ module mcoi_xu5_design_complete (//motors
 
                                  // NOTE this input is just
                                  // for devkit design
-                                 output logic pl_varclk_p,
-                                 output logic pl_varclk_n
+                                 output logic mgt_clk_fb_p,
+                                 output logic mgt_clk_fb_n
                                 );
 
    logic gbt_pll_locked,

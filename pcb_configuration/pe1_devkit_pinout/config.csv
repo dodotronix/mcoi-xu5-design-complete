@@ -1,7 +1,7 @@
 pin,              freq[Mhz],  group,               iostandard,         type,          interface
-pl_varclk,        120,        clk,                 LVDS,               differential,
+pl_clk_fb,        120,        clk,                 LVDS,               differential,
 mgt_clk,          120,        clk,                 ,                   differential,
-mgt_fdbk,         120,        clk,                 ,                   differential,
+mgt_clk_fb_clean, 120,        clk,                 ,                   differential,
 pl_pfail,         x,          motor-pl_pfail,      LVCMOS18,           gpio,          motors_x
 pl_clk,           x,          motor-pl_clk,        LVCMOS18,           gpio,          motors_x
 pl_en,            x,          motor-pl_en,         LVCMOS18,           gpio,          motors_x
