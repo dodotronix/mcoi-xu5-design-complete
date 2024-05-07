@@ -52,8 +52,8 @@ module mcoi_xu5_system (
     output logic mgt_clk_fb_n,
 
     // input logic pl_varclk,
-    input logic mgt_clk_p,
-    input logic mgt_clk_n,
+    input logic mgt_clk_ref_p,
+    input logic mgt_clk_ref_n,
     input logic clk100m_pl_p,
     input logic clk100m_pl_n );
 
@@ -109,8 +109,8 @@ module mcoi_xu5_system (
         .O(ExternalPll120MHzMGT),
         .ODIV2(Clk120MHz_fromgte4),
         .CEB(1'b0),
-        .I(mgt_clk_p),
-        .IB(mgt_clk_n));
+        .I(mgt_clk_ref_p),
+        .IB(mgt_clk_ref_n));
 
     // 120MHz PLL buffer clock copier
     BUFG_GT ibuf_rxpll_i (

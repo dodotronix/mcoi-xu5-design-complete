@@ -69,7 +69,7 @@ endinterface // rs485_x
 interface t_diag;
     logic [6:0] led;
     logic [2:0] mled;
-    logic [5:0] test;
+    logic [3:0] test;
     logic [3:0] pcbrev;
     logic fpga_supply_ok;
 

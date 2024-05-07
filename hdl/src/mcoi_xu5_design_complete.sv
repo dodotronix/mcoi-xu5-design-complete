@@ -59,8 +59,8 @@ module mcoi_xu5_design_complete (//motors
                                  input logic mgt_clk_fb_clean_p,
                                  input logic mgt_clk_fb_clean_n,
 
-                                 input logic mgt_clk_p,
-                                 input logic mgt_clk_n,
+                                 input logic mgt_clk_ref_p,
+                                 input logic mgt_clk_ref_n,
 
                                  // clocks - MGT derived 50MHz
                                  input logic clk100m_pl_p,
