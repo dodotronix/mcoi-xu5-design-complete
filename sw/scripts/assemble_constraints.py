@@ -163,12 +163,22 @@ for i in pins_complete:
     groups.setdefault(name.lower() if str.isnumeric(num) 
             else i["Signal on module"].lower(), []).append(i)
 
+# print(groups["mgt_clk_fb"])
+# print(groups["mgt_clk_fb_clean"])
 
 # grouping of pins according to content in config file
 new_groupping = {}
 for i in config:  
     # find all occurences of names in the config file 
-    pin_search = [n for g in groups if(i["pin"] in g) for n in groups[g]]
+
+    pin_search = []
+    for g in groups:
+        split_g = g.rsplit("_", 1)[0]
+        if(i["pin"] == split_g or i["pin"] == g):
+            pin_search.extend(groups[g])
+
+    # pin_search = [n for g in groups if(i["pin"] in g) for n in groups[g]]
+
     if not pin_search:
         log.error("Couldn't find pin: \"{0}\" name in"
                   " the data set".format(i["pin"]))
@@ -184,7 +194,7 @@ for i in config:
     else:
         new_groupping.setdefault(i["group"], []).append(pin_search)
     # remove all keys with the occurence of "i["pin"]" in groups
-    groups = {k : v for k,v in groups.items() if(i["pin"] not in k)}
+    groups = {k : v for k,v in groups.items() if((k.rsplit("_", 1)[0] != i["pin"]) or (i["pin"] != k))}
 
 def get_set_property_standard(pin, name):
     return ("set_property PACKAGE_PIN {0} "
