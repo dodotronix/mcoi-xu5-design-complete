@@ -174,10 +174,8 @@ for i in config:
     pin_search = []
     for g in groups:
         split_g = g.rsplit("_", 1)[0]
-        if(i["pin"] == split_g or i["pin"] == g):
+        if((i["pin"] == split_g) or (i["pin"] == g)):
             pin_search.extend(groups[g])
-
-    # pin_search = [n for g in groups if(i["pin"] in g) for n in groups[g]]
 
     if not pin_search:
         log.error("Couldn't find pin: \"{0}\" name in"
@@ -193,8 +191,14 @@ for i in config:
         log.warning("Pin Excluded: {0}".format(i["pin"]))
     else:
         new_groupping.setdefault(i["group"], []).append(pin_search)
+
     # remove all keys with the occurence of "i["pin"]" in groups
-    groups = {k : v for k,v in groups.items() if((k.rsplit("_", 1)[0] != i["pin"]) or (i["pin"] != k))}
+    groups_updated = {}
+    for k,v in groups.items():
+        split_k = k.rsplit("_", 1)[0]
+        if((i["pin"] != split_k) and (i["pin"] != k)):
+            groups_updated[k] = v
+    groups = groups_updated
 
 def get_set_property_standard(pin, name):
     return ("set_property PACKAGE_PIN {0} "
