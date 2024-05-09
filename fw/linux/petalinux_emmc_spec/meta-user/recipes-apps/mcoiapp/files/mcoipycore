@@ -1,12 +1,26 @@
 #!/usr/bin/env python3
 
+import os
 import smbus
 import logging as log
 import time
+import mmap
 import re
 
-log.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', 
+log.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p',level=log.INFO)
+
+# for more info, how to use mmap in python
+# https://support.xilinx.com/s/article/1171977?language=en_US
+
+# PS GPIO
+# GPIO_BASEADDRESS = 0xFF0A0000
+
+# AXI GPIO
+GPIO_BASEADDRESS = 0x0080010000
+GPIO_DIR_ADDRESS = GPIO_BASEADDRESS + 0x4
+
+MAP_MASK = mmap.PAGESIZE - 1
 
 class smbus_i2c_api:
 
@@ -26,7 +40,7 @@ class si5338b_loader:
         self._bus = i2c_api
         self.reg_file = register_map_file
         # check if the device is there
-    
+
     def set_bits(self, reg, val):
         current_reg = self._bus.read_byte_data(reg)
         log.debug(bin(current_reg))
@@ -42,10 +56,10 @@ class si5338b_loader:
     def copy_bits(self, reg0, reg1, mask):
         current_reg0 = self._bus.read_byte_data(reg0)
         current_reg1 = self._bus.read_byte_data(reg1)
-        
+
         current_reg1_new = current_reg1 | (current_reg0 & mask)
         self._bus.write_byte_data(reg1, current_reg1_new)
-        log.debug('{0} => {1} = {2}))'.format(current_reg0, 
+        log.debug('{0} => {1} = {2}))'.format(current_reg0,
             current_reg1, current_reg1_new))
 
     def parse_config(self):
@@ -65,7 +79,7 @@ class si5338b_loader:
             ival = int(c['val'], 16) # register variable
             if(imask == 0xff):
                 self._bus.write_byte_data(ireg, ival)
-                log.info('reg: {0}, _ => {1} | reg value: {2}'.format(ireg, 
+                log.info('reg: {0}, _ => {1} | reg value: {2}'.format(ireg,
                 ival, self._bus.read_byte_data(ireg)))
             else:
                 current_reg = self._bus.read_byte_data(ireg)
@@ -73,7 +87,7 @@ class si5338b_loader:
                 clear_new_val = ival & imask
                 combined = clear_cur_val | clear_new_val
                 self._bus.write_byte_data(ireg, combined)
-                log.info('reg: {0}, {1} => {2} | reg value: {3}'.format(ireg, 
+                log.info('reg: {0}, {1} => {2} | reg value: {3}'.format(ireg,
                 current_reg, combined, self._bus.read_byte_data(ireg)))
 
     def get_alarms(self):
@@ -103,12 +117,12 @@ class si5338b_loader:
 
         self.clear_bits(49, 0x80) #configure pll for locking
         self.set_bits(246, 0x02) #initiate locking of ppl
-        
+
         time.sleep(0.025) #wait 25ms
 
         self.clear_bits(241, 0x80) #restart lol
         self.set_bits(241, 0x65)
-        
+
         log.info('waiting for locking pll ...')
         self.validate_value()
         log.info('ok')
@@ -122,7 +136,7 @@ class si5338b_loader:
         self.set_bits(49, 0x80) #set pll to use fcal
 
         # if using down-spread
-        # self.set_bits(226, 0x02) 
+        # self.set_bits(226, 0x02)
         # time.sleep(0.01)
         # self.clear_bits(226, 0x02)
 
@@ -130,13 +144,63 @@ class si5338b_loader:
         self.clear_bits(230, 0x10) #enable outputs
         log.info('done')
 
+
+
+def read_addr(mem, addr, length):
+    global MAP_MASK
+    mem.seek(addr & MAP_MASK)
+    #print mem.size()
+    val = 0x0
+    for i in range(length):
+        a = mem.read_byte()
+        val |= a << (i * 8)
+    return val
+
+def write_addr(mem, addr, value, length):
+    global MAP_MASK
+    mem.seek(addr & MAP_MASK)
+    value_hex = hex(value)
+    aligned_hex = f'{value:0{length*2}x}'
+    a = bytearray.fromhex(aligned_hex)
+    mem.write(a)
+
+def read(addr, length=4):
+    f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
+    mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE,offset=addr & ~MAP_MASK)
+    #print (mem, hex(addr))
+    val = read_addr(mem, addr, length)
+    mem.close()
+    os.close(f)
+    return val
+
+def write(addr, value, length=4, mask=0xffffffff):
+    f = os.open("/dev/mem", os.O_RDWR)
+    #print "/dev/mem opened"
+    mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset=addr & ~MAP_MASK)
+    # read old value
+    value_no_hex_prefix = f'{value:0{length*2}x}'
+    ba = bytearray.fromhex(value_no_hex_prefix)
+    ba.reverse() # reverses byte order
+    reversed_value  = int(''.join(format(x, '02x') for x in ba), 16)
+    # print(f'reversed value: {reversed_value:8x}')
+    readValue = read_addr(mem, addr, length)
+    # apply mask
+    maskedValue = reversed_value | (readValue & ~mask)
+    # write new value
+    write_addr(mem, addr, maskedValue, length)
+    # read new value
+    newValue = read_addr(mem, addr, length)
+    mem.close()
+    os.close(f)
+    return newValue
+
 if __name__ == '__main__':
     # USER SETUP
     # here you write the path to your generated c file
     reg_file = '/etc/mcoi_config/mcoi_xu5_devkit_ch1_ch2_120mhz_low_jitter_on_1ch_25mhz_ref_lvds_clk_source1_in5_in6_from_pcb_rev1.h'
 
     # 7 bit address
-    DEVICE_ADDRESS = 0x70 
+    DEVICE_ADDRESS = 0x70
 
     i2c = smbus.SMBus(0) # 0 = /dev/i2c-0 (I2C0)
     bus = smbus_i2c_api(i2c, DEVICE_ADDRESS)
@@ -145,37 +209,17 @@ if __name__ == '__main__':
 
     pll.program()
 
-# TODO try to implement LED blink
-# TODO start mcoi design by writing to the register
-# https://support.xilinx.com/s/article/1171977?language=en_US
-# f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
-# mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE,offset=addr & ~MAP_MASK)
+    a = read(GPIO_DIR_ADDRESS)
+    print(hex(a))
 
-# def read(addr, length=4):
-#     f = os.open("/dev/mem", os.O_RDWR | os.O_SYNC)
-#     mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE,offset=addr & ~MAP_MASK)
-#     #print mem, hex(addr)
-#     val = read_addr(mem, addr, length)
-#     mem.close()
-#     os.close(f)
-#     return val
+    write(GPIO_DIR_ADDRESS, 0xffff0000)
 
-# def write(addr, value, length=4, mask=0xffffffff):
-#     f = os.open("/dev/mem", os.O_RDWR)
-#     #print "/dev/mem opened"
-#     mem = mmap.mmap(f, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE, offset=addr & ~MAP_MASK)
-#     #print "mmap made"
-#     # read old value
-#     readValue = read_addr(mem, addr, length)
-#     #print "value:",value_to_hex(readValue),"read"
-#     # apply mask
-#     maskedValue = value | (readValue & ~mask)
-#     # write new value
-#     write_addr(mem, addr, maskedValue, length)
-#     #print "value:",value_to_hex(maskedValue),"written"
-#     # read new value
-#     newValue = read_addr(mem, addr, length)
-#     #print "value:",value_to_hex(newValue),"read"
-#     mem.close()
-#     os.close(f)
-#     return newValue
+    a = read(GPIO_DIR_ADDRESS)
+    print(hex(a))
+
+    # unblock hdl design
+    write(GPIO_BASEADDRESS, 0x4)
+
+    a = read(GPIO_BASEADDRESS)
+    print(hex(a))
+
